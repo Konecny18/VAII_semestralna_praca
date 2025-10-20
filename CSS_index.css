@@ -1,0 +1,31 @@
+.logo {
+    width: 125px;       /* maximálna šírka na desktop */
+    height: auto;
+}
+
+/* Zmenši logo na mobiloch */
+@media (max-width: 768px) {
+    .logo {
+        width: 100px;
+        margin: 10px 0;
+    }
+}
+.navbar {
+    background: gold;
+}
+
+.navbar-nav .nav-link {
+    color: #333;
+    font-weight: bold;
+    margin-right: 15px;
+    font-size: 20px;  /* desktop */
+}
+
+/* Menšie písmo na tabletoch/mobily */
+@media (max-width: 768px) {
+    .navbar-nav .nav-link {
+        font-size: 18px;
+        margin-right: 10px;
+        text-align: center;
+    }
+}
