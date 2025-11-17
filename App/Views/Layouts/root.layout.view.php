@@ -1,29 +1,46 @@
+<?php
+
+/** @var string $contentHTML */
+/** @var \Framework\Core\IAuthenticator $auth */
+/** @var \Framework\Support\LinkGenerator $link */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title><?= App\Configuration::APP_NAME ?></title>
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= $link->asset('favicons/tat_logo.png') ?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= $link->asset('favicons/tat_logo.png') ?>">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= $link->asset('favicons/tat_logo.png') ?>">
+    <link rel="manifest" href="<?= $link->asset('favicons/site.webmanifest') ?>">
+    <link rel="shortcut icon" href="<?= $link->asset('favicons/favicon.ico') ?>">
+
+    <!-- Bootstrap (match index.html) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="public/css/CSS_index.css">
-    <title>TAT</title>
+
+    <!-- Existing app assets -->
+    <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>">
+    <script src="<?= $link->asset('js/script.js') ?>"></script>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img src="fotky/tat_logo.png" alt="Logo" class="logo">
+        <a class="navbar-brand" href="<?= $link->url('home.index') ?>">
+            <img src="<?= $link->asset('fotky/tat_logo.png') ?>" alt="Logo" class="logo">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Úvod</a>
+                    <a class="nav-link active" aria-current="page" href="<?= $link->url('home.index') ?>">Úvod</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="galeria.html">Galéria</a>
+                    <a class="nav-link" href="<?= $link->asset('galeria.html') ?>">Galéria</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Klub TAT</a>
@@ -39,10 +56,27 @@
                     </ul>
                 </li>
             </ul>
+
+            <?php if ($auth?->isLogged()) { ?>
+                <span class="navbar-text me-3">Prihlásený používateľ: <b><?= $auth?->user?->name ?></b></span>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= $link->url('auth.logout') ?>">Odhlásiť sa</a>
+                    </li>
+                </ul>
+            <?php } else { ?>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= App\Configuration::LOGIN_URL ?>">Prihlásiť sa</a>
+                    </li>
+                </ul>
+            <?php } ?>
+
         </div>
     </div>
 </nav>
 
+<!-- Carousel (copied from index.html, using asset paths) -->
 <div id="carouselExampleDark" class="carousel carousel-dark slide">
     <div class="carousel-indicators">
         <button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -51,21 +85,21 @@
     </div>
     <div class="carousel-inner">
         <div class="carousel-item active" data-bs-interval="10000">
-            <img src="fotky/tat_logo.png" class="d-block w-100" alt="...">
+            <img src="<?= $link->asset('fotky/tat_logo.png') ?>" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block">
                 <h5>First slide label</h5>
                 <p>Some representative placeholder content for the first slide.</p>
             </div>
         </div>
         <div class="carousel-item" data-bs-interval="2000">
-            <img src="fotky/tat_logo.png" class="d-block w-100" alt="...">
+            <img src="<?= $link->asset('fotky/tat_logo.png') ?>" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block">
                 <h5>Second slide label</h5>
                 <p>Some representative placeholder content for the second slide.</p>
             </div>
         </div>
         <div class="carousel-item">
-            <img src="fotky/tat_logo.png" class="d-block w-100" alt="...">
+            <img src="<?= $link->asset('fotky/tat_logo.png') ?>" class="d-block w-100" alt="...">
             <div class="carousel-caption d-none d-md-block">
                 <h5>Third slide label</h5>
                 <p>Some representative placeholder content for the third slide.</p>
@@ -82,5 +116,10 @@
     </button>
 </div>
 
+<div class="container-fluid mt-3">
+    <div class="web-content">
+        <?= $contentHTML ?>
+    </div>
+</div>
 </body>
 </html>
