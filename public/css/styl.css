@@ -1,15 +1,16 @@
-.navbar {
-
-    background: gold;
-}
-
-.navbar-brand img {
-    width: 50px;
-}
-
 .logo {
-    width: 125px;       /* maximálna šírka na desktop */
+    width: 125px;
     height: auto;
+}
+
+/* Make navbar text larger and bold */
+.navbar .navbar-brand,
+.navbar .nav-link,
+.navbar .navbar-text {
+    font-size: 25px;
+    font-weight: bold;
+    margin-right: 15px;
+    color: #ffffff;
 }
 
 /* Zmenši logo na mobiloch */
@@ -18,13 +19,6 @@
         width: 100px;
         margin: 10px 0;
     }
-}
-
-.navbar-nav .nav-link {
-    color: #333;
-    font-weight: bold;
-    margin-right: 15px;
-    font-size: 20px;  /* desktop */
 }
 
 /* Menšie písmo na tabletoch/mobily */
