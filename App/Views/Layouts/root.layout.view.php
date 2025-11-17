@@ -40,7 +40,7 @@
                     <a class="nav-link active" aria-current="page" href="<?= $link->url('home.index') ?>">Úvod</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= $link->asset('galeria.html') ?>">Galéria</a>
+                    <a class="nav-link" href="<?= $link->url('post.index') ?>">Galéria</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Klub TAT</a>
