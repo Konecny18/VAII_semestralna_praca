@@ -11,10 +11,16 @@ class Album extends Model
     public function __construct(
         protected ?int $id = null,
         protected string $text = '',
-        protected string $picture = ''
+        protected string $picture = '',
+        protected ?string $datum_vytvorenia = null
     )
     {
 
+    }
+
+    public function getDatumVytvorenie(): ?string
+    {
+        return $this->datum_vytvorenia;
     }
 
     public function getId(): ?int

@@ -209,9 +209,15 @@ abstract class Model implements \JsonSerializable
     public function save(): void
     {
         try {
-            $data = array_fill_keys(static::getDbColumns(), null);
-            foreach ($data as $key => &$item) {
-                $item = $this->{static::toPropertyName($key)};
+            // Only include DB columns that map to actual model properties.
+            // This prevents inserting explicit NULLs into columns that rely on DB defaults
+            // (e.g. timestamp columns) when the model doesn't define a corresponding property.
+            $data = [];
+            foreach (static::getDbColumns() as $col) {
+                $prop = static::toPropertyName($col);
+                if (property_exists(get_class($this), $prop)) {
+                    $data[$col] = $this->{$prop};
+                }
             }
             // Insert new record
             if ($this->_dbId === null) {
@@ -231,8 +237,7 @@ abstract class Model implements \JsonSerializable
             } else {
                 $arrColumns = array_map(fn($item) => ("`" . $item . '`=:' . $item), array_keys($data));
                 $columns = implode(',', $arrColumns);
-                $sql = "UPDATE `" . static::getTableName() . "` SET $columns WHERE `" . static::getPkColumnName() .
-                    "`=:__pk";
+                $sql = "UPDATE `" . static::getTableName() . "` SET $columns WHERE `" . static::getPkColumnName() . "`=:__pk";
                 $stmt = Connection::getInstance()->prepare($sql);
                 $data["__pk"] = $this->_dbId;
                 $stmt->execute($data);
