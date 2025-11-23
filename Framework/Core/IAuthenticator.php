@@ -2,7 +2,7 @@
 
 namespace Framework\Core;
 
-use App\Models\User;
+use Framework\Auth\AppUser;
 
 /**
  * Interface IAuthenticator
@@ -10,8 +10,6 @@ use App\Models\User;
  * This interface defines the necessary methods for implementing authentication functionality within the application.
  * Classes that implement this interface will provide the capability to log users in and out, as well as retrieve
  * user-specific information such as their identity and context.
- *
- * @property-read User|null $user Associated authenticated user object (or null if not logged in).
  *
  * @package App\Core
  */
@@ -25,7 +23,7 @@ interface IAuthenticator
      *
      * @param string $username The user's login identifier (e.g., username or email).
      * @param string $password The user's password.
-     * @return bool True if the login was successful; false otherwise.
+     * @return bool True if authentication is successful; false otherwise.
      */
     public function login(string $username, string $password): bool;
 
@@ -39,21 +37,9 @@ interface IAuthenticator
      */
     public function logout(): void;
 
-    /**
-     * Checks if a user is currently logged in.
-     *
-     * This method returns true if there is an authenticated user, and false otherwise. It provides a straightforward
-     * way to determine the authentication state within the application.
-     *
-     * @return bool True if a user is logged in; false otherwise.
-     */
-    public function isLogged(): bool;
 
     /**
-     * Returns the associated authenticated user object, if available.
-     *
-     * @return User|null The user object for the logged-in user, or null if not authenticated.
+     * Retrieves the current user.
      */
-    public function getUser(): ?User;
+    public function getUser(): AppUser;
 }
-

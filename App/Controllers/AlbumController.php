@@ -49,7 +49,6 @@ class AlbumController extends BaseController
         }
         return $this->html(compact('album'), 'edit');
     }
-
     public function save(Request $request): Response
     {
         // prepare default values for form re-population
@@ -59,51 +58,64 @@ class AlbumController extends BaseController
         if ($request->isPost()) {
             // sanitize inputs
             $text = trim((string)($request->post('text') ?? ''));
-            $picture = trim((string)($request->post('picture') ?? ''));
-            $id = $request->post('id') ?? null;
+            // normalize id: treat empty string as null, otherwise cast to int
+            $idRaw = $request->post('id') ?? null;
+            $id = ($idRaw === '' || $idRaw === null) ? null : (int)$idRaw;
+            $isEdit = !empty($id);
 
             $formValues['text'] = $text;
-            $formValues['picture'] = $picture;
             $formValues['id'] = $id;
 
-            // handle uploaded file if present
-            try {
-                $uploaded = $request->file('picture');
-                if ($uploaded instanceof UploadedFile && $uploaded->isOk()) {
-                    $imagesDir = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images';
-                    if (!is_dir($imagesDir)) {
-                        mkdir($imagesDir, 0755, true);
-                    }
-                    // sanitize original name
-                    $orig = $uploaded->getName();
-                    $safe = preg_replace('/[^A-Za-z0-9._-]/', '_', $orig);
-                    $filename = time() . '_' . bin2hex(random_bytes(4)) . '_' . $safe;
-                    $destFull = $imagesDir . DIRECTORY_SEPARATOR . $filename;
-                    if ($uploaded->store($destFull)) {
-                        // store relative path for DB and views
-                        $picture = 'images/' . $filename;
-                        $formValues['picture'] = $picture;
+            // server-side validation (required fields, types, lengths)
+            $errors = $this->formErrors($request, $isEdit);
+
+            // handle uploaded file if present and no validation errors so far
+            $picture = '';
+            if (empty($errors)) {
+                try {
+                    $uploaded = $request->file('picture');
+                    if ($uploaded instanceof UploadedFile && $uploaded->isOk() && $uploaded->getName() !== "") {
+                        $imagesDir = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images';
+                        if (!is_dir($imagesDir)) {
+                            mkdir($imagesDir, 0755, true);
+                        }
+                        // sanitize original name
+                        $orig = $uploaded->getName();
+                        $safe = preg_replace('/[^A-Za-z0-9._-]/', '_', $orig);
+                        $filename = time() . '_' . bin2hex(random_bytes(4)) . '_' . $safe;
+                        $destFull = $imagesDir . DIRECTORY_SEPARATOR . $filename;
+                        if ($uploaded->store($destFull)) {
+                            // store relative path for DB and views
+                            $picture = 'images/' . $filename;
+                            $formValues['picture'] = $picture;
+                        } else {
+                            $errors[] = 'Nepodarilo sa uložiť nahraný súbor.';
+                        }
                     } else {
-                        $errors[] = 'Nepodarilo sa uložiť nahraný súbor.';
+                        // no new uploaded file — if editing, keep existing picture
+                        if ($isEdit) {
+                            $existing = Album::getOne((int)$id);
+                            if ($existing) {
+                                $picture = $existing->getPicture();
+                                $formValues['picture'] = $picture;
+                            }
+                        }
                     }
+                } catch (\Throwable $e) {
+                    $errors[] = 'Chyba pri nahrávaní súboru: ' . $e->getMessage();
                 }
-            } catch (\Throwable $e) {
-                $errors[] = 'Chyba pri nahrávaní súboru: ' . $e->getMessage();
             }
 
-            // basic validation
+            // basic validation for text (double-check in case formErrors wasn't used)
             if ($text === '') {
                 $errors[] = 'Názov albumu je povinný.';
             }
 
-            // if picture is provided as URL validate it
-            if ($picture !== '' && !str_starts_with($picture, 'images/') && filter_var($picture, FILTER_VALIDATE_URL) === false) {
-                $errors[] = 'URL obrázka nie je platná.';
-            }
-
             if (empty($errors)) {
                 try {
-                    $album = new Album(null, $text, $picture);
+                    // ensure id passed to Album is either null or int
+                    $albumIdForModel = $formValues['id'] === '' ? null : $formValues['id'];
+                    $album = new Album($albumIdForModel, $formValues['text'], $formValues['picture']);
                     $album->save();
 
                     // success -> redirect to view
@@ -117,9 +129,10 @@ class AlbumController extends BaseController
 
         // show form (on GET or validation/save error)
         // pass errors and previous values to view
-        $album = new Album($formValues['id'], $formValues['text'], $formValues['picture']); // Vytvorte objekt modelu
-        return $this->html(array_merge(compact('errors', 'album')), 'create');
+        $album = new Album($formValues['id'] ?? null, $formValues['text'], $formValues['picture']);
+        return $this->html(array_merge(compact('errors', 'album')), 'add');
     }
+
 
     public function delete(Request $request): Response
     {
@@ -146,22 +159,34 @@ class AlbumController extends BaseController
         return $this->redirect($this->url("post.index"));
     }
 
-    private function formErrors(Request $request): array
+    private function formErrors(Request $request, bool $isEdit = false): array
     {
         $errors = [];
-        if ($request->file('picture')->getName() == "") {
-            $errors[] = "Pole Súbor obrázka musí byť vyplnené!";
+
+        $file = $request->file('picture');
+        $text = trim((string)$request->value('text') ?? '');
+
+        // picture required when creating new album
+        if (!$isEdit) {
+            if (!($file instanceof UploadedFile) || $file->getName() == "") {
+                $errors[] = "Pole Súbor obrázka musí byť vyplnené!";
+            }
         }
-        if ($request->value('text') == "") {
-            $errors[] = "Pole Text príspevku musí byť vyplnené!";
+
+        if ($text == "") {
+            $errors[] = "Pole Názov albumu musí byť vyplnené!";
         }
-        if ($request->file('picture')->getName() != "" &&
-            !in_array($request->file('picture')->getType(), ['image/jpeg', 'image/png'])) {
-            $errors[] = "Obrázok musí byť typu JPG alebo PNG!";
+
+        if ($file instanceof UploadedFile && $file->getName() != "") {
+            if (!in_array($file->getType(), ['image/jpeg', 'image/png'])) {
+                $errors[] = "Obrázok musí byť typu JPG alebo PNG!";
+            }
         }
-        if ($request->value('text') != "" && strlen($request->value('text') < 5)) {
-            $errors[] = "Počet znakov v text príspevku musí byť viac ako 5!";
+
+        if ($text != "" && strlen($text) < 5) {
+            $errors[] = "Počet znakov v názve albumu musí byť viac ako 5!";
         }
+
         return $errors;
     }
 }

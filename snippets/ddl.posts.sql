@@ -9,7 +9,6 @@ CREATE TABLE `posts` (
   `albumId` INT NOT NULL,
   `text` TEXT DEFAULT NULL,
   `picture` VARCHAR(300) NOT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_albumId` (`albumId`),
   CONSTRAINT `fk_posts_albums` FOREIGN KEY (`albumId`) REFERENCES `albums` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

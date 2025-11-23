@@ -19,12 +19,12 @@ class Configuration
     /**
      * Application name.
      */
-    public const APP_NAME = 'TAT';
+    public const APP_NAME = 'Vaííčko MVC FW';
 
     /**
      * Version of the framework.
      */
-    public const FW_VERSION = '3.0';
+    public const FW_VERSION = '3.0.6';
 
     /**
      * Database connection settings.
@@ -72,4 +72,20 @@ class Configuration
      * Class name for the error handler. This class must implement the IHandleError interface.
      */
     public const ERROR_HANDLER_CLASS = ErrorHandler::class;
+
+    /**
+     * Directory for file uploads on the filesystem (uses OS-specific directory separators).
+     * Example on Linux:  public/uploads/
+     * Example on Windows: public\uploads\
+     */
+    public const UPLOAD_DIR = 'uploads' . DIRECTORY_SEPARATOR;
+
+    /**
+     * Public URL path prefix for uploaded files (always uses forward slashes for web URLs).
+     * Example: /uploads/
+     */
+    public const UPLOAD_URL = '/uploads/';
+
+    // Session key for storing the user identity
+    public const IDENTITY_SESSION_KEY = 'fw.session.user.identity';
 }

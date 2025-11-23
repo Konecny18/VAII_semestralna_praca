@@ -40,7 +40,7 @@
                     <a class="nav-link active" aria-current="page" href="<?= $link->url('home.index') ?>">Úvod</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= $link->url('album.index') ?>">Galéria</a>
+                    <a class="nav-link" href="<?= $link->url('post.index') ?>">Galéria</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Klub TAT</a>
@@ -57,20 +57,20 @@
                 </li>
             </ul>
 
-            <?php if ($auth?->isLogged()) { ?>
-                <span class="navbar-text me-3">Prihlásený používateľ: <b><?= $auth?->user?->name ?></b></span>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= $link->url('auth.logout') ?>">Odhlásiť sa</a>
-                    </li>
-                </ul>
-            <?php } else { ?>
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= App\Configuration::LOGIN_URL ?>">Prihlásiť sa</a>
-                    </li>
-                </ul>
-            <?php } ?>
+<!--            --><?php //if ($auth?->isLogged()) { ?>
+<!--                <span class="navbar-text me-3">Prihlásený používateľ: <b>--><?php //= $auth?->user?->name ?><!--</b></span>-->
+<!--                <ul class="navbar-nav ms-auto">-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="--><?php //= $link->url('auth.logout') ?><!--">Odhlásiť sa</a>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            --><?php //} else { ?>
+<!--                <ul class="navbar-nav ms-auto">-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="--><?php //= App\Configuration::LOGIN_URL ?><!--">Prihlásiť sa</a>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            --><?php //} ?>
 
         </div>
     </div>

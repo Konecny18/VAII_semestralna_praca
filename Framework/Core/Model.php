@@ -5,8 +5,8 @@ namespace Framework\Core;
 use App\Configuration;
 use Exception;
 use Framework\DB\Connection;
-use Framework\DB\ResultSet;
 use Framework\DB\IDbConvention;
+use Framework\DB\ResultSet;
 use Framework\Http\Request;
 use PDO;
 use PDOException;
@@ -38,6 +38,7 @@ abstract class Model implements \JsonSerializable
     protected static array $columnsMap = [];
 
     private static array $dbColumns = []; // Cache for database column names
+    private static array $modelProperties = []; // Cache for model property names
     private static IDbConvention $dbConventions; // Instance for database naming conventions
     private mixed $_dbId = null; // Store the primary key value for the model
     private ?ResultSet $_resultSet = null; // ResultSet for related entity loading
@@ -108,11 +109,12 @@ abstract class Model implements \JsonSerializable
      */
     public static function getAll(
         ?string $whereClause = null,
-        array $whereParams = [],
+        array   $whereParams = [],
         ?string $orderBy = null,
-        ?int $limit = null,
-        ?int $offset = null
-    ): array {
+        ?int    $limit = null,
+        ?int    $offset = null
+    ): array
+    {
         try {
             $sql = "SELECT " . static::getDBColumnNamesList() . " FROM `" . static::getTableName() . "`";
             if ($whereClause != null) {
@@ -209,15 +211,10 @@ abstract class Model implements \JsonSerializable
     public function save(): void
     {
         try {
-            // Only include DB columns that map to actual model properties.
-            // This prevents inserting explicit NULLs into columns that rely on DB defaults
-            // (e.g. timestamp columns) when the model doesn't define a corresponding property.
-            $data = [];
-            foreach (static::getDbColumns() as $col) {
-                $prop = static::toPropertyName($col);
-                if (property_exists(get_class($this), $prop)) {
-                    $data[$col] = $this->{$prop};
-                }
+            $data = array_fill_keys(static::getDbColumns(), null);
+            foreach ($data as $key => &$item) {
+                $prop = static::toPropertyName($key);
+                $item = isset($this->{$prop}) ? $this->{$prop} : null;
             }
             // Insert new record
             if ($this->_dbId === null) {
@@ -237,7 +234,8 @@ abstract class Model implements \JsonSerializable
             } else {
                 $arrColumns = array_map(fn($item) => ("`" . $item . '`=:' . $item), array_keys($data));
                 $columns = implode(',', $arrColumns);
-                $sql = "UPDATE `" . static::getTableName() . "` SET $columns WHERE `" . static::getPkColumnName() . "`=:__pk";
+                $sql = "UPDATE `" . static::getTableName() . "` SET $columns WHERE `" . static::getPkColumnName() .
+                    "`=:__pk";
                 $stmt = Connection::getInstance()->prepare($sql);
                 $data["__pk"] = $this->_dbId;
                 $stmt->execute($data);
@@ -301,20 +299,29 @@ abstract class Model implements \JsonSerializable
      * @param class-string<Model> $modelClass Model to load (must extend Model)
      * @param string|null $refColumn Change DB column name used to load referenced property
      * @return mixed
+     * @throws Exception
      */
-    public function getOneRelated(string $modelClass, ?string $refColumn = null)
+    public function getOneRelated(string $modelClass, ?string $refColumn = null): mixed
     {
         if ($modelClass !== static::class && !is_subclass_of($modelClass, self::class)) {
             throw new Exception("Parameter modelClass must be a subclass of " . self::class);
         }
         $refColumn ??= static::getConventions()->getFkColumn($modelClass);
+
+        // Ensure this entity was loaded from DB (has a ResultSet) before attempting to resolve relations
+        if ($this->_resultSet === null) {
+            throw new Exception('Related retrieval requires the entity to be hydrated from the database. Obtain the entity via Model::getOne()/Model::getAll() or otherwise load it from the DB before resolving relations.');
+        }
+
+        $ownerProp = self::toPropertyName($refColumn);
+        $ownerVal = isset($this->{$ownerProp}) ? $this->{$ownerProp} : null;
         return $this->_resultSet->getOneRelated(
             $modelClass,
             self::toPropertyName($refColumn),
-            fn($e) => $e->{self::toPropertyName($refColumn)},
+            fn($e) => (isset($e->{self::toPropertyName($refColumn)}) ? $e->{self::toPropertyName($refColumn)} : null),
             fn($e) => $e->getIdValue(),
             $modelClass::getPkColumnName(),
-            $this->{self::toPropertyName($refColumn)},
+            $ownerVal,
         );
     }
 
@@ -324,25 +331,30 @@ abstract class Model implements \JsonSerializable
      * @param string|null $refColumn Db column name used to reference this entity
      * @param string|null $where Additional conditions to restrict loaded references
      * @param array $whereParams
-     * @return mixed
+     * @return array
+     * @throws Exception
      */
-    public function getAllRelated(
-        string $modelClass,
-        ?string $refColumn = null,
-        ?string $where = null,
-        array $whereParams = []
-    ) {
+    public function getAllRelated(string $modelClass, ?string $refColumn = null, ?string $where = null, array $whereParams = []
+    ): array
+    {
         if ($modelClass !== static::class && !is_subclass_of($modelClass, self::class)) {
             throw new Exception("Parameter modelClass must be a subclass of " . self::class);
         }
+
         $refColumn ??= self::getConventions()->getFkColumn(static::class);
+
+        // Ensure this entity was loaded from DB (has a ResultSet) before attempting to resolve relations
+        if ($this->_resultSet === null) {
+            throw new Exception('Related retrieval requires the entity to be hydrated from the database. Obtain the entity via Model::getOne()/Model::getAll() or otherwise load it from the DB before resolving relations.');
+        }
+
         return $this->_resultSet->getAllRelated(
             $modelClass,
             $refColumn,
             $where,
             $whereParams,
             fn($e) => $e->getIdValue(),
-            fn($e) => $e->{self::toPropertyName($refColumn)},
+            fn($e) => (isset($e->{self::toPropertyName($refColumn)}) ? $e->{self::toPropertyName($refColumn)} : null),
             $this->getIdValue()
         );
     }
@@ -393,27 +405,82 @@ abstract class Model implements \JsonSerializable
     private function getIdValue(): mixed
     {
         $pk = static::getPkColumnName();
-        return $this->{static::toPropertyName($pk)};
+        $prop = static::toPropertyName($pk);
+        return isset($this->{$prop}) ? $this->{$prop} : null;
+    }
+
+    /**
+     * Retrieves an array of property names from the model class.
+     * Uses reflection to get all declared properties (excluding private framework properties).
+     *
+     * @return array An associative array of property names as keys with boolean true as values.
+     */
+    private static function getModelProperties(): array
+    {
+        if (isset(self::$modelProperties[static::class])) {
+            return self::$modelProperties[static::class];
+        }
+        
+        $reflection = new \ReflectionClass(static::class);
+        $properties = [];
+        foreach ($reflection->getProperties() as $property) {
+            $propertyName = $property->getName();
+            // Exclude static properties
+            if ($property->isStatic()) {
+                continue;
+            }
+            // Exclude private properties that start with underscore (internal framework properties)
+            if ($property->isPrivate() && str_starts_with($propertyName, '_')) {
+                continue;
+            }
+            $properties[$propertyName] = true;
+        }
+        
+        self::$modelProperties[static::class] = $properties;
+        return $properties;
     }
 
     /**
      * Generates a list of database column names formatted for a SELECT SQL clause. Maps the database column names
-     * to their corresponding model property names.
+     * to their corresponding model property names. Only includes columns that have corresponding properties in the model.
      *
      * @return string A comma-separated string of formatted column names for SQL SELECT.
-     * @throws Exception If the query fails due to a database error.
+     * @throws Exception If the query fails due to a database error or if there are extra columns in the database.
      */
     private static function getDBColumnNamesList(): string
     {
         $dbColumns = [];
+        $modelProperties = static::getModelProperties();
+        $extraColumns = [];
+        
         foreach (static::getDbColumns() as $columnName) {
-            $name = static::toPropertyName($columnName);
-            if ($name != $columnName) {
-                $dbColumns[] = "`$columnName` AS {$name}";
+            $propertyName = static::toPropertyName($columnName);
+            
+            // Check if the property exists in the model
+            if (!isset($modelProperties[$propertyName])) {
+                $extraColumns[] = $columnName;
+                continue;
+            }
+            
+            if ($propertyName != $columnName) {
+                $dbColumns[] = "`$columnName` AS {$propertyName}";
             } else {
                 $dbColumns[] = $columnName;
             }
         }
+        
+        // Throw a descriptive error if there are extra columns in the database
+        if (!empty($extraColumns)) {
+            $columnList = implode(', ', array_map(fn($col) => "`$col`", $extraColumns));
+            throw new Exception(sprintf(
+                'Database table `%s` contains columns that do not have corresponding properties in model class `%s`: %s. ' .
+                'Please add these properties to the model class or remove them from the database table.',
+                static::getTableName(),
+                static::class,
+                $columnList
+            ));
+        }
+        
         return implode(', ', $dbColumns);
     }
 

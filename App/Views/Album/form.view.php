@@ -19,20 +19,20 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-10 d-flex gap-4 flex-column">
-            <form method="post" action="<?= $link->url('album.add') ?>" enctype="multipart/form-data">
+            <form method="post" action="<?= $link->url('album.save') ?>" enctype="multipart/form-data">
 
                 <input type="hidden" name="id" value="<?= @$album?->getId() ?>">
 
                 <label for="picture" class="form-label fw-bold">Súbor obrázka</label>
                 <div class="input-group mb-3 has-validation">
-                    <input type="file" class="form-control " name="picture" id="picture">
+                    <input type="file" class="form-control " name="picture" id="picture" required accept="image/png, image/jpeg">
                 </div>
                 <?php if (@$album?->getPicture() != ""): ?>
                     <div class="text-muted mb-3">Pôvodný súbor: <?= substr($album->getPicture(), strpos($album->getPicture(), '-') + 1) ?></div>
                 <?php endif; ?>
                 <label for="text" class="form-label fw-bold">Názov albumu</label>
                 <div class="input-group has-validation mb-3 ">
-                    <textarea class="form-control" aria-label="With textarea" name="text" id="text"><?= @$album?->getText() ?></textarea>
+                    <textarea class="form-control" aria-label="With textarea" name="text" id="text" required minlength="5"><?= @$album?->getText() ?></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Uložiť</button>
             </form>

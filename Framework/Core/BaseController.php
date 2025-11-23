@@ -3,6 +3,7 @@
 namespace Framework\Core;
 
 use Exception;
+use Framework\Auth\AppUser;
 use Framework\Http\Request;
 use Framework\Http\Responses\JsonResponse;
 use Framework\Http\Responses\RedirectResponse;
@@ -49,6 +50,16 @@ abstract class BaseController
     protected App $app;
 
     /**
+     * Reference to the current user.
+     *
+     * This property provides access to the user context, allowing controllers to retrieve information about the
+     * authenticated user and perform user-specific operations.
+     *
+     * @var AppUser
+     */
+    protected AppUser $user;
+
+    /**
      * Returns the name of the controller, excluding the "Controller" suffix.
      *
      * This method is useful for dynamically determining the controller's name, which can be helpful in view rendering
@@ -86,6 +97,7 @@ abstract class BaseController
     public function setApp(App $app): void
     {
         $this->app = $app;
+        $this->user = $app->getAppUser(); // Initialize the user property
     }
 
     /**
@@ -97,7 +109,7 @@ abstract class BaseController
      * @param string $action The name of the action to authorize.
      * @return bool True if the action is authorized; false otherwise.
      */
-    public function authorize(string $action): bool
+    public function authorize(Request $request, string $action): bool
     {
         return true;
     }
