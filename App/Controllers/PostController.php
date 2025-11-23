@@ -65,8 +65,9 @@ class PostController extends BaseController
             );
         } else {
             if (!is_dir(Configuration::UPLOAD_DIR)) {
-                if (!@mkdir(Configuration::UPLOAD_DIR, 0777, true) && !@isdir(Configuration::UPLOAD_DIR)) {
-                    throw new HttpException(500, 'Nepodarilo sa vytvoriť adresár ore nahrávanie súborov.',);
+                // try to create uploads directory and provide a clear error on failure (permissions etc.)
+                if (!@mkdir(Configuration::UPLOAD_DIR, 0777, true) && !is_dir(Configuration::UPLOAD_DIR)) {
+                    throw new HttpException(500, 'Nepodarilo sa vytvoriť adresár pre nahrávanie súborov. Skontrolujte práva k adresáru.');
                 }
             }
         }

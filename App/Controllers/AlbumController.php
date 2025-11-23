@@ -75,9 +75,13 @@ class AlbumController extends BaseController
                 try {
                     $uploaded = $request->file('picture');
                     if ($uploaded instanceof UploadedFile && $uploaded->isOk() && $uploaded->getName() !== "") {
-                        $imagesDir = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images';
+                        // build absolute path to public/images (two levels up from App/Controllers -> project root)
+                        $imagesDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images';
                         if (!is_dir($imagesDir)) {
-                            mkdir($imagesDir, 0755, true);
+                            // attempt to create directory and throw a clear error if it fails (permission issues etc.)
+                            if (!@mkdir($imagesDir, 0755, true) && !is_dir($imagesDir)) {
+                                throw new HttpException(500, 'Nepodarilo sa vytvoriť adresár pre ukladanie obrázkov. Skontrolujte práva k adresáru.');
+                            }
                         }
                         // sanitize original name
                         $orig = $uploaded->getName();
@@ -119,7 +123,8 @@ class AlbumController extends BaseController
                     $album->save();
 
                     // success -> redirect to view
-                    return $this->redirect('?c=album&a=view&id=' . urlencode((string)$album->getId()));
+                    //return $this->redirect($this->url('album.view') . urlencode((string)$album->getId()));
+                    return $this->redirect($this->url('album.index'));
                 } catch (\Throwable $e) {
                     // don't echo or print; pass the message to the view
                     $errors[] = 'Nepodarilo sa uložiť album: ' . $e->getMessage();
@@ -156,7 +161,7 @@ class AlbumController extends BaseController
             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
         }
 
-        return $this->redirect($this->url("post.index"));
+        return $this->redirect($this->url("album.index"));
     }
 
     private function formErrors(Request $request, bool $isEdit = false): array
@@ -186,7 +191,6 @@ class AlbumController extends BaseController
         if ($text != "" && strlen($text) < 5) {
             $errors[] = "Počet znakov v názve albumu musí byť viac ako 5!";
         }
-
         return $errors;
     }
 }
