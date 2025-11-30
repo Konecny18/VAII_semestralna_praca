@@ -48,15 +48,52 @@ class AuthController extends BaseController
     public function login(Request $request): Response
     {
         $logged = null;
+        $message = null;
+
         if ($request->hasValue('submit')) {
-            $logged = $this->app->getAuthenticator()->login($request->value('username'), $request->value('password'));
-            if ($logged) {
-                return $this->redirect($this->url("admin.index"));
+            // Use email as the credential field (not username)
+            $email = mb_strtolower(trim((string)$request->value('email')));
+            $password = (string)$request->value('password');
+
+            if ($email === '' || $password === '') {
+                $message = 'Zadajte email a heslo.';
+            } else {
+                // Try to authenticate via configured authenticator (DbAuthenticator)
+                // DbAuthenticator treats the first parameter as email
+                $logged = $this->app->getAuthenticator()->login($email, $password);
+                if ($logged) {
+                    return $this->redirect($this->url("home.index"));
+                }
+
+                // If authentication failed, probe the database to give more specific feedback.
+                try {
+                    $conn = Connection::getInstance();
+                    // select possible password fields; support older `password` or newer `password_hash`
+                    $stmt = $conn->prepare('SELECT password, password FROM users WHERE email = :email LIMIT 1');
+                    // use lowercased email for lookup to match stored lowercased emails
+                    $stmt->execute([':email' => $email]);
+                    $row = $stmt->fetch();
+                    if (!$row) {
+                        $message = 'Používateľ s týmto emailom neexistuje.';
+                    } else {
+                        $hash = $row['password_hash'] ?? $row['password'] ?? null;
+                        if ($hash === null) {
+                            $message = 'Nesprávne prihlasovacie údaje.';
+                        } elseif (!password_verify($password, $hash)) {
+                            $message = 'Nesprávne heslo.';
+                        } else {
+                            // This branch should be unreachable because authenticator already tried, but keep fallback
+                            $message = 'Nesprávne prihlasovacie údaje.';
+                        }
+                    }
+                } catch (PDOException $e) {
+                    // Do not expose DB internals; show a user-friendly message
+                    $message = 'Chyba pri prístupe do databázy. Skúste to neskôr.';
+                }
             }
         }
 
-        $message = $logged === false ? 'Bad username or password' : null;
-        return $this->html(compact("message"));
+        return $this->html(compact('message'));
     }
 
     /**
@@ -90,7 +127,8 @@ class AuthController extends BaseController
         if ($request->isPost()) {
             $meno = trim((string)$request->post('meno') ?? '');
             $priezvisko = trim((string)$request->post('priezvisko') ?? '');
-            $email = trim((string)$request->post('email') ?? '');
+            // normalize email to lowercase for consistent storage and lookup
+            $email = mb_strtolower(trim((string)$request->post('email') ?? ''));
             $password = (string)($request->post('password') ?? '');
             $passwordConfirm = (string)($request->post('password_confirm') ?? '');
 
@@ -141,7 +179,7 @@ class AuthController extends BaseController
 
                 try {
                     $conn = Connection::getInstance();
-                    $ins = $conn->prepare('INSERT INTO users (meno, priezvisko, email, password_hash, rola) VALUES (:meno, :priezvisko, :email, :hash, :rola)');
+                    $ins = $conn->prepare('INSERT INTO users (meno, priezvisko, email, password, rola) VALUES (:meno, :priezvisko, :email, :hash, :rola)');
                     $ins->execute([
                         ':meno' => $meno !== '' ? $meno : null,
                         ':priezvisko' => $priezvisko !== '' ? $priezvisko : null,

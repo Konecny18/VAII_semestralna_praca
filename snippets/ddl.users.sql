@@ -10,3 +10,9 @@ CREATE TABLE `users` (
 
 ALTER TABLE `users`
   ADD COLUMN IF NOT EXISTS `priezvisko` VARCHAR(255) DEFAULT NULL AFTER `meno`;
+
+
+delete from users;
+
+ALTER TABLE `users`
+    CHANGE COLUMN `password_hash` `password` VARCHAR(255) NOT NULL;

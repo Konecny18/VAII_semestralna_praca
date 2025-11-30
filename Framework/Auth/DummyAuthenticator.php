@@ -17,8 +17,9 @@ class DummyAuthenticator extends SessionAuthenticator
     public const LOGIN = "admin";
     // Hash of the password "admin"
     public const PASSWORD_HASH = '$2y$10$GRA8D27bvZZw8b85CAwRee9NH5nj4CQA6PDFMc90pN9Wi4VAWq3yq';
+    //public const PASSWORD_HASH = '$2y$10$QgmL/lJnUKDDiM1CXhw83u0zjYUXwCJvZs5doriMoZUSLo1FXONIu';
     // Display name for the logged-in user
-    public const USERNAME = "Admin";
+    public const USERNAME = "admin";
     // Application instance
 
     public function __construct(App $app)

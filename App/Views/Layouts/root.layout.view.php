@@ -19,6 +19,7 @@
     <!-- Bootstrap (match index.html) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Existing app assets -->
     <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>?v=3">
@@ -46,9 +47,7 @@
                     <a class="nav-link" href="#">Klub TAT</a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="<?= $link->url('auth.register') ?>"> Registrácia</a>
-                </li>
+
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -70,8 +69,14 @@
                 </ul>
             <?php } else { ?>
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="<?= App\Configuration::LOGIN_URL ?>">Log in</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="<?= App\Configuration::LOGIN_URL ?>">Prihlásiť sa</a></li>
+                            <li><a class="dropdown-item" href="<?= $link->url('auth.register') ?>">Registrácia</a></li>
+                        </ul>
                     </li>
                 </ul>
             <?php } ?>
