@@ -11,7 +11,8 @@ use App\Configuration;
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <a href="<?= $link->url('post.add') ?>" class="btn btn-success">Pridať príspevok</a>
+            <?php $currentAlbumId = isset($albumId) ? (int)$albumId : 0; ?>
+            <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>" class="btn btn-success">Pridať príspevok</a>
         </div>
     </div>
     <div class="row justify-content-center">
@@ -27,8 +28,8 @@ use App\Configuration;
                     <div class="m-2 d-flex gap-2 justify-content-end">
                         <span class="flex-grow-1"></span>
 <!--                        --><?php //if ($auth->getUser()->getName() === $post->getAuthor()): ?>
-                            <a href="<?= $link->url('post.edit', ['id' => $post->getId()]) ?>" class="btn btn-primary">Upraviť</a>
-                            <a href="<?= $link->url('post.delete', ['id' => $post->getId()]) ?>" class="btn btn-danger">Zmazať</a>
+                            <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
+                            <a href="<?= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-danger">Zmazať</a>
 <!--                        --><?php //endif; ?>
                     </div>
                 </div>

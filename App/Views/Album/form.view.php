@@ -25,7 +25,8 @@
 
                 <label for="picture" class="form-label fw-bold">Súbor obrázka</label>
                 <div class="input-group mb-3 has-validation">
-                    <input type="file" class="form-control " name="picture" id="picture" required accept="image/png, image/jpeg">
+                    <?php $isEdit = !empty(@$album?->getId()); ?>
+                    <input type="file" class="form-control " name="picture" id="picture" <?= $isEdit ? '' : 'required' ?> accept="image/png, image/jpeg">
                 </div>
                 <?php if (@$album?->getPicture() != ""): ?>
                     <div class="text-muted mb-3">Pôvodný súbor: <?= substr($album->getPicture(), strpos($album->getPicture(), '-') + 1) ?></div>

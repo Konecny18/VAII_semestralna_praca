@@ -42,7 +42,7 @@ class AlbumController extends BaseController
 
     public function edit(Request $request): Response
     {
-        $id = (int)$request->value('key');
+        $id = (int)$request->value('id');
         $album = Album::getOne($id);
         if (is_null($album)) {
             throw new HttpException(404);
@@ -71,9 +71,16 @@ class AlbumController extends BaseController
 
             // handle uploaded file if present and no validation errors so far
             $picture = '';
+            $newFileFullPath = null;
+            $oldFilePath = null;
             if (empty($errors)) {
                 try {
                     $uploaded = $request->file('picture');
+                    // if editing, load existing album so we can keep or remove its picture
+                    $existing = null;
+                    if ($isEdit) {
+                        $existing = Album::getOne((int)$id);
+                    }
                     if ($uploaded instanceof UploadedFile && $uploaded->isOk() && $uploaded->getName() !== "") {
                         // build absolute path to public/images (two levels up from App/Controllers -> project root)
                         $imagesDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images';
@@ -92,13 +99,18 @@ class AlbumController extends BaseController
                             // store relative path for DB and views
                             $picture = 'images/' . $filename;
                             $formValues['picture'] = $picture;
+                            // record old and new file paths; deletion of old file will happen after DB save
+                            if ($isEdit && $existing && $existing->getPicture() != '') {
+                                $oldFilePath = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $existing->getPicture());
+                            }
+                            $newFileFullPath = $destFull;
                         } else {
                             $errors[] = 'Nepodarilo sa uložiť nahraný súbor.';
                         }
                     } else {
                         // no new uploaded file — if editing, keep existing picture
                         if ($isEdit) {
-                            $existing = Album::getOne((int)$id);
+                            $existing = $existing ?? Album::getOne((int)$id);
                             if ($existing) {
                                 $picture = $existing->getPicture();
                                 $formValues['picture'] = $picture;
@@ -117,29 +129,68 @@ class AlbumController extends BaseController
 
             if (empty($errors)) {
                 try {
-                    // ensure id passed to Album is either null or int
-                    $albumIdForModel = $formValues['id'] === '' ? null : $formValues['id'];
-                    $album = new Album($albumIdForModel, $formValues['text'], $formValues['picture']);
+                    // If editing, load the existing album and update its fields; otherwise create new
+                    if ($isEdit) {
+                        $album = Album::getOne((int)$id);
+                        if (is_null($album)) {
+                            throw new \Exception('Album neexistuje.');
+                        }
+                        $album->setText($formValues['text']);
+                        $album->setPicture($formValues['picture']);
+                    } else {
+                        $album = new Album(null, $formValues['text'], $formValues['picture']);
+                    }
                     $album->save();
+                    // if save succeeded and we had a previous image, remove old file now
+                    if ($newFileFullPath !== null && $oldFilePath !== null && file_exists($oldFilePath)) {
+                        @unlink($oldFilePath);
+                    }
 
                     // success -> redirect to view
-                    //return $this->redirect($this->url('album.view') . urlencode((string)$album->getId()));
                     return $this->redirect($this->url('album.index'));
                 } catch (\Throwable $e) {
                     // don't echo or print; pass the message to the view
+                    // if save failed and we uploaded a new file, remove the new file to avoid orphan files
+                    if ($newFileFullPath !== null && file_exists($newFileFullPath)) {
+                        @unlink($newFileFullPath);
+                    }
                     $errors[] = 'Nepodarilo sa uložiť album: ' . $e->getMessage();
                 }
             }
         }
 
+
+
         // show form (on GET or validation/save error)
         // pass errors and previous values to view
-        $album = new Album($formValues['id'] ?? null, $formValues['text'], $formValues['picture']);
-        return $this->html(array_merge(compact('errors', 'album')), 'add');
-    }
+        // If we are editing, and an existing album was loaded earlier, use it so the form shows current data.
+        $album = null;
+        if (!empty($formValues['id'])) {
+            $existingForForm = Album::getOne((int)$formValues['id']);
+            if ($existingForForm !== null) {
+                // Use DB-loaded model (it will have correct internal state)
+                $album = $existingForForm;
+                // But if there were form values (text/picture) from a failed submit, prefer those for display
+                if (isset($formValues['text'])) {
+                    $album->setText($formValues['text']);
+                }
+                if (isset($formValues['picture'])) {
+                    $album->setPicture($formValues['picture']);
+                }
+            }
+        }
+        if ($album === null) {
+            // When preparing a fresh model for the form, do not set an id — using a non-null id
+            // on a newly constructed model could lead to duplicate PK inserts later.
+            $album = new Album(null, $formValues['text'], $formValues['picture']);
+        }
+         $isEditMode = !empty($formValues['id']);
+         $viewName = $isEditMode ? 'edit' : 'add';
+         return $this->html(array_merge(compact('errors', 'album')), $viewName);
+     }
 
 
-    public function delete(Request $request): Response
+     public function delete(Request $request): Response
     {
         try {
             $id = (int)$request->value('id');

@@ -33,8 +33,42 @@
                         <div class="m-2">
                             <strong><?= (string)$album->getText() ?></strong>
                         </div>
-                        <div class="m-2">
-                            <a href="<?= $link->url('album.view', ['id' => $album->getId()]) ?>" class="btn btn-primary">Zobraziť</a>
+                        <div class="m-2 d-flex gap-2 justify-content-end">
+                            <a href="<?= $link->url('post.index', ['albumId' => $album->getId()]) ?>" class="btn btn-primary">Zobraziť</a>
+
+                            <span class="flex-grow-1"></span>
+                            <?php
+                            // Safely determine whether current user is an admin.
+                            $user = null;
+                            try {
+                                $user = $auth->getUser();
+                            } catch (\Throwable $e) {
+                                // ignore - treat as not logged in
+                                $user = null;
+                            }
+
+                            $showAdminButtons = false;
+                            if ($user) {
+                                // Prefer explicit isAdmin() method if present
+                                if (method_exists($user, 'isAdmin')) {
+                                    $showAdminButtons = (bool)$user->isAdmin();
+                                }
+                                // Fallback to role-based check
+                                elseif (method_exists($user, 'getRole')) {
+                                    $showAdminButtons = (string)$user->getRole() === 'admin';
+                                }
+                                // Fallback to name-based check (rare)
+                                elseif (method_exists($user, 'getName')) {
+                                    $showAdminButtons = (string)$user->getName() === 'admin';
+                                }
+                            }
+                            ?>
+
+                            <?php if ($showAdminButtons): ?>
+                                <a href="<?= $link->url('album.edit', ['id' => $album->getId()]) ?>" class="btn btn-warning">Upraviť</a>
+                                <a href="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>" class="btn btn-danger" onclick="return confirm('Naozaj zmazať album?')">Zmazať</a>
+                            <?php endif; ?>
+
                         </div>
                     </div>
                 </div>

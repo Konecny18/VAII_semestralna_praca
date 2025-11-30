@@ -45,6 +45,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">Klub TAT</a>
                 </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $link->url('auth.register') ?>"> Registrácia</a>
+                </li>
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Informácie
@@ -56,21 +61,20 @@
                     </ul>
                 </li>
             </ul>
-
-<!--            --><?php //if ($auth?->isLogged()) { ?>
-<!--                <span class="navbar-text me-3">Prihlásený používateľ: <b>--><?php //= $auth?->user?->name ?><!--</b></span>-->
-<!--                <ul class="navbar-nav ms-auto">-->
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" href="--><?php //= $link->url('auth.logout') ?><!--">Odhlásiť sa</a>-->
-<!--                    </li>-->
-<!--                </ul>-->
-<!--            --><?php //} else { ?>
-<!--                <ul class="navbar-nav ms-auto">-->
-<!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" href="--><?php //= App\Configuration::LOGIN_URL ?><!--">Prihlásiť sa</a>-->
-<!--                    </li>-->
-<!--                </ul>-->
-<!--            --><?php //} ?>
+            <?php if ($user->isLoggedIn()) { ?>
+                <span class="navbar-text">Logged in user: <b><?= $user->getName() ?></b></span>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= $link->url('auth.logout') ?>">Log out</a>
+                    </li>
+                </ul>
+            <?php } else { ?>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="<?= App\Configuration::LOGIN_URL ?>">Log in</a>
+                    </li>
+                </ul>
+            <?php } ?>
 
         </div>
     </div>

@@ -16,9 +16,17 @@ class PostController extends BaseController
     public function index(Request $request): Response
     {
         try {
+            $albumId = (int)$request->value('albumId');
+            if ($albumId > 0) {
+                $posts = Post::getAll('`albumId` = ?', [$albumId], 'id DESC');
+            } else {
+                $posts = Post::getAll(null, [], 'id DESC');
+            }
+
             return $this->html(
                 [
-                    'posts' => Post::getAll()
+                    'posts' => $posts,
+                    'albumId' => $albumId
                 ]
             );
         } catch (Exception $e) {
@@ -29,7 +37,8 @@ class PostController extends BaseController
 
     public function add(Request $request): Response
     {
-        return $this->html();
+        $albumId = (int)$request->value('albumId');
+        return $this->html(['albumId' => $albumId]);
     }
 
     public function edit(Request $request): Response
@@ -39,7 +48,8 @@ class PostController extends BaseController
         if (is_null($post)) {
             throw new HttpException(404);
         }
-        return $this->html(compact('post'));
+        $albumId = (int)$request->value('albumId');
+        return $this->html(array_merge(compact('post'), ['albumId' => $albumId]));
     }
 
     public function save(Request $request): Response
@@ -97,7 +107,8 @@ class PostController extends BaseController
             }
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }
-        return $this->redirect($this->url('post.index'));
+        // redirect back to the posts index for the same album
+        return $this->redirect($this->url('post.index', ['albumId' => $post->getAlbumId()]));
 
     }
 
@@ -111,11 +122,16 @@ class PostController extends BaseController
                 throw new HttpException(404);
             }
 
+            $albumId = $post->getAlbumId();
             @unlink(Configuration::UPLOAD_DIR . $post->getPicture());
             $post->delete();
 
         } catch (\Exception $e) {
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
+        }
+        // keep album context when redirecting
+        if (!empty($albumId)) {
+            return $this->redirect($this->url('post.index', ['albumId' => $albumId]));
         }
         return $this->redirect($this->url('post.index'));
     }

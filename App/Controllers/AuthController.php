@@ -8,6 +8,8 @@ use Framework\Core\BaseController;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 use Framework\Http\Responses\ViewResponse;
+use Framework\DB\Connection;
+use PDOException;
 
 /**
  * Class AuthController
@@ -69,5 +71,93 @@ class AuthController extends BaseController
     {
         $this->app->getAuthenticator()->logout();
         return $this->html();
+    }
+
+    /**
+     * Registration page and handler.
+     * GET -> show registration form
+     * POST -> validate and create user
+     */
+    public function register(Request $request): Response
+    {
+        $errors = [];
+        $old = [
+            'meno' => '',
+            'priezvisko' => '',
+            'email' => ''
+        ];
+
+        if ($request->isPost()) {
+            $meno = trim((string)$request->post('meno') ?? '');
+            $priezvisko = trim((string)$request->post('priezvisko') ?? '');
+            $email = trim((string)$request->post('email') ?? '');
+            $password = (string)($request->post('password') ?? '');
+            $passwordConfirm = (string)($request->post('password_confirm') ?? '');
+
+            $old = ['meno' => $meno, 'priezvisko' => $priezvisko, 'email' => $email];
+
+            // Validation
+            if ($meno === '') {
+                $errors[] = 'Meno je povinné.';
+            }
+            if ($priezvisko === '') {
+                $errors[] = 'Priezvisko je povinné.';
+            }
+            if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Platný email je povinný.';
+            }
+            if (strlen($password) < 6) {
+                $errors[] = 'Heslo musí mať aspoň 6 znakov.';
+            }
+            if ($password !== $passwordConfirm) {
+                $errors[] = 'Heslá sa nezhodujú.';
+            }
+
+            // check email uniqueness
+            if (empty($errors)) {
+                try {
+                    $conn = Connection::getInstance();
+                    $stmt = $conn->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
+                    $stmt->execute([':email' => $email]);
+                    $exists = $stmt->fetch();
+                    if ($exists) {
+                        $errors[] = 'Email je už registrovaný.';
+                    }
+                } catch (PDOException $e) {
+                    $errors[] = 'Chyba pri kontrole emailu: ' . $e->getMessage();
+                }
+            }
+
+            if (empty($errors)) {
+                // determine role
+                $isAdmin = (
+                    $meno === 'Damián' && $priezvisko === 'Konečný' &&
+                    mb_strtolower($email) === mb_strtolower('damkokonecny@gmail.com')
+                );
+                $rola = $isAdmin ? 'admin' : 'atlet';
+
+                // hash password
+                $hash = password_hash($password, PASSWORD_DEFAULT);
+
+                try {
+                    $conn = Connection::getInstance();
+                    $ins = $conn->prepare('INSERT INTO users (meno, priezvisko, email, password_hash, rola) VALUES (:meno, :priezvisko, :email, :hash, :rola)');
+                    $ins->execute([
+                        ':meno' => $meno !== '' ? $meno : null,
+                        ':priezvisko' => $priezvisko !== '' ? $priezvisko : null,
+                        ':email' => $email,
+                        ':hash' => $hash,
+                        ':rola' => $rola
+                    ]);
+
+                    // redirect to login page on success
+                    return $this->redirect(Configuration::LOGIN_URL);
+                } catch (PDOException $e) {
+                    $errors[] = 'Chyba pri registrácii: ' . $e->getMessage();
+                }
+            }
+        }
+
+        return $this->html(compact('errors', 'old'));
     }
 }

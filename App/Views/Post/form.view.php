@@ -18,6 +18,7 @@
             <form method="post" action="<?= $link->url('post.save') ?>" enctype="multipart/form-data">
 
                 <input type="hidden" name="id" value="<?= @$post?->getId() ?>">
+                <input type="hidden" name="albumId" value="<?= isset($albumId) ? (int)$albumId : (@$post?->getAlbumId() ?? '') ?>">
 
                 <label for="picture" class="form-label fw-bold">Súbor obrázka</label>
                 <div class="input-group mb-3 has-validation">
