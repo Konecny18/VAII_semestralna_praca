@@ -1,6 +1,6 @@
 .card-img {
     width: 100%;
-    height: 250px; /* všetky fotky majú rovnakú výšku */
+    height: 400px; /* všetky fotky majú rovnakú výšku */
     object-fit: cover; /* zachová proporcie a oreže nadbytočné */
     transition: transform 0.3s ease;
 }

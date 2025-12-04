@@ -1,9 +1,13 @@
 <?php
 
-/** @var \App\Models\Album[] $albums */
+/** @var Album[] $albums */
 /** @var Framework\Support\LinkGenerator $link */
 /** @var array $formErrors */
-/** @var \Framework\Core\IAuthenticator $auth */
+/** @var IAuthenticator $auth */
+
+use App\Models\Album;
+use Framework\Core\IAuthenticator;
+
 ?>
 
 <div class="container-fluid">
@@ -24,7 +28,7 @@
                 <div class="col">
                     <div class="border album d-flex flex-column position-relative h-100">
                         <div>
-                            <?php $picture = (string)$album->getPicture(); ?>
+                            <?php $picture = $album->getPicture(); ?>
                             <?php if ($picture !== ''): ?>
                                 <!-- Use .card-img for consistent gallery sizing -->
                                 <img src="<?= $link->asset($picture) ?>" class="card-img" alt="Album image">
@@ -33,7 +37,7 @@
                             <?php endif; ?>
                         </div>
                         <div class="m-2">
-                            <strong><?= (string)$album->getText() ?></strong>
+                            <strong><?= $album->getText() ?></strong>
                         </div>
                         <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
                             <a href="<?= $link->url('post.index', ['albumId' => $album->getId()]) ?>" class="btn btn-primary">Zobraziť</a>
@@ -44,7 +48,7 @@
                             $user = null;
                             try {
                                 $user = $auth->getUser();
-                            } catch (\Throwable $e) {
+                            } catch (Throwable $e) {
                                 // ignore - treat as not logged in
                                 $user = null;
                             }
@@ -66,10 +70,10 @@
                             }
                             ?>
 
-                            <?php if ($showAdminButtons): ?>
+<!--                            --><?php //if ($showAdminButtons): ?>
                                 <a href="<?= $link->url('album.edit', ['id' => $album->getId()]) ?>" class="btn btn-warning">Upraviť</a>
                                 <a href="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>" class="btn btn-danger" onclick="return confirm('Naozaj zmazať album?')">Zmazať</a>
-                            <?php endif; ?>
+<!--                            --><?php //endif; ?>
 
                         </div>
                     </div>

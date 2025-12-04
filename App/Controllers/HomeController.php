@@ -54,4 +54,9 @@ class HomeController extends BaseController
     {
         return $this->html();
     }
+
+    public function klub(Request $request): Response
+    {
+        return $this->html();
+    }
 }

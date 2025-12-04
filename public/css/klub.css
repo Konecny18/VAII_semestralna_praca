@@ -1,0 +1,110 @@
+/* Responsive flip-card styles (CSS-only) */
+
+/* Container that provides 3D perspective */
+.flip-card {
+    perspective: 1000px;
+    width: 100%; /* column controls width */
+    display: block;
+}
+
+/* Inner element that will be rotated */
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    /* height scales with viewport but stays between min and max */
+    height: clamp(260px, 45vh, 600px);
+    text-align: center;
+    transition: transform 0.8s ease;
+    transform-style: preserve-3d;
+}
+
+/* Trigger flip on hover or keyboard focus */
+.flip-card:hover .flip-card-inner,
+.flip-card:focus .flip-card-inner,
+.flip-card:focus-within .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* Front/back faces occupy same space */
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden; /* Safari */
+    backface-visibility: hidden;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Front face styling */
+.flip-card-front {
+    /*sluzi na to aby sa zobrazil nad elementamy*/
+    /*z-index: 2;*/
+    background-color: goldenrod;
+    color: #000;
+}
+
+/* Back face styling */
+.flip-card-back {
+    background-color: #0d6efd;
+    color: #fff;
+    transform: rotateY(180deg);
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Image covers the top portion of the card; uses percent heights so it scales with the card */
+.flip-card-front .card-img-top,
+.flip-card .card-img-top {
+    width: 100%;
+    height: 90%;
+    object-fit: fill;
+    display: block;
+    flex: 0 0 90%;
+}
+
+
+/* Small screens: reduce card height and image portion */
+@media (max-width: 576px) {
+    .flip-card-inner {
+        height: clamp(220px, 55vh, 420px);
+    }
+    .flip-card-front .card-img-top,
+    .flip-card .card-img-top {
+        height: 60%;
+        flex: 0 0 60%;
+    }
+    .flip-card-front .card-body,
+    .flip-card-back .card-body {
+        flex: 1 1 40%;
+    }
+}
+
+/* Medium screens: slightly smaller than desktop */
+@media (min-width: 577px) and (max-width: 991px) {
+    .flip-card-inner {
+        height: clamp(320px, 50vh, 420px);
+    }
+    .flip-card-front .card-img-top,
+    .flip-card .card-img-top {
+        height: 68%;
+        flex: 0 0 68%;
+    }
+    .flip-card-front .card-body,
+    .flip-card-back .card-body {
+        flex: 1 1 32%;
+    }
+}
+
+/* Visual focus indicator for keyboard users */
+.flip-card:focus {
+    outline: 3px solid rgba(13,110,253,0.18);
+    outline-offset: 4px;
+}
+

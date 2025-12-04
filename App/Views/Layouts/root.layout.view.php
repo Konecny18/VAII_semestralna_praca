@@ -1,10 +1,13 @@
 <?php
 
 /** @var string $contentHTML */
-/** @var \Framework\Core\IAuthenticator $auth */
-/** @var \Framework\Support\LinkGenerator $link */
+/** @var IAuthenticator $auth */
+/** @var LinkGenerator $link */
 
 // Safely obtain current user (fallback to null) to avoid undefined variable in views
+use Framework\Core\IAuthenticator;
+use Framework\Support\LinkGenerator;
+
 $user = null;
 if (isset($auth)) {
     try {
@@ -40,7 +43,9 @@ if (isset($auth)) {
     <link rel="stylesheet" href="<?= $link->asset('css/galeria.css') ?>?v=1">
     <!-- Contact page specific CSS -->
     <link rel="stylesheet" href="<?= $link->asset('css/contact.css') ?>?v=1">
-    <script src="<?= $link->asset('js/script.js') ?>"></script>
+    <!-- Klub (flip card) styles -->
+    <link rel="stylesheet" href="<?= $link->asset('css/klub.css') ?>?v=1">
+
 </head>
 <body>
 
@@ -61,10 +66,8 @@ if (isset($auth)) {
                     <a class="nav-link" href="<?= $link->url('album.index') ?>">Galéria</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Klub TAT</a>
+                    <a class="nav-link" href="<?= $link->url('home.klub') ?>">Klub TAT</a>
                 </li>
-
-
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
