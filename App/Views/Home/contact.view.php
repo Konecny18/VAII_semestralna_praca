@@ -3,22 +3,64 @@
 /** @var \Framework\Support\LinkGenerator $link */
 ?>
 
-<div class="row">
-    <div class="col">
-        <h3>Faculty of Management Science and Informatics</h3>
-        <strong>Address</strong>: Univerzitná 8215/1, 010 26 Žilina, Slovakia<br>
-        <strong>Tel. number</strong>: +421/41 513 4121<br>
 
-        <strong>GPS</strong>: 49°12'6,4"N 18°45'42,6"E
+
+<div class="container my-5 contact-page">
+    <div class="row">
+
+        <!-- Ľavá polovica – kontaktné informácie -->
+        <div class="col-12 col-md-6 mb-4">
+            <h2>Sídlo</h2>
+            <p><strong>Názov:</strong> T.A.T. oz.</p>
+            <p><strong>Adresa:</strong> Thurzova 16</p>
+            <p><strong>PSČ:</strong> Martin 036 01</p>
+            <h2>Kontakt</h2>
+            <p><strong>Telefón:</strong> 0903 503 666</p>
+            <p><strong>Email:</strong> svemat@svemat.sk</p>
+            <p><strong>Hlavný tréner:</strong> Daniel Konečný</p>
+        </div>
+
+        <!-- Pravá polovica – kde sú tréningy -->
+        <div class="col-12 col-md-6 mb-4">
+            <h2>Kde prebiehajú tréningy</h2>
+            <p><strong>Adresa plaváreň:</strong> Ladislava Novomeského 3, Martin, 036 01 Martin</p>
+            <p><strong>Adresa atletika:</strong> Československej armády 24, Martin, 036 01 Martin</p>
+            <p><strong>Adresa fitness:</strong> M. R. Štefánika 25a, Martin, 036 01 Martin</p>
+        </div>
+
     </div>
 </div>
-<div class="row mt-3">
-    <div class="col">
-        <iframe width="100%" height="300" src="https://www.openstreetmap.org/export/embed.html?bbox=18.747396469116214%2C49.193792384417996%2C18.776578903198246%2C49.210336337994846&amp;layer=mapnik&amp;marker=49.202065053033984%2C18.761987686157227"></iframe>
+
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row align-items-center">
+
+            <!-- Text -->
+            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                <p class="mb-0">© 2025 T.A.T. Martin. All rights reserved.</p>
+            </div>
+
+            <!-- Sociálne siete -->
+            <div class="col-12 col-md-6 d-flex align-items-center justify-content-md-end">
+                <p class="mb-0 me-2">Sleduj nás na našich sociálnych sieťach:</p>
+                <a href="https://www.facebook.com/people/Tat-Martin/61556496723094/" class="text-blue me-3 fs-4">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <a href="https://www.instagram.com/tatriatlon/" class="fs-4 instagram-icon">
+                    <i class="bi bi-instagram"></i>
+                </a>
+            </div>
+
+        </div>
     </div>
-</div>
-<div class="row mt-3">
-    <div class="col">
-        <a href="<?= $link->url("home.index") ?>">Back to main page</a>
-    </div>
-</div>
+</footer>
+
+
+
+
+
+<!--<div class="row mt-3">-->
+<!--    <div class="col">-->
+<!--        <a href="--><?php //= $link->url("home.index") ?><!--">Back to main page</a>-->
+<!--    </div>-->
+<!--</div>-->

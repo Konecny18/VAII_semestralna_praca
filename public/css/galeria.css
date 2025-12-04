@@ -4,3 +4,11 @@
     object-fit: cover; /* zachová proporcie a oreže nadbytočné */
     transition: transform 0.3s ease;
 }
+
+/* Make images slightly shorter on very small screens */
+@media (max-width: 576px) {
+    .card-img {
+        height: 180px;
+    }
+}
+

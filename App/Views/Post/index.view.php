@@ -15,22 +15,21 @@ use App\Configuration;
             <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>" class="btn btn-success">Pridať príspevok</a>
         </div>
     </div>
-    <div class="row justify-content-center">
+    <!-- Use row-cols utilities so items wrap correctly at breakpoints; add flex-wrap as explicit fallback -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center flex-wrap">
         <?php foreach ($posts as $post): ?>
-            <div class="col-3 d-flex gap-4 flex-column">
-                <div class="border post d-flex flex-column">
+            <div class="col">
+                <div class="border post d-flex flex-column h-100">
                     <div>
-                        <img src="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>" class="img-fluid" alt="Post image">
+                        <img src="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>" class="card-img" alt="Post image">
                     </div>
                     <div class="m-2">
                         <?= $post->getText() ?>
                     </div>
-                    <div class="m-2 d-flex gap-2 justify-content-end">
-                        <span class="flex-grow-1"></span>
-<!--                        --><?php //if ($auth->getUser()->getName() === $post->getAuthor()): ?>
-                            <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
-                            <a href="<?= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-danger">Zmazať</a>
-<!--                        --><?php //endif; ?>
+                    <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
+                        <?php // show actions (adjust auth check as needed) ?>
+                        <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
+                        <a href="<?= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-danger">Zmazať</a>
                     </div>
                 </div>
             </div>

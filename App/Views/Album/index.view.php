@@ -14,26 +14,28 @@
         </div>
     </div>
 
-    <div class="row justify-content-center">
+    <!-- Use row-cols utilities so albums wrap responsively -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
 
         <?php if (empty($albums)): ?>
             <div class="col-12 text-center my-4">Žiadne albumy.</div>
         <?php else: ?>
             <?php foreach ($albums as $album): ?>
-                <div class="col-3 d-flex gap-4 flex-column">
-                    <div class="border album d-flex flex-column position-relative">
+                <div class="col">
+                    <div class="border album d-flex flex-column position-relative h-100">
                         <div>
                             <?php $picture = (string)$album->getPicture(); ?>
                             <?php if ($picture !== ''): ?>
-                                <img src="<?= $link->asset($picture) ?>" class="img-fluid" alt="Album image">
+                                <!-- Use .card-img for consistent gallery sizing -->
+                                <img src="<?= $link->asset($picture) ?>" class="card-img" alt="Album image">
                             <?php else: ?>
-                                <img src="<?= $link->asset('images/tat_logo.png') ?>" class="img-fluid" alt="Album placeholder">
+                                <img src="<?= $link->asset('images/tat_logo.png') ?>" class="card-img" alt="Album placeholder">
                             <?php endif; ?>
                         </div>
                         <div class="m-2">
                             <strong><?= (string)$album->getText() ?></strong>
                         </div>
-                        <div class="m-2 d-flex gap-2 justify-content-end">
+                        <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
                             <a href="<?= $link->url('post.index', ['albumId' => $album->getId()]) ?>" class="btn btn-primary">Zobraziť</a>
 
                             <span class="flex-grow-1"></span>

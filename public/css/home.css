@@ -1,0 +1,27 @@
+/* Nastaví výšku carouselu pre rôzne veľkosti displejov */
+.carousel-item {
+    height: 85vh;             /* 70% výšky obrazovky */
+    min-height: 300px;        /* minimum pre malé mobily */
+}
+
+/* Obrázky vo vnútri carouselu */
+.carousel-img {
+    width: 100%;
+    height: 100%;
+          /* obrázok vyplní celý slide, bez deformácie */
+}
+
+/* Pre menšie displeje môžeme jemne zmenšiť carousel */
+@media (max-width: 768px) {
+    .carousel-item {
+        height: 50vh;
+    }
+}
+
+@media (max-width: 576px) {
+    .carousel-item {
+        height: 40vh;
+    }
+}
+
+
