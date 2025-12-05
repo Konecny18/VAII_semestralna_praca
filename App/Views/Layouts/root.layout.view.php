@@ -1,20 +1,13 @@
 <?php
 
 /** @var string $contentHTML */
-/** @var IAuthenticator $auth */
+/** @var \Framework\Auth\AppUser|null $user */
 /** @var LinkGenerator $link */
 
-// Safely obtain current user (fallback to null) to avoid undefined variable in views
-use Framework\Core\IAuthenticator;
-use Framework\Support\LinkGenerator;
-
-$user = null;
-if (isset($auth)) {
-    try {
-        $user = $auth->getUser();
-    } catch (\Throwable $e) {
-        $user = null;
-    }
+// The framework injects a `user` helper (AppUser) and `link` into all views via ViewResponse.
+// Do not overwrite `$user` here; if it's not injected, keep it null.
+if (!isset($user)) {
+    $user = null;
 }
 ?>
 <!DOCTYPE html>

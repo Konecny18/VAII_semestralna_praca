@@ -14,9 +14,34 @@ class RecordController extends BaseController
     public function index(Request $request): Response
     {
         try {
-            return $this->html([
-                'records' => Record::getAll(null, [], 'id DESC')
-            ]);
+            // Require login to view records: only the owner or admin can see records
+            $appUser = $this->user ?? null;
+            if (!$appUser || !method_exists($appUser, 'isLoggedIn') || !$appUser->isLoggedIn()) {
+                // Not logged in -> redirect to login
+                return $this->redirect(Configuration::LOGIN_URL);
+            }
+
+            // Get identity to read id/role
+            $identity = $appUser->getIdentity();
+            if ($identity === null) {
+                return $this->redirect(Configuration::LOGIN_URL);
+            }
+
+            $role = method_exists($identity, 'getRole') ? $identity->getRole() : null;
+
+            if ($role === 'admin') {
+                // Admin sees all records
+                $records = Record::getAll(null, [], 'id DESC');
+            } else {
+                // Regular user sees only their own records
+                $userId = method_exists($identity, 'getId') ? $identity->getId() : null;
+                if ($userId === null) {
+                    return $this->redirect(Configuration::LOGIN_URL);
+                }
+                $records = Record::getAll('user_id = :uid', [':uid' => $userId], 'id DESC');
+            }
+
+            return $this->html(['records' => $records]);
         } catch (\Exception $e) {
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }
@@ -38,6 +63,14 @@ class RecordController extends BaseController
         if (is_null($record)) {
             throw new HttpException(404);
         }
+        // Only owner or admin can edit
+        $identity = $this->user->getIdentity();
+        $role = $identity?->getRole() ?? null;
+        $userId = $identity?->getId() ?? null;
+        if ($role !== 'admin' && $userId !== $record->getUserId()) {
+            throw new HttpException(403, 'Nemáte oprávnenie upravovať tento záznam.');
+        }
+
         return $this->html(compact('record'), 'edit');
     }
 
@@ -76,6 +109,14 @@ class RecordController extends BaseController
                         if (is_null($record)) {
                             throw new \Exception('Záznam neexistuje.');
                         }
+                        // Only owner or admin can update
+                        $identity = $this->user->getIdentity();
+                        $role = $identity?->getRole() ?? null;
+                        $userId = $identity?->getId() ?? null;
+                        if ($role !== 'admin' && $userId !== $record->getUserId()) {
+                            throw new \Exception('Nemáte oprávnenie upravovať tento záznam.');
+                        }
+
                         $record->setNazovDiscipliny($nazov);
                         $record->setDosiahnutyVykon($vykon ?: null);
                         $record->setDatumVykonu($datumRaw ?: null);
@@ -128,6 +169,14 @@ class RecordController extends BaseController
             if (is_null($record)) {
                 throw new HttpException(404);
             }
+            // Only owner or admin can delete
+            $identity = $this->user->getIdentity();
+            $role = $identity?->getRole() ?? null;
+            $userId = $identity?->getId() ?? null;
+            if ($role !== 'admin' && $userId !== $record->getUserId()) {
+                throw new HttpException(403, 'Nemáte oprávnenie zmazať tento záznam.');
+            }
+
             $record->delete();
         } catch (\Exception $e) {
             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());

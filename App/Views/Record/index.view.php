@@ -1,26 +1,80 @@
 <?php
 
 /** @var \Framework\Support\LinkGenerator $link */
-/** @var \Framework\Auth\AppUser $user */
+/** @var \Framework\Auth\AppUser|null $user */
+/** @var \App\Models\Record[]|null $records */
+/** @var array|null $owners */
+
+$owners = $owners ?? [];
+
+// compute flags
+$isLoggedIn = ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn());
+$isAdmin = false;
+if ($isLoggedIn && method_exists($user, 'getIdentity')) {
+    $ident = $user->getIdentity();
+    $isAdmin = ($ident?->getRole() ?? null) === 'admin';
+}
+
 ?>
 
+<?php if ($isLoggedIn): ?>
+    <a href="<?php echo $link->url('record.add') ?>" class="btn btn-success">Pridať záznam</a>
+<?php endif; ?>
 
-<a href="<?= $link->url('record.add', ['user_id' => $user]) ?>" class="btn btn-success">Pridať príspevok</a>
+<?php if (empty($records)): ?>
+    <p>Žiadne záznamy.</p>
+<?php else: ?>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <?php if ($isAdmin): ?>
+                <th>ID</th>
+            <?php endif; ?>
+            <th>Disciplína</th>
+            <th>Vlastník</th>
+            <th>Výkon</th>
+            <th>Dátum</th>
+            <th>Poznámka</th>
+            <th>Akcie</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($records as $rec): ?>
+            <tr>
+                <?php if ($isAdmin): ?>
+                    <td><?= htmlspecialchars((string)$rec->getId(), ENT_QUOTES, 'UTF-8') ?></td>
+                <?php endif; ?>
 
-<table>
-    <tr>
-        <th>Company</th>
-        <th>Contact</th>
-        <th>Country</th>
-    </tr>
-    <tr>
-        <td>Alfreds Futterkiste</td>
-        <td>Maria Anders</td>
-        <td>Germany</td>
-    </tr>
-    <tr>
-        <td>Centro comercial Moctezuma</td>
-        <td>Francisco Chang</td>
-        <td>Mexico</td>
-    </tr>
-</table>
+                <td><?= htmlspecialchars($rec->getNazovDiscipliny(), ENT_QUOTES, 'UTF-8') ?></td>
+
+                <?php $ownerName = $owners[$rec->getUserId()] ?? $rec->getUserId(); ?>
+                <td><?= htmlspecialchars((string)$ownerName, ENT_QUOTES, 'UTF-8') ?></td>
+
+                <td><?= htmlspecialchars((string)($rec->getDosiahnutyVykon() ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                <td><?= htmlspecialchars((string)($rec->getDatumVykonu() ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                <td><?= htmlspecialchars((string)($rec->getPoznamka() ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                <td>
+                    <?php
+                    $showActions = false;
+                    if ($isLoggedIn && method_exists($user, 'getIdentity')) {
+                        $ident = $user->getIdentity();
+                        $role = $ident?->getRole() ?? null;
+                        $uid = $ident?->getId() ?? null;
+                        if ($role === 'admin' || $uid === $rec->getUserId()) {
+                            $showActions = true;
+                        }
+                    }
+                    ?>
+
+                    <?php if ($showActions): ?>
+                        <a class="btn btn-sm btn-primary" href="<?php echo $link->url('record.edit', ['id' => $rec->getId()]) ?>">Upraviť</a>
+                        <form method="post" action="<?php echo $link->url('record.delete', ['id' => $rec->getId()]) ?>" style="display:inline-block;margin-left:6px;" onsubmit="return confirm('Naozaj zmazať záznam?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Zmazať</button>
+                        </form>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>
