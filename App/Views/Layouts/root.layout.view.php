@@ -78,6 +78,7 @@ if (isset($auth)) {
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item " href="<?= $link->url('home.contact')?>">Kontakt</a></li>
+                        <li><a class="dropdown-item " href="<?= $link->url('home.contact')?>">Rozvrh tréningov</a></li>
                         <li><a class="dropdown-item" href="#">Podujatia</a></li>
                         <li><a class="dropdown-item" href="#">Partneri</a></li>
                     </ul>
