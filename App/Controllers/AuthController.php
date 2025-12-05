@@ -68,15 +68,14 @@ class AuthController extends BaseController
                 // If authentication failed, probe the database to give more specific feedback.
                 try {
                     $conn = Connection::getInstance();
-                    // select possible password fields; support older `password` or newer `password_hash`
-                    $stmt = $conn->prepare('SELECT password, password FROM users WHERE email = :email LIMIT 1');
-                    // use lowercased email for lookup to match stored lowercased emails
+                    // Probe DB for the user and available password columns to give a better error message
+                    $stmt = $conn->prepare('SELECT password FROM users WHERE email = :email LIMIT 1');
                     $stmt->execute([':email' => $email]);
                     $row = $stmt->fetch();
                     if (!$row) {
                         $message = 'Používateľ s týmto emailom neexistuje.';
                     } else {
-                        $hash = $row['password_hash'] ?? $row['password'] ?? null;
+                        $hash = $row['password'] ?? $row['password_hash'] ?? null;
                         if ($hash === null) {
                             $message = 'Nesprávne prihlasovacie údaje.';
                         } elseif (!password_verify($password, $hash)) {

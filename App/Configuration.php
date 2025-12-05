@@ -65,8 +65,11 @@ class Configuration
     /**
      * Class name for the authenticator. This class must implement the IAuthenticator interface. Comment out this line
      * if authentication is not required in the application.
+     *
+     * Set to the new App\Auth\UserAuthenticator to authenticate against the users DB table.
      */
-    public const AUTH_CLASS = DummyAuthenticator::class;
+//    public const AUTH_CLASS = DummyAuthenticator::class;
+    public const AUTH_CLASS = \App\Auth\UserAuthenticator::class;
 
     /**
      * Class name for the error handler. This class must implement the IHandleError interface.

@@ -2,7 +2,7 @@ CREATE TABLE `users` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `meno` VARCHAR(255) DEFAULT NULL,
   `email` VARCHAR(255) NOT NULL,
-  `password_hash` VARCHAR(255) NOT NULL,
+  `password` VARCHAR(255) NOT NULL,
   `rola` VARCHAR(50) NOT NULL DEFAULT 'user',
   `datum_registracie` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -14,5 +14,4 @@ ALTER TABLE `users`
 
 -- delete from users;   -- zakomentované, odstránené riziko vymazania dát pri spustení DDL
 
-ALTER TABLE `users`
-    CHANGE COLUMN `password_hash` `password` VARCHAR(255) NOT NULL;
+delete from users;

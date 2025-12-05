@@ -2,12 +2,12 @@
 
 namespace App\Controllers;
 
+use App\Configuration;
 use App\Models\Record;
 use Framework\Core\BaseController;
 use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
-use Framework\Http\Session;
 
 class RecordController extends BaseController
 {
@@ -24,6 +24,10 @@ class RecordController extends BaseController
 
     public function add(Request $request): Response
     {
+        // Require login to add a new record - redirect to login if not logged in
+        if (!$this->user->isLoggedIn()) {
+            return $this->redirect(Configuration::LOGIN_URL);
+        }
         return $this->html();
     }
 
@@ -39,7 +43,7 @@ class RecordController extends BaseController
 
     public function save(Request $request): Response
     {
-        $formValues = ['nazov_discipliny' => '', 'dosiahnuty_vykon' => '', 'datum_vykonu' => '', 'poznamka' => '', 'id' => null];
+        $formValues = ['nazov_discipliny' => '', 'dosiahnuty_vykon' => '', 'datum_vykovu' => '', 'poznamka' => '', 'id' => null];
         $errors = [];
 
         if ($request->isPost()) {
@@ -53,7 +57,7 @@ class RecordController extends BaseController
 
             $formValues['nazov_discipliny'] = $nazov;
             $formValues['dosiahnuty_vykon'] = $vykon;
-            $formValues['datum_vykonu'] = $datumRaw;
+            $formValues['datum_vykovu'] = $datumRaw;
             $formValues['poznamka'] = $poznamka;
             $formValues['id'] = $id;
 
@@ -77,9 +81,15 @@ class RecordController extends BaseController
                         $record->setDatumVykonu($datumRaw ?: null);
                         $record->setPoznamka($poznamka ?: null);
                     } else {
-                        // get current user id from session
-                        $session = new Session();
-                        $userId = $session->get('user_id', 0) ?? 0;
+                        // Creating new record: require logged user to avoid DB foreign key errors
+                        if (!$this->user->isLoggedIn()) {
+                            return $this->redirect(Configuration::LOGIN_URL);
+                        }
+
+                        // get current user id from authenticated identity
+                        $identity = $this->user->getIdentity();
+                        $userId = method_exists($identity, 'getId') ? $identity->getId() : 0;
+
                         $record = new Record(null, (int)$userId, $nazov, $vykon ?: null, $datumRaw ?: null, $poznamka ?: null);
                     }
                     $record->save();
@@ -98,12 +108,12 @@ class RecordController extends BaseController
                 $record = $existing;
                 $record->setNazovDiscipliny($formValues['nazov_discipliny']);
                 $record->setDosiahnutyVykon($formValues['dosiahnuty_vykon'] ?: null);
-                $record->setDatumVykonu($formValues['datum_vykonu'] ?: null);
+                $record->setDatumVykonu($formValues['datum_vykovu'] ?: null);
                 $record->setPoznamka($formValues['poznamka'] ?: null);
             }
         }
         if ($record === null) {
-            $record = new Record(null, $formValues['id'] ?? 0, $formValues['nazov_discipliny'], $formValues['dosiahnuty_vykon'], $formValues['datum_vykonu'], $formValues['poznamka']);
+            $record = new Record(null, $formValues['id'] ?? 0, $formValues['nazov_discipliny'], $formValues['dosiahnuty_vykon'], $formValues['datum_vykovu'], $formValues['poznamka']);
         }
 
         return $this->html(array_merge(compact('errors', 'record')),
