@@ -64,6 +64,8 @@ $view->setLayout('auth');
                     <div class="mt-3 text-center">
                         <a href="<?= $link->url('login') ?>">Máte účet? Prihlásiť sa</a>
                     </div>
+
+
                 </div>
             </div>
         </div>

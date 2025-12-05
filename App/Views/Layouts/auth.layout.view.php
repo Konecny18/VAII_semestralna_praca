@@ -23,14 +23,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>">
     <script src="<?= $link->asset('js/script.js') ?>"></script>
 </head>
 <body>
-<div class="container-fluid mt-3">
-    <div class="web-content">
+<div class="container-fluid position-relative mt-0">
+    <!-- Button fixed to the top-left corner -->
+    <div class="auth-back-btn">
+        <a href="<?= $link->url('home.index') ?>" class="btn btn-secondary" role="button" aria-label="Hlavná stránka">
+            <i class="bi bi-house" aria-hidden="true"></i>
+            <span class="visually-hidden">Hlavná stránka</span>
+        </a>
+    </div>
+
+    <!-- main content: styling moved to .auth-content in css -->
+    <div class="web-content auth-content">
         <?= $contentHTML ?>
     </div>
+
 </div>
 </body>
 </html>
