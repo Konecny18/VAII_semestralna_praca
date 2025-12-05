@@ -8,9 +8,9 @@ namespace App\Models;
 class User
 {
     public function __construct(
-        public ?int $id = null,
-        public string $login = '',
-        public string $name = ''
+        protected ?int $id = null,
+        protected string $login = '',
+        protected string $name = ''
     ) {
     }
 }

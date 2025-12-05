@@ -12,7 +12,7 @@ ALTER TABLE `users`
   ADD COLUMN IF NOT EXISTS `priezvisko` VARCHAR(255) DEFAULT NULL AFTER `meno`;
 
 
-delete from users;
+-- delete from users;   -- zakomentované, odstránené riziko vymazania dát pri spustení DDL
 
 ALTER TABLE `users`
     CHANGE COLUMN `password_hash` `password` VARCHAR(255) NOT NULL;

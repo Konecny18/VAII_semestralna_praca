@@ -68,6 +68,9 @@ if (isset($auth)) {
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('home.klub') ?>">Klub TAT</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $link->url('record.index') ?>">Výkony</a>
+                </li>
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
