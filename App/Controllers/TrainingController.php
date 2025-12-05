@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Training;
 use Exception;
+use App\Configuration;
 use Framework\Core\BaseController;
 use Framework\Http\HttpException;
 use Framework\Http\Request;
@@ -23,6 +24,16 @@ class TrainingController extends BaseController
 
     public function add(Request $request): Response
     {
+        // Only admin can add trainings
+        if (!$this->user->isLoggedIn()) {
+            return $this->redirect(Configuration::LOGIN_URL);
+        }
+        $identity = $this->user->getIdentity();
+        $role = $identity?->getRole() ?? null;
+        if ($role !== 'admin') {
+            throw new HttpException(403, 'Nemáte oprávnenie pridávať tréningy.');
+        }
+
         return $this->html([]);
     }
 
@@ -33,6 +44,16 @@ class TrainingController extends BaseController
         if (is_null($training)) {
             throw new HttpException(404);
         }
+        // Only admin can edit trainings
+        if (!$this->user->isLoggedIn()) {
+            return $this->redirect(Configuration::LOGIN_URL);
+        }
+        $identity = $this->user->getIdentity();
+        $role = $identity?->getRole() ?? null;
+        if ($role !== 'admin') {
+            throw new HttpException(403, 'Nemáte oprávnenie upravovať tréningy.');
+        }
+
         return $this->html(['training' => $training]);
     }
 
@@ -71,6 +92,16 @@ class TrainingController extends BaseController
         $casStart = $normalizeTime($casStartRaw);
         $casEnd = $normalizeTime($casEndRaw);
 
+        // Only admin can save (create/update) trainings
+        if (!$this->user->isLoggedIn()) {
+            return $this->redirect(Configuration::LOGIN_URL);
+        }
+        $identity = $this->user->getIdentity();
+        $role = $identity?->getRole() ?? null;
+        if ($role !== 'admin') {
+            throw new HttpException(403, 'Nemáte oprávnenie upravovať rozvrh tréningov.');
+        }
+
         $training->setDen($den);
         $training->setCasZaciatku($casStart);
         $training->setCasKonca($casEnd);
@@ -98,6 +129,16 @@ class TrainingController extends BaseController
             if (is_null($training)) {
                 throw new HttpException(404);
             }
+            // Only admin can delete trainings
+            if (!$this->user->isLoggedIn()) {
+                return $this->redirect(Configuration::LOGIN_URL);
+            }
+            $identity = $this->user->getIdentity();
+            $role = $identity?->getRole() ?? null;
+            if ($role !== 'admin') {
+                throw new HttpException(403, 'Nemáte oprávnenie zmazať tréningy.');
+            }
+
             $training->delete();
         } catch (Exception $e) {
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
