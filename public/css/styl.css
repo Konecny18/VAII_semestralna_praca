@@ -8,6 +8,13 @@
     color: #ffffff;
 }
 
+
+.logo {
+    width: 100px;
+    height: auto;
+    max-height: 60px;
+}
+
 /* Zmenši logo na mobiloch */
 @media (max-width: 768px) {
     .logo {
@@ -49,4 +56,3 @@
         font-size: 1rem;
     }
 }
-

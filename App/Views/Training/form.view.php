@@ -35,8 +35,12 @@ $days = [
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-8">
-            <form method="post" action="<?= $link->url('training.save') ?>">
+<!--            <form  method="post" action="--><?php //= $link->url('training.save') ?><!--">-->
+            <form method="post" action="<?= $link->url('training.save') ?>" data-ajax-form>
 
+                <div data-ajax-feedback class="alert d-none mt-2"></div>
+
+<!--                <input type="hidden" name="id" value="--><?php //= $isEdit ? $training?->getId() : '' ?><!--">-->
                 <input type="hidden" name="id" value="<?= $isEdit ? $training?->getId() : '' ?>">
 
                 <div class="mb-3">
@@ -66,6 +70,7 @@ $days = [
                 </div>
 
                 <div class="d-flex gap-2">
+<!--                    <button type="submit" class="btn btn-primary">Uložiť</button>-->
                     <button type="submit" class="btn btn-primary">Uložiť</button>
                     <a href="<?= $link->url('training.index') ?>" class="btn btn-secondary">Zrušiť</a>
                 </div>
@@ -74,3 +79,5 @@ $days = [
         </div>
     </div>
 </div>
+
+<script src="<?= $link->asset('js/form-ajax.js') ?>" defer></script>

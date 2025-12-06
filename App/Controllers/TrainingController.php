@@ -109,15 +109,25 @@ class TrainingController extends BaseController
 
         $formErrors = $this->formErrors($request);
         if (count($formErrors) > 0) {
+            if ($request->isAjax()) {
+                return $this->json(['success' => false, 'errors' => $formErrors]);
+            }
             return $this->html(['training' => $training, 'formErrors' => $formErrors], ($id > 0) ? 'edit' : 'add');
         }
 
         try {
             $training->save();
         } catch (Exception $e) {
-            throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
+            $message = 'DB chyba: ' . $e->getMessage();
+            if ($request->isAjax()) {
+                return $this->json(['success' => false, 'errors' => [$message]]);
+            }
+            throw new HttpException(500, $message);
         }
 
+        if ($request->isAjax()) {
+            return $this->json(['success' => true, 'redirect' => $this->url('training.index')]);
+        }
         return $this->redirect($this->url('training.index'));
     }
 
