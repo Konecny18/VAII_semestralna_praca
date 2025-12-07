@@ -46,7 +46,7 @@ $days = [
                 <div class="mb-3">
                     <label for="den" class="form-label fw-bold">Deň</label>
                     <select id="den" name="den" class="form-select" required>
-                        <option value="">-- Vyber deň --</option>
+                        <option value="" disabled selected>-- Vyber deň --</option>
                         <?php foreach ($days as $k => $label): ?>
                             <option value="<?= $k ?>" <?= $k === $denValue ? 'selected' : '' ?>><?= $label ?></option>
                         <?php endforeach; ?>
