@@ -2,7 +2,15 @@
 
 /** @var Framework\Support\LinkGenerator $link */
 /** @var array $formErrors */
-/** @var \App\Models\Post $post */
+/** @var Post $post */
+
+use App\Models\Post;
+
+// ak existuje post napr pri edit tak sa pouzije jej hodnota
+//ak neexistuje tak bude null
+$post = $post ?? null;
+$isEdit = !empty(@$post?->getId());
+
 ?>
 
 <?php if (!is_null(@$formErrors)): ?>
@@ -22,14 +30,17 @@
 
                 <label for="picture" class="form-label fw-bold">Súbor obrázka</label>
                 <div class="input-group mb-3 has-validation">
-                    <input type="file" class="form-control " name="picture" id="picture">
+                    <input type="file" class="form-control " name="picture" id="picture" accept="image/png, image/jpeg"
+                    <?= $isEdit ? '' : 'required' ?>
+                    >
                 </div>
                 <?php if (@$post?->getPicture() != ""): ?>
                     <div class="text-muted mb-3">Pôvodný súbor: <?= substr($post->getPicture(), strpos($post->getPicture(), '-') + 1) ?></div>
                 <?php endif; ?>
                 <label for="text" class="form-label fw-bold">Text príspevku</label>
                 <div class="input-group has-validation mb-3 ">
-                    <textarea class="form-control" aria-label="With textarea" name="text" id="text"><?= @$post?->getText() ?></textarea>
+                    <textarea class="form-control" aria-label="With textarea" name="text" id="text"
+                    minlength="5" maxlength="255"><?= @$post?->getText() ?></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Uložiť</button>
             </form>

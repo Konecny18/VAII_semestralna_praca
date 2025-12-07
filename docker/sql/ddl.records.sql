@@ -13,3 +13,7 @@ CREATE TABLE IF NOT EXISTS `records` (
   INDEX `idx_records_user_id` (`user_id`),
   CONSTRAINT `fk_records_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+ALTER TABLE `records`
+    MODIFY COLUMN `poznamka` VARCHAR(255) DEFAULT NULL;

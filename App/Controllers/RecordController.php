@@ -76,90 +76,189 @@ class RecordController extends BaseController
 
     public function save(Request $request): Response
     {
-        $formValues = ['nazov_discipliny' => '', 'dosiahnuty_vykon' => '', 'datum_vykovu' => '', 'poznamka' => '', 'id' => null];
+        // --- 1. Inicializácia a Sanitizácia ---
+        $idRaw = $request->post('id') ?? null;
+        $id = ($idRaw === '' || $idRaw === null) ? null : (int)$idRaw;
+        $isEdit = !empty($id);
+
+        // Zásadná SANITIZÁCIA (XSS ochrana)
+        $nazov = strip_tags(trim((string)($request->post('nazov_discipliny') ?? '')));
+        $vykon = strip_tags(trim((string)($request->post('dosiahnuty_vykon') ?? '')));
+        $datumRaw = trim((string)($request->post('datum_vykonu') ?? '')); // Dátum nesanitizujeme tagmi
+        $poznamka = strip_tags(trim((string)($request->post('poznamka') ?? '')));
+
         $errors = [];
 
-        if ($request->isPost()) {
-            $nazov = trim((string)($request->post('nazov_discipliny') ?? ''));
-            $vykon = trim((string)($request->post('dosiahnuty_vykon') ?? ''));
-            $datumRaw = trim((string)($request->post('datum_vykonu') ?? ''));
-            $poznamka = trim((string)($request->post('poznamka') ?? ''));
-            $idRaw = $request->post('id') ?? null;
-            $id = ($idRaw === '' || $idRaw === null) ? null : (int)$idRaw;
-            $isEdit = !empty($id);
+        // --- 2. Validácia (Volanie novej metódy) ---
+        // Posielame surové/sanitizované dáta, ktoré sa budú validovať.
+        $formErrors = $this->formErrors($nazov, $vykon, $datumRaw, $poznamka, $isEdit);
 
-            $formValues['nazov_discipliny'] = $nazov;
-            $formValues['dosiahnuty_vykon'] = $vykon;
-            $formValues['datum_vykovu'] = $datumRaw;
-            $formValues['poznamka'] = $poznamka;
-            $formValues['id'] = $id;
+        if (count($formErrors) > 0) {
+            // Ak validácia zlyhala, pripravíme Model pre re-populáciu formulára
+            $record = ($isEdit) ? Record::getOne($id) : new Record();
 
-            // validation
-            if ($nazov === '') {
-                $errors[] = 'Názov disciplíny je povinný.';
-            }
-            if ($datumRaw !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $datumRaw)) {
-                $errors[] = 'Dátum má nesprávny formát.';
+            // Nastavíme hodnoty, aby sa zobrazili vo formulári
+            $record->setNazovDiscipliny($nazov);
+            $record->setDosiahnutyVykon($vykon ?: null);
+            $record->setDatumVykonu($datumRaw ?: null);
+            $record->setPoznamka($poznamka ?: null);
+
+            // Zabezpečíme, že na editácii zostane user_id, ak validácia zlyhala
+            if ($isEdit && $record->getUserId() === 0) {
+                // Ak id existuje, ale record ho stratil, musíme ho znovu načítať
+                $existing = Record::getOne($id);
+                if ($existing) $record->setUserId($existing->getUserId());
             }
 
-            if (empty($errors)) {
-                try {
-                    if ($isEdit) {
-                        $record = Record::getOne((int)$id);
-                        if (is_null($record)) {
-                            throw new \Exception('Záznam neexistuje.');
-                        }
-                        // Only owner or admin can update
-                        $identity = $this->user->getIdentity();
-                        $role = $identity?->getRole() ?? null;
-                        $userId = $identity?->getId() ?? null;
-                        if ($role !== 'admin' && $userId !== $record->getUserId()) {
-                            throw new \Exception('Nemáte oprávnenie upravovať tento záznam.');
-                        }
+            return $this->html(
+                ['errors' => $formErrors, 'record' => $record], $isEdit ? 'edit' : 'add'
+            );
+        }
 
-                        $record->setNazovDiscipliny($nazov);
-                        $record->setDosiahnutyVykon($vykon ?: null);
-                        $record->setDatumVykonu($datumRaw ?: null);
-                        $record->setPoznamka($poznamka ?: null);
-                    } else {
-                        // Creating new record: require logged user to avoid DB foreign key errors
-                        if (!$this->user->isLoggedIn()) {
-                            return $this->redirect(Configuration::LOGIN_URL);
-                        }
-
-                        // get current user id from authenticated identity
-                        $identity = $this->user->getIdentity();
-                        $userId = method_exists($identity, 'getId') ? $identity->getId() : 0;
-
-                        $record = new Record(null, (int)$userId, $nazov, $vykon ?: null, $datumRaw ?: null, $poznamka ?: null);
-                    }
-                    $record->save();
-                    return $this->redirect($this->url('record.index'));
-                } catch (\Throwable $e) {
-                    $errors[] = 'Nepodarilo sa uložiť záznam: ' . $e->getMessage();
+        // --- 3. Spracovanie a Uloženie (Iba ak je validácia úspešná) ---
+        try {
+            if ($isEdit) {
+                $record = Record::getOne($id);
+                if (is_null($record)) {
+                    throw new \Exception('Záznam neexistuje.');
                 }
-            }
-        }
+                // Kontrola AUTORIZÁCIE: Len majiteľ alebo admin môže editovať
+                $identity = $this->user->getIdentity();
+                $role = $identity?->getRole() ?? null;
+                $userId = $identity?->getId() ?? null;
+                if ($role !== 'admin' && $userId !== $record->getUserId()) {
+                    // Vraciame 403, namiesto uloženia chyby do poľa
+                    throw new HttpException(403, 'Nemáte oprávnenie upravovať tento záznam.');
+                }
 
-        // prepare model for form
-        $record = null;
-        if (!empty($formValues['id'])) {
-            $existing = Record::getOne((int)$formValues['id']);
-            if ($existing !== null) {
-                $record = $existing;
-                $record->setNazovDiscipliny($formValues['nazov_discipliny']);
-                $record->setDosiahnutyVykon($formValues['dosiahnuty_vykon'] ?: null);
-                $record->setDatumVykonu($formValues['datum_vykovu'] ?: null);
-                $record->setPoznamka($formValues['poznamka'] ?: null);
-            }
-        }
-        if ($record === null) {
-            $record = new Record(null, $formValues['id'] ?? 0, $formValues['nazov_discipliny'], $formValues['dosiahnuty_vykon'], $formValues['datum_vykovu'], $formValues['poznamka']);
-        }
+                $record->setNazovDiscipliny($nazov);
+                $record->setDosiahnutyVykon($vykon ?: null);
+                $record->setDatumVykonu($datumRaw ?: null);
+                $record->setPoznamka($poznamka ?: null);
+            } else {
+                // Vytváranie nového záznamu
+                if (!$this->user->isLoggedIn()) {
+                    return $this->redirect(Configuration::LOGIN_URL);
+                }
 
-        return $this->html(array_merge(compact('errors', 'record')),
-            empty($formValues['id']) ? 'add' : 'edit');
+                // Získame ID prihláseného používateľa (autorizácia)
+                $identity = $this->user->getIdentity();
+                $userId = method_exists($identity, 'getId') ? $identity->getId() : 0;
+                if ($userId === 0) {
+                    throw new \Exception('Prihlásený používateľ nemá platné ID.');
+                }
+
+                $record = new Record(null, (int)$userId, $nazov, $vykon ?: null, $datumRaw ?: null, $poznamka ?: null);
+            }
+
+            $record->save();
+            return $this->redirect($this->url('record.index'));
+
+        } catch (HttpException $e) {
+            // Znovu vyvolanie pre 403 chybu
+            throw $e;
+        } catch (\Throwable $e) {
+            // Zachytenie DB a iných chýb
+            $errors[] = 'Nepodarilo sa uložiť záznam: ' . $e->getMessage();
+
+            // Ak bola chyba, vrátime sa do formulára s chybou
+            $record->setNazovDiscipliny($nazov);
+            $record->setDosiahnutyVykon($vykon ?: null);
+            $record->setDatumVykonu($datumRaw ?: null);
+            $record->setPoznamka($poznamka ?: null);
+
+            return $this->html(
+                ['errors' => $errors, 'record' => $record], $isEdit ? 'edit' : 'add'
+            );
+        }
     }
+
+//    public function save(Request $request): Response
+//    {
+//        $formValues = ['nazov_discipliny' => '', 'dosiahnuty_vykon' => '', 'datum_vykovu' => '', 'poznamka' => '', 'id' => null];
+//        $errors = [];
+//
+//        if ($request->isPost()) {
+//            $nazov = trim((string)($request->post('nazov_discipliny') ?? ''));
+//            $vykon = trim((string)($request->post('dosiahnuty_vykon') ?? ''));
+//            $datumRaw = trim((string)($request->post('datum_vykonu') ?? ''));
+//            $poznamka = trim((string)($request->post('poznamka') ?? ''));
+//            $idRaw = $request->post('id') ?? null;
+//            $id = ($idRaw === '' || $idRaw === null) ? null : (int)$idRaw;
+//            $isEdit = !empty($id);
+//
+//            $formValues['nazov_discipliny'] = $nazov;
+//            $formValues['dosiahnuty_vykon'] = $vykon;
+//            $formValues['datum_vykovu'] = $datumRaw;
+//            $formValues['poznamka'] = $poznamka;
+//            $formValues['id'] = $id;
+//
+//            // validation
+//            if ($nazov === '') {
+//                $errors[] = 'Názov disciplíny je povinný.';
+//            }
+//            if ($datumRaw !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $datumRaw)) {
+//                $errors[] = 'Dátum má nesprávny formát.';
+//            }
+//
+//            if (empty($errors)) {
+//                try {
+//                    if ($isEdit) {
+//                        $record = Record::getOne((int)$id);
+//                        if (is_null($record)) {
+//                            throw new \Exception('Záznam neexistuje.');
+//                        }
+//                        // Only owner or admin can update
+//                        $identity = $this->user->getIdentity();
+//                        $role = $identity?->getRole() ?? null;
+//                        $userId = $identity?->getId() ?? null;
+//                        if ($role !== 'admin' && $userId !== $record->getUserId()) {
+//                            throw new \Exception('Nemáte oprávnenie upravovať tento záznam.');
+//                        }
+//
+//                        $record->setNazovDiscipliny($nazov);
+//                        $record->setDosiahnutyVykon($vykon ?: null);
+//                        $record->setDatumVykonu($datumRaw ?: null);
+//                        $record->setPoznamka($poznamka ?: null);
+//                    } else {
+//                        // Creating new record: require logged user to avoid DB foreign key errors
+//                        if (!$this->user->isLoggedIn()) {
+//                            return $this->redirect(Configuration::LOGIN_URL);
+//                        }
+//
+//                        // get current user id from authenticated identity
+//                        $identity = $this->user->getIdentity();
+//                        $userId = method_exists($identity, 'getId') ? $identity->getId() : 0;
+//
+//                        $record = new Record(null, (int)$userId, $nazov, $vykon ?: null, $datumRaw ?: null, $poznamka ?: null);
+//                    }
+//                    $record->save();
+//                    return $this->redirect($this->url('record.index'));
+//                } catch (\Throwable $e) {
+//                    $errors[] = 'Nepodarilo sa uložiť záznam: ' . $e->getMessage();
+//                }
+//            }
+//        }
+//
+//        // prepare model for form
+//        $record = null;
+//        if (!empty($formValues['id'])) {
+//            $existing = Record::getOne((int)$formValues['id']);
+//            if ($existing !== null) {
+//                $record = $existing;
+//                $record->setNazovDiscipliny($formValues['nazov_discipliny']);
+//                $record->setDosiahnutyVykon($formValues['dosiahnuty_vykon'] ?: null);
+//                $record->setDatumVykonu($formValues['datum_vykovu'] ?: null);
+//                $record->setPoznamka($formValues['poznamka'] ?: null);
+//            }
+//        }
+//        if ($record === null) {
+//            $record = new Record(null, $formValues['id'] ?? 0, $formValues['nazov_discipliny'], $formValues['dosiahnuty_vykon'], $formValues['datum_vykovu'], $formValues['poznamka']);
+//        }
+//
+//        return $this->html(array_merge(compact('errors', 'record')),
+//            empty($formValues['id']) ? 'add' : 'edit');
+//    }
 
     public function delete(Request $request): Response
     {
@@ -183,5 +282,49 @@ class RecordController extends BaseController
         }
 
         return $this->redirect($this->url('record.index'));
+    }
+
+    private function formErrors(string $nazov, string $vykon, string $datumRaw, string $poznamka, bool $isEdit): array
+    {
+        $errors = [];
+        $maxTextLength = 255;
+        $minNazovLength = 2;
+
+        // --- 1. Názov disciplíny (VARCHAR(255) NOT NULL) ---
+        if ($nazov === '') {
+            $errors[] = 'Názov disciplíny je povinný.';
+        } elseif (mb_strlen($nazov) < $minNazovLength) {
+            $errors[] = 'Názov disciplíny musí mať aspoň ' . $minNazovLength . ' znaky.';
+        } elseif (mb_strlen($nazov) > $maxTextLength) {
+            $errors[] = 'Názov disciplíny nesmie presiahnuť ' . $maxTextLength . ' znakov.';
+        }
+
+        // --- 2. Dátum výkonu (TIMESTAMP NOT NULL) ---
+        if ($datumRaw === '') {
+            $errors[] = 'Dátum výkonu je povinný.';
+        } elseif (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $datumRaw)) {
+            $errors[] = 'Dátum má nesprávny formát (očakáva sa YYYY-MM-DD).';
+        } else {
+            $timestamp = strtotime($datumRaw);
+            $today = strtotime(date('Y-m-d'));
+
+            if (!$timestamp) {
+                $errors[] = 'Zadaný dátum je neplatný.';
+            } elseif ($timestamp > $today) {
+                $errors[] = 'Dátum výkonu nemôže byť v budúcnosti.';
+            }
+        }
+
+        // --- 3. Dosiahnutý výkon (VARCHAR(255) DEFAULT NULL) ---
+        if ($vykon !== '' && mb_strlen($vykon) > $maxTextLength) {
+            $errors[] = 'Dosiahnutý výkon nesmie presiahnuť ' . $maxTextLength . ' znakov.';
+        }
+
+        // --- 4. Poznámka (VARCHAR(255) DEFAULT NULL) ---
+        if ($poznamka !== '' && mb_strlen($poznamka) > $maxTextLength) {
+            $errors[] = 'Poznámka nesmie presiahnuť ' . $maxTextLength . ' znakov.';
+        }
+
+        return $errors;
     }
 }

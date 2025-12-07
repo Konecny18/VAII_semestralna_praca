@@ -2,11 +2,14 @@
 
 /** @var Framework\Support\LinkGenerator $link */
 /** @var array $formErrors */
-/** @var \App\Models\Album $album */
+/** @var Album $album */
 /** @var array $errors */
 /** @var string $text */
 /** @var string $picture */
 /** @var int|null $id */
+
+use App\Models\Album;
+
 ?>
 
 <?php if (!empty($errors ?? [])): ?>
@@ -33,7 +36,8 @@
                 <?php endif; ?>
                 <label for="text" class="form-label fw-bold">Názov albumu</label>
                 <div class="input-group has-validation mb-3 ">
-                    <textarea class="form-control" aria-label="With textarea" name="text" id="text" required minlength="5"><?= @$album?->getText() ?></textarea>
+                    <textarea class="form-control" aria-label="With textarea" name="text" id="text"
+                              required minlength="5" maxlength="255"><?= @$album?->getText() ?></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Uložiť</button>
             </form>

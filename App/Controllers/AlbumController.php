@@ -57,7 +57,9 @@ class AlbumController extends BaseController
 
         if ($request->isPost()) {
             // sanitize inputs
-            $text = trim((string)($request->post('text') ?? ''));
+            //$text = trim((string)($request->post('text') ?? ''));
+            // Zlepšená sanitizácia: Odstránenie HTML tagov z textu (prevencia XSS)
+            $text = strip_tags(trim((string)($request->post('text') ?? '')));
             // normalize id: treat empty string as null, otherwise cast to int
             $idRaw = $request->post('id') ?? null;
             $id = ($idRaw === '' || $idRaw === null) ? null : (int)$idRaw;
@@ -215,33 +217,77 @@ class AlbumController extends BaseController
         return $this->redirect($this->url("album.index"));
     }
 
+//    private function formErrors(Request $request, bool $isEdit = false): array
+//    {
+//        $errors = [];
+//
+//        $file = $request->file('picture');
+//        $text = trim((string)$request->value('text') ?? '');
+//
+//        // picture required when creating new album
+//        if (!$isEdit) {
+//            if (!($file instanceof UploadedFile) || $file->getName() == "") {
+//                $errors[] = "Pole Súbor obrázka musí byť vyplnené!";
+//            }
+//        }
+//
+//        if ($text == "") {
+//            $errors[] = "Pole Názov albumu musí byť vyplnené!";
+//        }
+//
+//        if ($file instanceof UploadedFile && $file->getName() != "") {
+//            if (!in_array($file->getType(), ['image/jpeg', 'image/png'])) {
+//                $errors[] = "Obrázok musí byť typu JPG alebo PNG!";
+//            }
+//        }
+//
+//        if ($text != "" && strlen($text) < 5) {
+//            $errors[] = "Počet znakov v názve albumu musí byť viac ako 5!";
+//        }
+//        return $errors;
+//    }
+
     private function formErrors(Request $request, bool $isEdit = false): array
     {
         $errors = [];
-
-        $file = $request->file('picture');
         $text = trim((string)$request->value('text') ?? '');
+        $file = $request->file('picture');
 
-        // picture required when creating new album
-        if (!$isEdit) {
-            if (!($file instanceof UploadedFile) || $file->getName() == "") {
-                $errors[] = "Pole Súbor obrázka musí byť vyplnené!";
-            }
+        // Definovanie limitov na serverovej strane
+        $maxTextLength = 255;
+        $maxFileSize = 5242880; // 5 MB
+
+        // --- Validácia Názvu albumu (text) ---
+        if ($text === "") {
+            $errors[] = "Názov albumu musí byť vyplnený!";
+        } elseif (strlen($text) < 5) {
+            $errors[] = "Názov albumu musí mať aspoň 5 znakov!";
+        } elseif (strlen($text) > $maxTextLength) {
+            // Kontrola, aby dĺžka neprekročila limit DB stĺpca VARCHAR(255)
+            $errors[] = "Názov albumu nesmie presiahnuť " . $maxTextLength . " znakov!";
+        }
+        // POZNÁMKA: Kontrola unikátnosti tu chýba, ak je názov albumu jedinečný (odporúčam pridať).
+
+        // --- Validácia Súboru obrázka (picture) ---
+        $isNewUpload = ($file instanceof UploadedFile) && $file->getName() !== "";
+
+        // Povinnosť súboru pri vytváraní nového albumu
+        if (!$isEdit && !$isNewUpload) {
+            $errors[] = "Súbor obrázka je povinný pre vytvorenie nového albumu!";
         }
 
-        if ($text == "") {
-            $errors[] = "Pole Názov albumu musí byť vyplnené!";
-        }
-
-        if ($file instanceof UploadedFile && $file->getName() != "") {
+        if ($isNewUpload) {
+            // Kontrola MIME typu (skutočný typ súboru)
             if (!in_array($file->getType(), ['image/jpeg', 'image/png'])) {
                 $errors[] = "Obrázok musí byť typu JPG alebo PNG!";
             }
+
+            // Kontrola maximálnej veľkosti
+            if ($file->getSize() > $maxFileSize) {
+                $errors[] = "Veľkosť obrázka nesmie presiahnuť 5 MB!";
+            }
         }
 
-        if ($text != "" && strlen($text) < 5) {
-            $errors[] = "Počet znakov v názve albumu musí byť viac ako 5!";
-        }
         return $errors;
     }
 }

@@ -36,14 +36,16 @@
     }
 }
 
+/*dizaj icony na hover*/
 .bi-facebook:hover{
     color: blue;
 }
-
+/*farba icony instagramu*/
 .bi-instagram {
     color: #E1306C;
 }
 
+/*dizaj icony na hover*/
 .bi-instagram:hover {
     color: #9B2C6D; /* tmavší odtieň pri hoveri */
 }

@@ -8,7 +8,7 @@
     color: #ffffff;
 }
 
-
+/*nastavenie loga*/
 .logo {
     width: 100px;
     height: auto;
@@ -32,6 +32,8 @@
     }
 }
 
+
+/*tlacidlo na hlavnu stranku kde ma byt*/
 .auth-back-btn {
     position: absolute;
     top: 15px;     /* padding zhora */

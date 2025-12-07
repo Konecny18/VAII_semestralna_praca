@@ -13,3 +13,7 @@ CREATE TABLE `posts` (
   KEY `idx_albumId` (`albumId`),
   CONSTRAINT `fk_posts_albums` FOREIGN KEY (`albumId`) REFERENCES `albums` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+ALTER TABLE `posts`
+    MODIFY COLUMN `text` VARCHAR(255) DEFAULT NULL;
