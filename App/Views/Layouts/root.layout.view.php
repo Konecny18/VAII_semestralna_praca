@@ -1,11 +1,14 @@
 <?php
 
 /** @var string $contentHTML */
-/** @var \Framework\Auth\AppUser|null $user */
+/** @var AppUser|null $user */
 /** @var LinkGenerator $link */
 
 // The framework injects a `user` helper (AppUser) and `link` into all views via ViewResponse.
 // Do not overwrite `$user` here; if it's not injected, keep it null.
+use Framework\Auth\AppUser;
+use Framework\Support\LinkGenerator;
+
 if (!isset($user)) {
     $user = null;
 }
@@ -38,6 +41,8 @@ if (!isset($user)) {
     <link rel="stylesheet" href="<?= $link->asset('css/contact.css') ?>?v=1">
     <!-- Klub (flip card) styles -->
     <link rel="stylesheet" href="<?= $link->asset('css/klub.css') ?>?v=1">
+    <!-- Include events stylesheet -->
+    <link rel="stylesheet" href="<?= $link->asset('css/events.css') ?>">
 
 </head>
 <body>
@@ -72,7 +77,7 @@ if (!isset($user)) {
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item " href="<?= $link->url('home.contact')?>">Kontakt</a></li>
                         <li><a class="dropdown-item " href="<?= $link->url('training.index')?>">Rozvrh tréningov</a></li>
-                        <li><a class="dropdown-item" href="#">Podujatia</a></li>
+                        <li><a class="dropdown-item" href="<?= $link->url('event.index')?>">Podujatia</a></li>
                         <li><a class="dropdown-item" href="#">Partneri</a></li>
                     </ul>
                 </li>

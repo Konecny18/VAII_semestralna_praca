@@ -6,13 +6,13 @@
 
 $trainings = $trainings ?? [];
 $days = [
-    'Pon' => 'Pondelok',
-    'Uto' => 'Utorok',
-    'Str' => 'Streda',
-    'Stv' => 'Štvrtok',
-    'Pia' => 'Piatok',
-    'Sob' => 'Sobota',
-    'Ned' => 'Nedeľa'
+        'Pon' => 'Pondelok',
+        'Uto' => 'Utorok',
+        'Str' => 'Streda',
+        'Stv' => 'Štvrtok',
+        'Pia' => 'Piatok',
+        'Sob' => 'Sobota',
+        'Ned' => 'Nedeľa'
 ];
 
 // determine admin flag (only admins may manage schedule)
@@ -43,29 +43,29 @@ if ($isLoggedIn && method_exists($user, 'getIdentity')) {
             <div class="col-12">
                 <table class="table table-striped">
                     <thead>
-                        <tr>
-                            <th>Deň</th>
-                            <th>Čas</th>
-                            <th>Popis</th>
-                            <?php if ($isAdmin): ?>
-                                <th class="text-end">Akcie</th>
-                            <?php endif; ?>
-                        </tr>
+                    <tr>
+                        <th>Deň</th>
+                        <th>Čas</th>
+                        <th>Popis</th>
+                        <?php if ($isAdmin): ?>
+                            <th class="text-end">Akcie</th>
+                        <?php endif; ?>
+                    </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($trainings as $t): ?>
-                                <tr>
-                                    <td><?php echo $days[$t->getDen()] ?? htmlspecialchars($t->getDen()) ?></td>
-                                    <td><?php echo htmlspecialchars(substr((string)$t->getCasZaciatku(), 0, 5)) ?> - <?php echo htmlspecialchars(substr((string)$t->getCasKonca(), 0, 5)) ?></td>
-                                    <td><?php echo htmlspecialchars($t->getPopis()) ?></td>
-                                    <?php if ($isAdmin): ?>
-                                        <td class="text-end">
-                                            <a href="<?php echo $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">Upraviť</a>
-                                            <a href="<?php echo $link->url('training.delete', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Naozaj zmazať tréning?')">Zmazať</a>
-                                        </td>
-                                    <?php endif; ?>
-                                </tr>
-                         <?php endforeach; ?>
+                    <?php foreach ($trainings as $t): ?>
+                        <tr>
+                            <td><?php echo $days[$t->getDen()] ?? htmlspecialchars($t->getDen()) ?></td>
+                            <td><?php echo htmlspecialchars(substr((string)$t->getCasZaciatku(), 0, 5)) ?> - <?php echo htmlspecialchars(substr((string)$t->getCasKonca(), 0, 5)) ?></td>
+                            <td><?php echo htmlspecialchars($t->getPopis()) ?></td>
+                            <?php if ($isAdmin): ?>
+                                <td class="text-end">
+                                    <a href="<?php echo $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">Upraviť</a>
+                                    <a href="<?php echo $link->url('training.delete', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Naozaj zmazať tréning?')">Zmazať</a>
+                                </td>
+                            <?php endif; ?>
+                        </tr>
+                    <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>

@@ -1,110 +1,86 @@
-/* Responsive flip-card styles (CSS-only) */
-
-/* Container that provides 3D perspective */
+/* Container - o šírku sa stará Bootstrap mriežka (col-...) */
+/*otacanie vyzera lepsie plynulo*/
 .flip-card {
     perspective: 1000px;
-    width: 100%; /* column controls width */
+    width: 100%;
     display: block;
 }
 
-/* Inner element that will be rotated */
+/* Vnútorný obal */
 .flip-card-inner {
     position: relative;
     width: 100%;
-    /* height scales with viewport but stays between min and max */
-    height: clamp(260px, 45vh, 600px);
+    /* Výška karty - prispôsob si podľa potreby */
+    height: clamp(300px, 45vh, 600px);
     text-align: center;
     transition: transform 0.8s ease;
     transform-style: preserve-3d;
 }
 
-/* Trigger flip on hover or keyboard focus */
+/* Otočenie */
 .flip-card:hover .flip-card-inner,
-.flip-card:focus .flip-card-inner,
 .flip-card:focus-within .flip-card-inner {
     transform: rotateY(180deg);
 }
 
-/* Front/back faces occupy same space */
+/* Spoločné vlastnosti strán */
 .flip-card-front,
 .flip-card-back {
     position: absolute;
-    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    inset: 0;
     width: 100%;
     height: 100%;
-    -webkit-backface-visibility: hidden; /* Safari */
-    backface-visibility: hidden;
+    backface-visibility: hidden; /*skryje zadnu stranu */
     border-radius: 8px;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Prvky radíme pod seba */
 }
 
-/* Front face styling */
+/* --- PREDNÁ STRANA --- */
 .flip-card-front {
-    /*sluzi na to aby sa zobrazil nad elementamy*/
-    /*z-index: 2;*/
     background-color: goldenrod;
     color: #000;
 }
 
-/* Back face styling */
+/* Horný text - Stanovená medzera */
+.flip-card-front .card-title {
+    margin: 0;
+    padding: 15px 10px; /* Definovaná medzera od okrajov */
+    flex: 0 0 auto;    /* Zoberie len nevyhnutné miesto podľa textu */
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* OBRÁZOK - Vyplní všetok zvyšný priestor */
+.flip-card-front .card-img-top {
+    width: 100%;
+    flex-grow: 1;      /* KĽÚČOVÉ: Obrázok pohltí všetok voľný priestor pod textom */
+    object-fit: fill; /* Oreže fotku tak, aby vyplnila plochu*/
+    min-height: 0;     /* Dôležité, aby flexbox mohol obrázok zmenšiť */
+    display: block;
+}
+
+/* --- ZADNÁ STRANA --- */
 .flip-card-back {
     background-color: #0d6efd;
     color: #fff;
     transform: rotateY(180deg);
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: 1.5rem;
     text-align: center;
 }
 
-/* Image covers the top portion of the card; uses percent heights so it scales with the card */
-.flip-card-front .card-img-top,
-.flip-card .card-img-top {
-    width: 100%;
-    height: 90%;
-    object-fit: fill;
-    display: block;
-    flex: 0 0 90%;
-}
-
-
-/* Small screens: reduce card height and image portion */
+/* Responzivita - Riešime už len výšku karty, o vnútro sa postará Flexbox automaticky */
 @media (max-width: 576px) {
     .flip-card-inner {
-        height: clamp(220px, 55vh, 420px);
-    }
-    .flip-card-front .card-img-top,
-    .flip-card .card-img-top {
-        height: 60%;
-        flex: 0 0 60%;
-    }
-    .flip-card-front .card-body,
-    .flip-card-back .card-body {
-        flex: 1 1 40%;
+        height: 350px;
     }
 }
 
-/* Medium screens: slightly smaller than desktop */
-@media (min-width: 577px) and (max-width: 991px) {
-    .flip-card-inner {
-        height: clamp(320px, 50vh, 420px);
-    }
-    .flip-card-front .card-img-top,
-    .flip-card .card-img-top {
-        height: 68%;
-        flex: 0 0 68%;
-    }
-    .flip-card-front .card-body,
-    .flip-card-back .card-body {
-        flex: 1 1 32%;
-    }
-}
-
-/* Visual focus indicator for keyboard users */
+/* Vizuálny indikátor pre klávesnicu */
 .flip-card:focus {
     outline: 3px solid rgba(13,110,253,0.18);
     outline-offset: 4px;
 }
-

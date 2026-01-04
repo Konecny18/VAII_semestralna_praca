@@ -6,7 +6,6 @@ use Framework\Support\LinkGenerator;
 
 ?>
 
-
 <div class="container my-5">
 
     <!-- Sekcia: Info o klube -->
@@ -26,14 +25,13 @@ use Framework\Support\LinkGenerator;
         </div>
 
 
-<!--         Tréner 1 -->
+        <!--         Tréner 1 -->
         <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4">
             <div class="flip-card h-100">
                 <div class="flip-card-inner">
                     <div class="flip-card-front">
                         <h5 class="card-title">Hlavný tréner</h5>
                         <img src="<?= $link->asset('images/daniel.png') ?>" class="card-img-top" alt="Daniel Konečný">
-                        <h5 class="card-title">Daniel Konečný</h5>
                     </div>
                     <div class="flip-card-back">
                         <div class="card-body text-center d-flex flex-column justify-content-center h-100">
@@ -52,7 +50,6 @@ use Framework\Support\LinkGenerator;
                     <div class="flip-card-front">
                         <h5 class="card-title">Plavecký tréner</h5>
                         <img src="<?= $link->asset('images/gustav.png') ?>" class="card-img-top" alt="Gustav Konečný">
-                        <h5 class="card-title">Gustav Konečný</h5>
                     </div>
                     <div class="flip-card-back">
                         <div class="card-body text-center d-flex flex-column justify-content-center h-100">
@@ -71,7 +68,6 @@ use Framework\Support\LinkGenerator;
                     <div class="flip-card-front">
                         <h5 class="card-title">Pomocný tréner</h5>
                         <img src="<?= $link->asset('images/damianTrener.jpg') ?>" class="card-img-top" alt="Damián Konečný">
-                        <h5 class="card-title">Damián Konečný</h5>
                     </div>
                     <div class="flip-card-back">
                         <div class="card-body text-center d-flex flex-column justify-content-center h-100">
@@ -88,10 +84,8 @@ use Framework\Support\LinkGenerator;
             <div class="flip-card h-100">
                 <div class="flip-card-inner">
                     <div class="flip-card-front">
-
                         <h5 class="card-title">Pomocný tréner</h5>
                         <img src="<?= $link->asset('images/kristofTrener.jpg') ?>" class="card-img-top" alt="Krištof Konečný">
-                        <h5 class="card-title">Krištof Konečný</h5>
                     </div>
                     <div class="flip-card-back">
                         <div class="card-body text-center d-flex flex-column justify-content-center h-100">
