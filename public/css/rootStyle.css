@@ -1,3 +1,23 @@
+/* Zabezpečí, že stránka bude mať výšku aspoň cez celú obrazovku */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Toto je tá "pružina", ktorú si v HTML nazval .page-content */
+.page-content {
+    flex: 1 0 auto; /* Vyplní všetko voľné miesto */
+}
+
+/* Footer zostane vždy na spodku */
+.site-footer {
+    flex-shrink: 0;
+}
+
 /* Make navbar text larger and bold */
 .navbar .navbar-brand,
 .navbar .nav-link,
@@ -58,3 +78,32 @@
         font-size: 1rem;
     }
 }
+
+/* 1. Zrušíme modrú farbu odkazu a nastavíme prechod na odkaz, nie na ikonu */
+.site-footer a {
+    text-decoration: none;
+    transition: color 0.3s ease;
+    color: inherit; /* Povie odkazu, aby nebol modrý, ale bral farbu od textu (bielu) */
+}
+
+/* 2. Facebook - biely v základe, modrý len pri hoveri */
+.site-footer a .bi-facebook {
+    color: lightskyblue;
+}
+
+.site-footer a:hover .bi-facebook {
+    color: #1877F2;
+}
+
+/* 3. Instagram - ružový stále (aj bez hoveru) */
+/* Tu musíme zacieliť priamo ikonu v odkaze, aby sme prebili tú bielu/modrú */
+.site-footer a .bi-instagram {
+    color: #E1306C;
+}
+
+.site-footer a:hover .bi-instagram {
+    color: #9B2C6D;
+}
+
+
+

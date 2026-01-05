@@ -34,7 +34,7 @@ if (!isset($user)) {
 
     <!-- Existing app assets -->
     <link rel="stylesheet" href="<?= $link->asset('css/home.css') ?>?v=3">
-    <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>?v=3">
+    <link rel="stylesheet" href="<?= $link->asset('css/rootStyle.css') ?>?v=3">
     <!-- Add gallery specific CSS (card-img) -->
     <link rel="stylesheet" href="<?= $link->asset('css/galeria.css') ?>?v=1">
     <!-- Contact page specific CSS -->
@@ -45,7 +45,7 @@ if (!isset($user)) {
     <link rel="stylesheet" href="<?= $link->asset('css/events.css') ?>">
 
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
@@ -107,10 +107,36 @@ if (!isset($user)) {
         </div>
     </div>
 </nav>
-<div class="container-fluid mt-3">
-    <div class="web-content">
-        <?= $contentHTML ?>
+
+
+<main class="page-content">
+    <div class="container-fluid mt-3">
+        <div class="web-content">
+            <?= $contentHTML ?>
+        </div>
     </div>
-</div>
+</main>
+
+<footer class="site-footer bg-dark py-4 mt-auto"> <div class="container">
+        <div class="row align-items-center">
+
+            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                <p class="mb-0 text-white">© <?= date('Y') ?> T.A.T. Martin. All rights reserved.</p>
+            </div>
+
+            <div class="col-12 col-md-6 d-flex align-items-center justify-content-md-end">
+                <p class="mb-0 me-2 text-white">Sleduj nás na našich sociálnych sieťach:</p>
+                <a href="https://www.facebook.com/..." class="me-3 fs-4">
+                    <i class="bi bi-facebook"></i>
+                </a>
+                <a href="https://www.instagram.com/tatriatlon/" class="fs-4">
+                    <i class="bi bi-instagram"></i>
+                </a>
+            </div>
+
+        </div>
+    </div>
+</footer>
+
 </body>
 </html>

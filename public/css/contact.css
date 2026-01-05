@@ -1,3 +1,4 @@
+/* Slightly larger base text for the contact page */
 .contact-page {
     /* Slightly larger base text for the contact page */
     font-size: 1.3rem; /* ~5% larger than normal */
@@ -10,22 +11,6 @@
     margin-bottom: 1rem;
 }
 
-/*.contact-page p {*/
-/*    font-size: 1.05rem;*/
-/*    margin-bottom: 0.75rem;*/
-/*}*/
-
-/*!* Make sure strong tags inside contact keep prominence but not overly large *!*/
-/*.contact-page p strong {*/
-/*    font-weight: 700;*/
-/*}*/
-
-/*!* Slightly increase footer text on this page if present inside contact area *!*/
-/*.contact-page footer p,*/
-/*.contact-page .footer p {*/
-/*    font-size: 0.95rem;*/
-/*}*/
-
 @media (max-width: 576px) {
     /* On very small screens, increase readability a bit more */
     .contact-page {
@@ -34,18 +19,4 @@
     .contact-page h2 {
         font-size: 1.3rem;
     }
-}
-
-/*dizaj icony na hover*/
-.bi-facebook:hover{
-    color: blue;
-}
-/*farba icony instagramu*/
-.bi-instagram {
-    color: #E1306C;
-}
-
-/*dizaj icony na hover*/
-.bi-instagram:hover {
-    color: #9B2C6D; /* tmavší odtieň pri hoveri */
 }

@@ -24,7 +24,7 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="<?= $link->asset('css/styl.css') ?>">
+    <link rel="stylesheet" href="<?= $link->asset('css/rootStyle.css') ?>">
 </head>
 <body>
 <div class="container-fluid position-relative mt-0">
