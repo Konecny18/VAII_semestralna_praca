@@ -197,4 +197,26 @@ class AuthController extends BaseController
 
         return $this->html(compact('errors', 'old'));
     }
+
+    /**
+     * AJAX endpoint to check if an email is already registered.
+     * Returns JSON: { success: true, exists: bool }
+     */
+    public function checkEmail(Request $request): Response
+    {
+        $email = mb_strtolower(trim((string)$request->value('email') ?? ''));
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->json(['success' => false, 'message' => 'Neplatný email.']);
+        }
+
+        try {
+            $conn = Connection::getInstance();
+            $stmt = $conn->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
+            $stmt->execute([':email' => $email]);
+            $exists = (bool)$stmt->fetch();
+            return $this->json(['success' => true, 'exists' => $exists]);
+        } catch (PDOException $e) {
+            return $this->json(['success' => false, 'message' => 'Chyba pri dotaze do DB.']);
+        }
+    }
 }

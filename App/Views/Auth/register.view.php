@@ -42,6 +42,7 @@ $view->setLayout('auth');
                             <label for="email" class="form-label">Email</label>
                             <input name="email" type="email" id="email" class="form-control" placeholder="Email"
                                    required value="<?= htmlspecialchars($old['email'] ?? '') ?>">
+                            <div class="invalid-feedback">Prosím zadajte platný email.</div>
                         </div>
 
                         <div class="form-label-group mb-3">
@@ -60,6 +61,12 @@ $view->setLayout('auth');
                             <button class="btn btn-primary" type="submit">Registrovať</button>
                         </div>
                     </form>
+
+                    <script>
+                        // po zadani emailu do policka javascript vie kam ma data odniest na kontrolu
+                        window.__CHECK_EMAIL_URL__ = '<?= $link->url('auth.checkEmail') ?>';
+                    </script>
+                    <script src="<?= $link->asset('js/register-validate.js') ?>"></script>
 
                     <div class="mt-3 text-center">
                         <a href="<?= $link->url('login') ?>">Máte účet? Prihlásiť sa</a>
