@@ -3,243 +3,167 @@
 namespace App\Controllers;
 
 use App\Models\Event;
+use App\Configuration;
 use Framework\Core\BaseController;
-use Framework\Http\Request;
-use Framework\Http\UploadedFile;
 use Framework\Http\HttpException;
+use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 
 class EventController extends BaseController
 {
     public function index(Request $request): Response
     {
-        try {
-            $events = Event::getAll(null, [], 'datum_podujatia DESC');
-            return $this->html(compact('events'));
-        } catch (\Exception $e) {
-            throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
-        }
+        $events = Event::getAll(null, [], 'datum_podujatia DESC');
+        return $this->html(compact('events'));
     }
 
-    public function add(Request $request): Response
+    public function add(): Response
     {
-        return $this->html();
+        // Iba admin môže pristupovať k formuláru na pridanie
+        $this->checkAdmin();
+        return $this->html(['event' => new Event()]);
     }
 
     public function edit(Request $request): Response
     {
-        $id = (int)$request->value('id');
-        $event = Event::getOne($id);
-        if (is_null($event)) {
-            throw new HttpException(404);
+        // Iba admin môže upravovať
+        $this->checkAdmin();
+
+        $event = Event::getOne((int)$request->value('id'));
+        if (!$event) {
+            return $this->redirect($this->url('event.index'));
         }
+
         return $this->html(compact('event'), 'edit');
     }
 
     public function save(Request $request): Response
     {
-        $formValues = ['nazov' => '', 'plagat' => '', 'popis' => '', 'link_prihlasovanie' => '', 'dokument_propozicie' => '', 'datum_podujatia' => '', 'id' => null];
+        // Iba admin môže ukladať dáta
+        $this->checkAdmin();
+
+        $id = $request->post('id');
+        $event = $id ? Event::getOne((int)$id) : new Event();
         $errors = [];
 
         if ($request->isPost()) {
-            $nazov = strip_tags(trim((string)($request->post('nazov') ?? '')));
-            $idRaw = $request->post('id') ?? null;
-            $id = ($idRaw === '' || $idRaw === null) ? null : (int)$idRaw;
-            $isEdit = !empty($id);
+            $data = $request->post();
 
-            $formValues['nazov'] = $nazov;
-            $formValues['id'] = $id;
-            $formValues['popis'] = strip_tags(trim((string)($request->post('popis') ?? '')));
-            $formValues['link_prihlasovanie'] = trim((string)($request->post('link_prihlasovanie') ?? ''));
-            $formValues['datum_podujatia'] = trim((string)($request->post('datum_podujatia') ?? ''));
+            // 1. Validácia textov
+            if (empty($data['nazov'])) $errors[] = 'Názov je povinný.';
+            if (empty($data['datum_podujatia'])) $errors[] = 'Dátum je povinný.';
 
-            // Basic validation
-            if ($nazov === '') {
-                $errors[] = 'Názov podujatia je povinný.';
+            // Validácia dátumu (nesmie byť v minulosti)
+            if (!empty($data['datum_podujatia'])) {
+                $eventDate = \DateTime::createFromFormat('Y-m-d', $data['datum_podujatia']);
+                $today = new \DateTime('today');
+                if (!$eventDate) {
+                    $errors[] = 'Dátum podujatia je neplatný.';
+                } else {
+                    if ($eventDate <= $today) {
+                        $errors[] = 'Dátum podujatia musí byť neskôr ako dnešný deň.';
+                    }
+                }
             }
 
-            // Handle file uploads (plagat = poster image, dokument_propozicie = PDF)
-            $newPlagatFull = null;
-            $oldPlagatFull = null;
-            $newDocFull = null;
-            $oldDocFull = null;
+            // 2. Validácia súborov (Plagát a Dokument)
+            $plagatFile = $request->file('plagat');
+            if (!$id && (!$plagatFile || !$plagatFile->isOk())) {
+                $errors[] = 'Plagát je povinný pri vytváraní nového podujatia.';
+            }
 
-            try {
-                // load existing if editing
-                $existing = null;
-                if ($isEdit) {
-                    $existing = Event::getOne((int)$id);
+            // Kontrola plagátu (formát a veľkosť 2MB)
+            if ($plagatFile && $plagatFile->isOk() && $plagatFile->getName() !== '') {
+                $allowedImgTypes = ['image/jpeg', 'image/png', 'image/pjpeg', 'image/x-png'];
+                if (!in_array(strtolower($plagatFile->getType()), $allowedImgTypes) && !preg_match('/\.(jpe?g|png)$/i', $plagatFile->getName())) {
+                    $errors[] = 'Plagát musí byť vo formáte JPG alebo PNG.';
                 }
-
-                $plagatFile = $request->file('plagat');
-                $docFile = $request->file('dokument_propozicie');
-
-                // images dir
-                // project root is two levels up from App/Controllers -> use dirname(__DIR__, 2)
-                $publicDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
-                $uploadsDir = $publicDir . 'uploads' . DIRECTORY_SEPARATOR;
-                if (!is_dir($uploadsDir)) {
-                    @mkdir($uploadsDir, 0755, true);
+                if ($plagatFile->getSize() > 2 * 1024 * 1024) {
+                    $errors[] = 'Plagát nesmie byť väčší ako 2 MB.';
                 }
+            }
 
-                // Handle poster image
-                if ($plagatFile instanceof UploadedFile && $plagatFile->isOk() && $plagatFile->getName() !== '') {
-                    $allowedImg = ['image/jpeg', 'image/png'];
-                    if (!in_array($plagatFile->getType(), $allowedImg)) {
-                        $errors[] = 'Plagát musí byť JPG alebo PNG.';
-                    } elseif ($plagatFile->getSize() > 5 * 1024 * 1024) {
-                        $errors[] = 'Plagát nesmie byť väčší ako 5 MB.';
-                    } else {
-                        $safe = preg_replace('/[^A-Za-z0-9._-]/', '_', $plagatFile->getName());
-                        $filename = time() . '_' . bin2hex(random_bytes(4)) . '_' . $safe;
-                        $dest = $uploadsDir . $filename;
-                        if ($plagatFile->store($dest)) {
-                            $formValues['plagat'] = 'uploads/' . $filename;
-                            $newPlagatFull = $dest;
-                            if ($isEdit && $existing && $existing->getPlagat() != '') {
-                                $oldPlagatFull = $publicDir . str_replace('/', DIRECTORY_SEPARATOR, $existing->getPlagat());
-                            }
-                        } else {
-                            $errors[] = 'Nepodarilo sa uložiť plagát.';
-                        }
-                    }
-                } else {
-                    if ($isEdit) {
-                        $existing = $existing ?? Event::getOne((int)$id);
-                        if ($existing) {
-                            $formValues['plagat'] = $existing->getPlagat();
-                        }
-                    }
+            // Kontrola dokumentu (PDF a veľkosť 2MB)
+            $docFile = $request->file('dokument_propozicie');
+            if ($docFile && $docFile->isOk() && $docFile->getName() !== '') {
+                if (strtolower($docFile->getType()) !== 'application/pdf' && !preg_match('/\.pdf$/i', $docFile->getName())) {
+                    $errors[] = 'Dokument musí byť vo formáte PDF.';
                 }
-
-                // Handle document PDF
-                if ($docFile instanceof UploadedFile && $docFile->isOk() && $docFile->getName() !== '') {
-                    if ($docFile->getType() !== 'application/pdf') {
-                        $errors[] = 'Dokument musí byť PDF.';
-                    } elseif ($docFile->getSize() > 10 * 1024 * 1024) {
-                        $errors[] = 'Dokument nesmie byť väčší ako 10 MB.';
-                    } else {
-                        $safe = preg_replace('/[^A-Za-z0-9._-]/', '_', $docFile->getName());
-                        $filename = time() . '_' . bin2hex(random_bytes(4)) . '_' . $safe;
-                        $dest = $uploadsDir . $filename;
-                        if ($docFile->store($dest)) {
-                            $formValues['dokument_propozicie'] = 'uploads/' . $filename;
-                            $newDocFull = $dest;
-                            if ($isEdit && $existing && $existing->getDokumentPropozicie() != '') {
-                                $oldDocFull = $publicDir . str_replace('/', DIRECTORY_SEPARATOR, $existing->getDokumentPropozicie());
-                            }
-                        } else {
-                            $errors[] = 'Nepodarilo sa uložiť dokument.';
-                        }
-                    }
-                } else {
-                    if ($isEdit) {
-                        $existing = $existing ?? Event::getOne((int)$id);
-                        if ($existing) {
-                            $formValues['dokument_propozicie'] = $existing->getDokumentPropozicie();
-                        }
-                    }
+                if ($docSize = $docFile->getSize() > 2 * 1024 * 1024) {
+                    $errors[] = 'Dokument nesmie byť väčší ako 2 MB.';
                 }
-
-            } catch (\Throwable $t) {
-                $errors[] = 'Chyba pri nahrávaní súborov: ' . $t->getMessage();
             }
 
             if (empty($errors)) {
-                try {
-                    if ($isEdit) {
-                        $event = Event::getOne((int)$id);
-                        if (is_null($event)) {
-                            throw new \Exception('Podujatie neexistuje.');
-                        }
-                        $event->setNazov($formValues['nazov']);
-                        $event->setPopis($formValues['popis']);
-                        $event->setLinkPrihlasovanie($formValues['link_prihlasovanie']);
-                        $event->setDatumPodujatia($formValues['datum_podujatia']);
-                        $event->setPlagat($formValues['plagat']);
-                        $event->setDokumentPropozicie($formValues['dokument_propozicie']);
-                    } else {
-                        $event = new Event(null,
-                            $formValues['nazov'],
-                            $formValues['plagat'] ?? '',
-                            $formValues['popis'] ?? '',
-                            $formValues['link_prihlasovanie'] ?? '',
-                            $formValues['dokument_propozicie'] ?? '',
-                            $formValues['datum_podujatia'] ?? null
-                        );
-                    }
-                    $event->save();
+                // 3. Nahranie súborov
+                $plagatPath = $this->uploadFile($request, 'plagat', $event->getPlagat());
+                $docPath = $this->uploadFile($request, 'dokument_propozicie', $event->getDokumentPropozicie());
 
-                    // delete old files if replaced
-                    if ($newPlagatFull !== null && $oldPlagatFull !== null && file_exists($oldPlagatFull)) {
-                        @unlink($oldPlagatFull);
-                    }
-                    if ($newDocFull !== null && $oldDocFull !== null && file_exists($oldDocFull)) {
-                        @unlink($oldDocFull);
-                    }
+                // 4. Uloženie modelu
+                $event->setNazov(strip_tags($data['nazov']));
+                $event->setPopis(strip_tags($data['popis']));
+                $event->setLinkPrihlasovanie($data['link_prihlasovanie']);
+                $event->setDatumPodujatia($data['datum_podujatia']);
+                $event->setPlagat($plagatPath);
+                $event->setDokumentPropozicie($docPath);
 
-                    return $this->redirect($this->url('event.index'));
-                } catch (\Throwable $e) {
-                    // cleanup newly uploaded files on failure
-                    if (isset($newPlagatFull) && file_exists($newPlagatFull)) {
-                        @unlink($newPlagatFull);
-                    }
-                    if (isset($newDocFull) && file_exists($newDocFull)) {
-                        @unlink($newDocFull);
-                    }
-                    $errors[] = 'Nepodarilo sa uložiť podujatie: ' . $e->getMessage();
-                }
-            }
-
-        }
-
-        // show form with errors
-        $event = null;
-        if (!empty($formValues['id'])) {
-            $existingForForm = Event::getOne((int)$formValues['id']);
-            if ($existingForForm !== null) {
-                $event = $existingForForm;
-                if (isset($formValues['nazov'])) $event->setNazov($formValues['nazov']);
-                if (isset($formValues['plagat'])) $event->setPlagat($formValues['plagat']);
-                if (isset($formValues['popis'])) $event->setPopis($formValues['popis']);
-                if (isset($formValues['link_prihlasovanie'])) $event->setLinkPrihlasovanie($formValues['link_prihlasovanie']);
-                if (isset($formValues['dokument_propozicie'])) $event->setDokumentPropozicie($formValues['dokument_propozicie']);
-                if (isset($formValues['datum_podujatia'])) $event->setDatumPodujatia($formValues['datum_podujatia']);
+                $event->save();
+                return $this->redirect($this->url('event.index'));
             }
         }
-        if ($event === null) {
-            $event = new Event();
-        }
 
-        return $this->html(array_merge(compact('errors', 'event')),
-            (empty($formValues['id']) ? 'add' : 'edit'));
+        return $this->html(compact('errors', 'event'), $id ? 'edit' : 'add');
     }
 
     public function delete(Request $request): Response
     {
-        try {
-            $id = (int)$request->value('id');
-            $event = Event::getOne($id);
-            if (is_null($event)) {
-                throw new HttpException(404);
+        // Iba admin môže mazať
+        $this->checkAdmin();
+
+        $event = Event::getOne((int)$request->value('id'));
+        if ($event) {
+            $this->deleteFile($event->getPlagat());
+            $this->deleteFile($event->getDokumentPropozicie());
+            $event->delete();
+        }
+        return $this->redirect($this->url('event.index'));
+    }
+
+    /**
+     * Pomocná metóda na kontrolu Admina
+     */
+    private function checkAdmin(): void
+    {
+        if (!$this->user->isLoggedIn()) {
+            // Ak nie je prihlásený, presmeruj na login (vyžaduje Configuration::LOGIN_URL)
+            header('Location: ' . Configuration::LOGIN_URL);
+            exit;
+        }
+
+        $identity = $this->user->getIdentity();
+        if (($identity?->getRole() ?? null) !== 'admin') {
+            throw new HttpException(403, 'Nemáte oprávnenie na túto akciu.');
+        }
+    }
+
+    private function uploadFile(Request $request, string $inputName, ?string $oldFile): string
+    {
+        $file = $request->file($inputName);
+        if ($file && $file->isOk() && $file->getName() !== '') {
+            $path = 'uploads/' . time() . '_' . $file->getName();
+            if ($file->store(dirname(__DIR__, 2) . '/public/' . $path)) {
+                $this->deleteFile($oldFile);
+                return $path;
             }
+        }
+        return $oldFile ?? '';
+    }
 
-            // remove files if exist
-            $publicDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
-             if ($event->getPlagat()) {
-                 $file = $publicDir . str_replace('/', DIRECTORY_SEPARATOR, $event->getPlagat());
-                 if (file_exists($file)) @unlink($file);
-             }
-             if ($event->getDokumentPropozicie()) {
-                 $file = $publicDir . str_replace('/', DIRECTORY_SEPARATOR, $event->getDokumentPropozicie());
-                 if (file_exists($file)) @unlink($file);
-             }
-
-             $event->delete();
-         } catch (\Exception $e) {
-             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
-         }
-
-         return $this->redirect($this->url('event.index'));
-     }
- }
+    private function deleteFile(?string $path): void
+    {
+        if ($path) {
+            $fullPath = dirname(__DIR__, 2) . '/public/' . $path;
+            if (file_exists($fullPath)) @unlink($fullPath);
+        }
+    }
+}

@@ -36,12 +36,14 @@ $errors = $errors ?? [];
 
                 <div class="mb-3">
                     <label for="datum_podujatia" class="form-label fw-bold">Dátum podujatia</label>
-                    <input id="datum_podujatia" name="datum_podujatia" type="date" class="form-control" value="<?= htmlspecialchars($event->getDatumPodujatia() ?? '') ?>">
+                    <input id="datum_podujatia" name="datum_podujatia" type="date" class="form-control" required value="<?= htmlspecialchars($event->getDatumPodujatia() ?? '') ?>">
+                    <div class="invalid-feedback">Datum podujatia je povinný.</div>
                 </div>
 
                 <div class="mb-3">
                     <label for="popis" class="form-label fw-bold">Popis</label>
-                    <textarea id="popis" name="popis" rows="6" class="form-control"><?= htmlspecialchars($event->getPopis() ?? '') ?></textarea>
+                    <textarea id="popis" name="popis" rows="6" class="form-control" required><?= htmlspecialchars($event->getPopis() ?? '') ?></textarea>
+                    <div class="invalid-feedback">Popis podujatia je povinný.</div>
                 </div>
 
                 <div class="mb-3">
@@ -50,8 +52,9 @@ $errors = $errors ?? [];
                 </div>
 
                 <div class="mb-3">
-                    <label for="plagat" class="form-label fw-bold">Plagát (JPG/PNG, max 5 MB)</label>
+                    <label for="plagat" class="form-label fw-bold">Plagát (JPG/PNG, max 2 MB)</label>
                     <input id="plagat" name="plagat" type="file" accept="image/jpeg,image/png" class="form-control">
+                    <div class="invalid-feedback">Plagát je povinný (max 2 MB).</div>
                     <?php if ($event->getPlagat()): ?>
                         <div class="mt-2">
                             <img src="<?= htmlspecialchars($link->asset($event->getPlagat()), ENT_QUOTES, 'UTF-8') ?>" alt="plagat" style="max-width:220px;" class="img-thumbnail">
@@ -60,8 +63,9 @@ $errors = $errors ?? [];
                 </div>
 
                 <div class="mb-3">
-                    <label for="dokument_propozicie" class="form-label fw-bold">Dokument propozície (PDF, max 10 MB)</label>
+                    <label for="dokument_propozicie" class="form-label fw-bold">Dokument propozície (PDF, max 2 MB)</label>
                     <input id="dokument_propozicie" name="dokument_propozicie" type="file" accept="application/pdf" class="form-control">
+                    <div class="invalid-feedback">Propozície musia mať veľkosť max 2 MB.</div>
                     <?php if ($event->getDokumentPropozicie()): ?>
                         <div class="mt-2">
                             <a href="<?= htmlspecialchars($link->asset($event->getDokumentPropozicie()), ENT_QUOTES, 'UTF-8') ?>" target="_blank" class="btn btn-sm btn-outline-primary">Zobraziť existujúci dokument</a>
@@ -79,19 +83,4 @@ $errors = $errors ?? [];
     </div>
 </div>
 
-<script>
-// Bootstrap client-side validation
-(function () {
-    'use strict'
-    var forms = document.querySelectorAll('.needs-validation')
-    Array.prototype.slice.call(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
-            form.classList.add('was-validated')
-        }, false)
-    })
-})()
-</script>
+<script src="<?= $link->asset('js/event-form.js') ?>"></script>

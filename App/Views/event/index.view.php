@@ -3,6 +3,9 @@
 /** @var \Framework\Auth\AppUser|null $user */
 /** @var \App\Models\Event[]|null $events */
 
+// Pomocná premenná pre kontrolu admina
+$isAdmin = $user && $user->isLoggedIn() && ($user->getIdentity()?->getRole() === 'admin');
+
 $link = $link ?? null;
 $asset = function(?string $path) use ($link) {
     if (empty($path)) return '';
@@ -25,7 +28,8 @@ $url = function(string $route, array $params = []) use ($link) {
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-5">
         <h1 class="display-5 fw-bold text-primary">Kalendár podujatí</h1>
-        <?php if ($user): ?>
+
+        <?php if ($isAdmin): ?>
             <a href="<?= $link->url('event.add') ?>" class="btn btn-success shadow-sm">
                 <i class="bi bi-plus-lg"></i> Nové podujatie
             </a>
@@ -44,7 +48,8 @@ $url = function(string $route, array $params = []) use ($link) {
 
                         <div class="col d-flex align-items-center p-4 event-toggle"
                              data-bs-toggle="modal"
-                             data-bs-target="#eventModal<?= $event->getId() ?>">
+                             data-bs-target="#eventModal<?= $event->getId() ?>"
+                             style="cursor: pointer;">
 
                             <div class="text-center border-end pe-4 d-none d-md-block event-date">
                                 <span class="d-block h4 mb-0 fw-bold text-dark"><?= date('d', strtotime($event->getDatumPodujatia())) ?></span>
@@ -54,7 +59,7 @@ $url = function(string $route, array $params = []) use ($link) {
 
                             <div class="ms-3">
                                 <img src="<?= htmlspecialchars($asset($event->getPlagat() ?: 'images/tat_logo.png'), ENT_QUOTES, 'UTF-8') ?>"
-                                     class="rounded shadow-sm event-thumb" alt="event">
+                                     class="rounded shadow-sm event-thumb" alt="event" style="width: 60px; height: 60px; object-fit: cover;">
                             </div>
 
                             <div class="ms-3">
@@ -65,7 +70,7 @@ $url = function(string $route, array $params = []) use ($link) {
 
                         <div class="col-auto p-4 border-start bg-light">
                             <div class="d-flex align-items-center gap-2">
-                                <?php if ($user): ?>
+                                <?php if ($isAdmin): ?>
                                     <div class="dropdown">
                                         <button class="btn btn-white btn-sm rounded-circle shadow-sm border event-dropdown-toggle"
                                                 type="button"
@@ -86,12 +91,17 @@ $url = function(string $route, array $params = []) use ($link) {
                                                 <button type="button" class="dropdown-item py-2 text-danger" onclick="event.stopPropagation(); if (confirm('Naozaj zmazať podujatie?')) { document.getElementById('delete-event-<?= $event->getId() ?>').submit(); }">
                                                     <i class="bi bi-trash me-2"></i> Zmazať
                                                 </button>
-                                                <form id="delete-event-<?= $event->getId() ?>" method="post" action="<?= htmlspecialchars($url('event.delete', ['id' => $event->getId()])) ?>" style="display:none; margin:0; padding:0;"></form>
+                                                <form id="delete-event-<?= $event->getId() ?>" method="post" action="<?= htmlspecialchars($url('event.delete', ['id' => $event->getId()])) ?>" style="display:none;"></form>
                                             </li>
                                         </ul>
                                     </div>
                                 <?php else: ?>
-                                    <i class="bi bi-chevron-right text-muted"></i>
+<!--                                toto je klikatelna sipka ked niesom prihlaseny ako admin-->
+                                    <div style="cursor: pointer;"
+                                         data-bs-toggle="modal"
+                                         data-bs-target="#eventModal<?= $event->getId() ?>">
+                                        <i class="bi bi-chevron-right text-muted h5 mb-0"></i>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -110,11 +120,11 @@ $url = function(string $route, array $params = []) use ($link) {
                                     <div class="row g-0">
                                         <div class="col-lg-6">
                                             <img src="<?= htmlspecialchars($asset($event->getPlagat() ?: 'images/tat_logo.png'), ENT_QUOTES, 'UTF-8') ?>"
-                                                 class="img-fluid h-100 w-100 event-modal-img" alt="plagat">
+                                                 class="img-fluid h-100 w-100 event-modal-img" alt="plagat" style="object-fit: cover; min-height: 300px;">
                                         </div>
                                         <div class="col-lg-6 p-4">
                                             <div class="mb-4">
-                                                <span class="badge bg-soft-primary text-primary mb-2">Podrobnosti preteku</span>
+                                                <span class="badge bg-primary text-white mb-2">Podrobnosti preteku</span>
                                                 <h3 class="fw-bold"><?= htmlspecialchars($event->getNazov()) ?></h3>
                                                 <p class="text-muted"><i class="bi bi-calendar3 me-2"></i><?= date('d. m. Y', strtotime($event->getDatumPodujatia())) ?></p>
                                             </div>

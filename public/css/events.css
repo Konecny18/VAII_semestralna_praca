@@ -1,63 +1,109 @@
-/* Events page styles consolidated here */
-
-.list-group-item {
-    border-left: 5px solid #0d6efd !important;
-    transition: all 0.2s;
+/* Základná karta v zozname */
+.list-group .list-group-item {
+    position: relative; /* needed for the pseudo-element stripe */
+    transition: transform 0.2s, box-shadow 0.2s;
+    /* do not set border-left here to avoid conflicts with other border rules */
 }
 
-.list-group-item:hover {
-    transform: scale(1.01);
-    z-index: 10;
+/* Blue left stripe implemented with a pseudo-element so it can't be overridden by border shorthands */
+.list-group .list-group-item::before {
+    /*vytvorenie prazdneho priestoru cez content*/
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: #0d6efd;
+    /*zaoblene rohy modreho pasika*/
+    border-top-left-radius: 0.5rem; /* match .rounded-3 */
+    border-bottom-left-radius: 0.5rem;
+    /*kvoli tomu ze ked pouzivatel klikne na modry pasik tak aby mu zobrazilo modal keby to tu nieje tak pouzivatel moze kliknut na ten pasik a nic sa nestane*/
+    pointer-events: none; /* don't block clicks */
+    z-index: 2;
+}
+
+/* Efekt pri prejdení myšou */
+.list-group .list-group-item:hover {
+    transform: scale(1.03);
+    z-index: 5;
+}
+
+/* Dátumový stĺpec a miniatúra */
+.event-date {
+    min-width: 110px;
+}
+
+/*obrazok v prvom zobrazeni*/
+.event-thumb {
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+}
+
+/* Dropdown menu - aby nebolo orezané */
+.event-dropdown-menu {
+    z-index: 1060; /* Nad úroveň karty, pod úroveň modalu */
+}
+
+/* Obrázok ked otvorim modal */
+.event-modal-img {
+    object-fit: cover;
+    min-height: 350px;
+}
+
+/* Jemne upravená farba popisu */
+.event-description {
+    line-height: 1.6;
+    color: #4a4a4a;
 }
 
 .bg-soft-primary {
     background-color: rgba(13, 110, 253, 0.1);
 }
 
-/* Clickable area that opens the modal */
-.event-toggle {
-    cursor: pointer;
-}
-
-/* Date column */
-.event-date {
-    min-width: 120px;
-    padding-right: 1rem;
-    text-align: center;
-}
-
-.event-thumb {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-}
-
-/* Dropdown toggle/menu tweaks to keep above modal backdrop */
-.event-dropdown-toggle {
-    z-index: 1050;
-    position: relative;
-}
-.event-dropdown-menu {
-    min-width: 150px;
-    z-index: 1200; /* increase so menu stays above other elements */
-    overflow: visible; /* allow menu to expand outside parent if needed */
-}
-.event-dropdown-menu .dropdown-item {
-    display: block;
-    white-space: normal; /* allow wrapped text */
-}
-
-/* Modal image styling */
-.event-modal-img {
-    object-fit: cover;
-    min-height: 350px;
-    width: 100%;
-    height: 100%;
-}
-
-/* Description inside modal */
 .event-description {
-    font-size: 0.95rem;
     line-height: 1.6;
-    color: #6c757d; /* Bootstrap text-secondary equivalent */
+    color: #4a4a4a;
+    /* Tieto riadky opravia pretekanie: */
+    white-space: pre-wrap;      /* Zachová entery z textarea a zalomí riadky */
+    word-wrap: break-word;      /* Rozbije extrémne dlhé slová alebo linky */
+    overflow-wrap: break-word;  /* Moderná verzia zalomenia slov */
 }
+
+
+/*!* --- Event modal improvements --- *!*/
+/*!* Target only the event modals (ids that begin with "eventModal") to avoid global modal changes *!*/
+/*.modal[id^="eventModal"] .modal-body {*/
+/*    !* Allow modal body to scroll when content is long *!*/
+/*    max-height: calc(100vh - 200px);*/
+/*    overflow-y: auto;*/
+/*    -webkit-overflow-scrolling: touch;*/
+/*}*/
+
+/*!* Constrain modal image so it doesn't push the modal beyond viewport *!*/
+/*.modal[id^="eventModal"] .event-modal-img {*/
+/*    width: 100%;*/
+/*    height: auto; !* let width control height *!*/
+/*    max-height: calc(100vh - 260px);*/
+/*    object-fit: cover;*/
+/*}*/
+
+/*!* Ensure long description text wraps and preserves newlines *!*/
+/*.modal[id^="eventModal"] .event-description {*/
+/*    white-space: pre-wrap; !* keep line breaks *!*/
+/*    word-wrap: break-word;*/
+/*    overflow-wrap: break-word;*/
+/*}*/
+
+/*!* If the modal uses two columns, allow the right column to scroll too on small screens *!*/
+/*@media (max-width: 992px) {*/
+/*    .modal[id^="eventModal"] .modal-body .row.g-0 {*/
+/*        display: block;*/
+/*    }*/
+/*    .modal[id^="eventModal"] .modal-body .col-lg-6 {*/
+/*        width: 100%;*/
+/*        display: block;*/
+/*    }*/
+/*}*/
+
