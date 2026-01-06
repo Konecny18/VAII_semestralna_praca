@@ -8,6 +8,7 @@ use Framework\Core\BaseController;
 use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
+use Framework\DB\Connection;
 
 class RecordController extends BaseController
 {
@@ -42,8 +43,39 @@ class RecordController extends BaseController
                 $records = Record::getAll('user_id = :uid', [':uid' => $userId], 'id DESC');
             }
 
+            // prejde vsetky rocordy a ulozi si rozdielne id do pola
+            $owners = [];
+            $userIds = [];
+            foreach ($records as $r) {
+                $uid = $r->getUserId();
+                if ($uid !== null) $userIds[$uid] = $uid;
+            }
+            if (!empty($userIds)) {
+                try {
+                    $conn = Connection::getInstance();
+                    //array fill spravi pole a implode spravy retazec z toho, dynamicky retazec naplneny otaznikmy
+                    $placeholders = implode(',', array_fill(0, count($userIds), '?'));
+                    //vytiahne z databazy udaje
+                    $sql = "SELECT id, meno, priezvisko FROM users WHERE id IN ($placeholders)";
+                    //pockaj na data najskor sa poslu tie otazniky (kvoli bezpecnosti)
+                    $stmt = $conn->prepare($sql);
+                    //poslu sa skutocne id namiesto tych otaznikov
+                    $stmt->execute(array_values($userIds));
+                    //stiahne vsetky vysledky z tabulky users
+                    $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                    foreach ($rows as $row) {
+                        // Keďže sú meno a priezvisko povinné, len ich spojím
+                        $owners[(int)$row['id']] = $row['meno'] . ' ' . $row['priezvisko'];
+                    }
+                } catch (\Throwable $e) {
+                    // on DB error, leave owners empty — view will fallback to user id
+                    $owners = [];
+                }
+            }
+
             return $this->html([
                 'records' => $records,
+                'owners' => $owners,
                 'auth' => $auth
             ]);
         } catch (\Exception $e) {

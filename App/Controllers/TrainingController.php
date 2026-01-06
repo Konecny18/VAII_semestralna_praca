@@ -20,7 +20,7 @@ class TrainingController extends BaseController
             return $this->html([
                 'trainings' => $trainings,
                 'auth' => $auth
-                ]);
+            ]);
         } catch (Exception $e) {
             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
         }
@@ -148,80 +148,6 @@ class TrainingController extends BaseController
         }
     }
 
-//    public function save(Request $request): Response
-//    {
-//        $id = (int)$request->value('id');
-//
-//        if ($id > 0) {
-//            $training = Training::getOne($id);
-//            if (is_null($training)) {
-//                throw new HttpException(404);
-//            }
-//        } else {
-//            $training = new Training();
-//        }
-//
-//        // Normalize and set fields
-//        $den = (string)$request->value('den');
-//        $casStartRaw = trim((string)$request->value('cas_zaciatku'));
-//        $casEndRaw = trim((string)$request->value('cas_konca'));
-//        $popis = trim((string)$request->value('popis'));
-//
-//        // Normalize time inputs: allow HH:MM or HH:MM:SS, convert to HH:MM:SS
-//        $normalizeTime = function(string $t): ?string {
-//            if ($t === '') return null;
-//            // Accept H:MM, HH:MM or HH:MM:SS
-//            if (preg_match('/^([01]?\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/', $t)) {
-//                if (strlen($t) <= 5) {
-//                    return $t . ':00';
-//                }
-//                return $t;
-//            }
-//            return null;
-//        };
-//
-//        $casStart = $normalizeTime($casStartRaw);
-//        $casEnd = $normalizeTime($casEndRaw);
-//
-//        // Only admin can save (create/update) trainings
-//        if (!$this->user->isLoggedIn()) {
-//            return $this->redirect(Configuration::LOGIN_URL);
-//        }
-//        $identity = $this->user->getIdentity();
-//        $role = $identity?->getRole() ?? null;
-//        if ($role !== 'admin') {
-//            throw new HttpException(403, 'Nemáte oprávnenie upravovať rozvrh tréningov.');
-//        }
-//
-//        $training->setDen($den);
-//        $training->setCasZaciatku($casStart);
-//        $training->setCasKonca($casEnd);
-//        $training->setPopis($popis === '' ? null : $popis);
-//
-//        $formErrors = $this->formErrors($request);
-//        if (count($formErrors) > 0) {
-//            if ($request->isAjax()) {
-//                return $this->json(['success' => false, 'errors' => $formErrors]);
-//            }
-//            return $this->html(['training' => $training, 'formErrors' => $formErrors], ($id > 0) ? 'edit' : 'add');
-//        }
-//
-//        try {
-//            $training->save();
-//        } catch (Exception $e) {
-//            $message = 'DB chyba: ' . $e->getMessage();
-//            if ($request->isAjax()) {
-//                return $this->json(['success' => false, 'errors' => [$message]]);
-//            }
-//            throw new HttpException(500, $message);
-//        }
-//
-//        if ($request->isAjax()) {
-//            return $this->json(['success' => true, 'redirect' => $this->url('training.index')]);
-//        }
-//        return $this->redirect($this->url('training.index'));
-//    }
-
     public function delete(Request $request): Response
     {
         try {
@@ -295,38 +221,4 @@ class TrainingController extends BaseController
 
         return $errors;
     }
-//    private function formErrors(Request $request): array
-//    {
-//        $errors = [];
-//        $den = (string)$request->value('den');
-//        $validDays = ['Pon','Uto','Str','Stv','Pia','Sob','Ned'];
-//        if ($den === '' || !in_array($den, $validDays, true)) {
-//            $errors[] = 'Pole deň musí byť vybrané (Pon..Ned).';
-//        }
-//
-//        $casZ = trim((string)$request->value('cas_zaciatku'));
-//        $casK = trim((string)$request->value('cas_konca'));
-//        $timeRegex = '/^([01]?\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/';
-//        if ($casZ === '' || !preg_match($timeRegex, $casZ)) {
-//            $errors[] = 'Pole čas začiatku musí byť v tvare HH:MM alebo HH:MM:SS (24h).';
-//        }
-//        if ($casK === '' || !preg_match($timeRegex, $casK)) {
-//            $errors[] = 'Pole čas konca musí byť v tvare HH:MM alebo HH:MM:SS (24h).';
-//        }
-//
-//        // Optional: ensure start < end if both valid
-//        if (preg_match($timeRegex, $casZ) && preg_match($timeRegex, $casK)) {
-//            $start = strtotime((strlen($casZ) <=5) ? $casZ . ':00' : $casZ);
-//            $end = strtotime((strlen($casK) <=5) ? $casK . ':00' : $casK);
-//            if ($start !== false && $end !== false && $start >= $end) {
-//                $errors[] = 'Čas začiatku musí byť pred časom konca.';
-//            }
-//        }
-//
-//        if (trim((string)$request->value('popis')) === '') {
-//            $errors[] = 'Pole popis musí byť vyplnené.';
-//        }
-//
-//        return $errors;
-//    }
 }

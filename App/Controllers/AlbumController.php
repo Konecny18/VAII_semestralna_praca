@@ -188,13 +188,13 @@ class AlbumController extends BaseController
             // on a newly constructed model could lead to duplicate PK inserts later.
             $album = new Album(null, $formValues['text'], $formValues['picture']);
         }
-         $isEditMode = !empty($formValues['id']);
-         $viewName = $isEditMode ? 'edit' : 'add';
-         return $this->html(array_merge(compact('errors', 'album')), $viewName);
-     }
+        $isEditMode = !empty($formValues['id']);
+        $viewName = $isEditMode ? 'edit' : 'add';
+        return $this->html(array_merge(compact('errors', 'album')), $viewName);
+    }
 
 
-     public function delete(Request $request): Response
+    public function delete(Request $request): Response
     {
         try {
             $id = (int)$request->value('id');
@@ -218,36 +218,6 @@ class AlbumController extends BaseController
 
         return $this->redirect($this->url("album.index"));
     }
-
-//    private function formErrors(Request $request, bool $isEdit = false): array
-//    {
-//        $errors = [];
-//
-//        $file = $request->file('picture');
-//        $text = trim((string)$request->value('text') ?? '');
-//
-//        // picture required when creating new album
-//        if (!$isEdit) {
-//            if (!($file instanceof UploadedFile) || $file->getName() == "") {
-//                $errors[] = "Pole Súbor obrázka musí byť vyplnené!";
-//            }
-//        }
-//
-//        if ($text == "") {
-//            $errors[] = "Pole Názov albumu musí byť vyplnené!";
-//        }
-//
-//        if ($file instanceof UploadedFile && $file->getName() != "") {
-//            if (!in_array($file->getType(), ['image/jpeg', 'image/png'])) {
-//                $errors[] = "Obrázok musí byť typu JPG alebo PNG!";
-//            }
-//        }
-//
-//        if ($text != "" && strlen($text) < 5) {
-//            $errors[] = "Počet znakov v názve albumu musí byť viac ako 5!";
-//        }
-//        return $errors;
-//    }
 
     private function formErrors(Request $request, bool $isEdit = false): array
     {

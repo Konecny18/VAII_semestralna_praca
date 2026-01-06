@@ -50,7 +50,8 @@ $owners = $owners ?? [];
 
                 <td><?= htmlspecialchars($rec->getNazovDiscipliny(), ENT_QUOTES, 'UTF-8') ?></td>
 
-                <?php $ownerName = $owners[$rec->getUserId()] ?? $rec->getUserId(); ?>
+<!--                v poli owners zadam id pouzivatela a nasledne si vytiahne meno pomocou kodu v controlleri za ?? sa spravi iba ak sa nenajde uzivatel-->
+                <?php $ownerName = $owners[$rec->getUserId()] ?? ('Užívateľ #' . $rec->getUserId()); ?>
                 <td><?= htmlspecialchars((string)$ownerName, ENT_QUOTES, 'UTF-8') ?></td>
 
                 <td><?= htmlspecialchars((string)($rec->getDosiahnutyVykon() ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
