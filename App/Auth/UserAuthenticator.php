@@ -51,4 +51,38 @@ class UserAuthenticator extends SessionAuthenticator
             return null;
         }
     }
+
+    public function isLoggedIn(): bool
+    {
+        // 1. Skontrolujeme, či je používateľ vôbec prihlásený
+        if (!$this->getUser()->isLoggedIn()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Zistí, či je aktuálne prihlásený používateľ administrátor.
+     * @return bool
+     */
+    public function isAdmin(): bool
+    {
+        // 1. Skontrolujeme, či je používateľ vôbec prihlásený
+        if (!$this->getUser()->isLoggedIn()) {
+            return false;
+        }
+
+        // 2. Získame identitu prihláseného používateľa
+        //$identity = $this->getUser()->getIdentity();
+        $rola = $this->getUser()->getRole();
+
+        // 3. Ak identita existuje, skontrolujeme rolu (UserIdentity ju ukladá v konštruktore)
+        // Používame nullsafe operátor ?-> pre istotu
+        if ($rola === 'admin') {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

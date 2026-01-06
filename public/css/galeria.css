@@ -1,15 +1,86 @@
-/*dizajn karty */
-.card-img {
-    width: 100%;
-    height: 400px; /* všetky fotky majú rovnakú výšku */
-    object-fit: cover; /* zachová proporcie a oreže nadbytočné */
-    transition: transform 0.3s ease;
+.album {
+    border-radius: 10px;
+    overflow: hidden;
+
+    /*upravi mi fotky v albume na taku istu sirku*/
+    /*lebo von z albumu mi to roztahuju tie 3 tlacidla a vo vnutri mam len 2 tak inek by mi to spravilo co najmensie*/
+    width: 280px;
+
+    max-width: 300px;      /* Ale nikdy nebude širšia ako 300px */
+    min-width: 200px;      /* A nikdy nebude užšia ako 200px (aby tam niečo bolo vidieť) */
+
+    margin: 0 auto;
+    height: 100%;
 }
 
-/* Make images slightly shorter on very small screens */
+.card-img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+}
+
+.post-image-link {
+    cursor: zoom-in;
+    display: block;
+}
+
+.post-image-link:hover .card-img {
+    filter: brightness(0.8);
+    transition: filter 0.3s ease;
+}
+
+/* Štýlovanie samotného zväčšeného obrázka */
+#imageModalImg {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 92vh;
+    border-radius: 10px;
+    box-shadow: 0 0 40px rgba(0, 149, 255, 0.6);
+    display: block;
+    margin: 0 auto;
+}
+
+/* Zmena farby tlačidla na zatvorenie */
+#imageModal .btn-close {
+    background-color: #0095ff; /* Pozadie tlačidla - modrá */
+    opacity: 0.8;                /* Aby bolo sýte a nie priesvitné */
+    border-radius: 50%;        /* Aby bolo okrúhle */
+    padding: 7px;             /* Trochu priestoru okolo krížika */
+
+    /* Tento filter urobí krížik bielym, ak by bol čierny,
+       alebo ho môžeš upraviť podľa potreby */
+    filter: brightness(1) invert(0);
+
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+#prevImg, #nextImg {
+    cursor: pointer;
+    padding: 20px;
+    opacity: 0.7;
+    transition: opacity 0.3s, transform 0.2s;
+}
+
+#prevImg:hover, #nextImg:hover {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+/* Efekt pri prejdení myšou */
+#imageModal .btn-close:hover {
+    background-color: #007acc; /* Tmavšia modrá pri hoveri */
+}
+
+/* Úprava pre malé mobily (napr. iPhone SE), ktoré majú šírku menej ako 300px */
+@media (max-width: 350px) {
+    .album {
+        min-width: 100%; /* Na úplne malých displejoch dovolíme karte prispôsobiť sa šírke displeja */
+    }
+}
+
 @media (max-width: 576px) {
     .card-img {
         height: 180px;
     }
 }
-

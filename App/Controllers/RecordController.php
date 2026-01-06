@@ -13,6 +13,7 @@ class RecordController extends BaseController
 {
     public function index(Request $request): Response
     {
+        $auth = $this->app->getAuthenticator();
         try {
             // Require login to view records: only the owner or admin can see records
             $appUser = $this->user ?? null;
@@ -41,7 +42,10 @@ class RecordController extends BaseController
                 $records = Record::getAll('user_id = :uid', [':uid' => $userId], 'id DESC');
             }
 
-            return $this->html(['records' => $records]);
+            return $this->html([
+                'records' => $records,
+                'auth' => $auth
+            ]);
         } catch (\Exception $e) {
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }

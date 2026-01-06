@@ -15,10 +15,12 @@ class AlbumController extends BaseController
 {
     public function index(Request $request): Response
     {
+        $auth = $this->app->getAuthenticator();
         try {
             return $this->html(
                 [
-                    'albums' => Album::getAll(null, [], 'id DESC')
+                    'albums' => Album::getAll(null, [], 'id DESC'),
+                    'auth' => $auth
                 ]
             );
         } catch (\Exception $exception) {

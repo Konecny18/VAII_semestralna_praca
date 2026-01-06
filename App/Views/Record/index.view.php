@@ -4,20 +4,23 @@
 /** @var \Framework\Auth\AppUser|null $user */
 /** @var \App\Models\Record[]|null $records */
 /** @var array|null $owners */
+/** @var IAuthenticator $auth */
+
+use Framework\Core\IAuthenticator;
 
 $owners = $owners ?? [];
 
-// compute flags
-$isLoggedIn = ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn());
-$isAdmin = false;
-if ($isLoggedIn && method_exists($user, 'getIdentity')) {
-    $ident = $user->getIdentity();
-    $isAdmin = ($ident?->getRole() ?? null) === 'admin';
-}
+//// compute flags
+//$isLoggedIn = ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn());
+//$isAdmin = false;
+//if ($isLoggedIn && method_exists($user, 'getIdentity')) {
+//    $ident = $user->getIdentity();
+//    $isAdmin = ($ident?->getRole() ?? null) === 'admin';
+//}
 
 ?>
 
-<?php if ($isLoggedIn): ?>
+<?php if ($auth->isLoggedIn()): ?>
     <a href="<?php echo $link->url('record.add') ?>" class="btn btn-success">Pridať záznam</a>
 <?php endif; ?>
 
@@ -27,7 +30,7 @@ if ($isLoggedIn && method_exists($user, 'getIdentity')) {
     <table class="table table-striped">
         <thead>
         <tr>
-            <?php if ($isAdmin): ?>
+            <?php if ($auth->isAdmin()): ?>
                 <th>ID</th>
             <?php endif; ?>
             <th>Disciplína</th>
@@ -41,7 +44,7 @@ if ($isLoggedIn && method_exists($user, 'getIdentity')) {
         <tbody>
         <?php foreach ($records as $rec): ?>
             <tr>
-                <?php if ($isAdmin): ?>
+                <?php if ($auth->isAdmin()): ?>
                     <td><?= htmlspecialchars((string)$rec->getId(), ENT_QUOTES, 'UTF-8') ?></td>
                 <?php endif; ?>
 
@@ -56,7 +59,7 @@ if ($isLoggedIn && method_exists($user, 'getIdentity')) {
                 <td>
                     <?php
                     $showActions = false;
-                    if ($isLoggedIn && method_exists($user, 'getIdentity')) {
+                    if ($auth->isLoggedIn() && method_exists($user, 'getIdentity')) {
                         $ident = $user->getIdentity();
                         $role = $ident?->getRole() ?? null;
                         $uid = $ident?->getId() ?? null;

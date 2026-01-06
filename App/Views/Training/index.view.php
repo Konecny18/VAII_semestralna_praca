@@ -3,6 +3,9 @@
 /** @var \App\Models\Training[] $trainings */
 /** @var Framework\Support\LinkGenerator $link */
 /** @var \Framework\Auth\AppUser|null $user */
+/** @var IAuthenticator $auth */
+
+use Framework\Core\IAuthenticator;
 
 $trainings = $trainings ?? [];
 $days = [
@@ -15,20 +18,13 @@ $days = [
         'Ned' => 'Nedeľa'
 ];
 
-// determine admin flag (only admins may manage schedule)
-$isLoggedIn = ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn());
-$isAdmin = false;
-if ($isLoggedIn && method_exists($user, 'getIdentity')) {
-    $ident = $user->getIdentity();
-    $isAdmin = ($ident?->getRole() ?? null) === 'admin';
-}
 ?>
 
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col-12 d-flex justify-content-between align-items-center">
             <h3>Rozvrh tréningov</h3>
-            <?php if ($isAdmin): ?>
+            <?php if ($auth->isAdmin()): ?>
                 <a href="<?php echo $link->url('training.add') ?>" class="btn btn-success">Pridať tréning</a>
             <?php endif; ?>
         </div>
@@ -47,7 +43,7 @@ if ($isLoggedIn && method_exists($user, 'getIdentity')) {
                         <th>Deň</th>
                         <th>Čas</th>
                         <th>Popis</th>
-                        <?php if ($isAdmin): ?>
+                        <?php if ($auth->isAdmin()): ?>
                             <th class="text-end">Akcie</th>
                         <?php endif; ?>
                     </tr>
@@ -58,7 +54,7 @@ if ($isLoggedIn && method_exists($user, 'getIdentity')) {
                             <td><?php echo $days[$t->getDen()] ?? htmlspecialchars($t->getDen()) ?></td>
                             <td><?php echo htmlspecialchars(substr((string)$t->getCasZaciatku(), 0, 5)) ?> - <?php echo htmlspecialchars(substr((string)$t->getCasKonca(), 0, 5)) ?></td>
                             <td><?php echo htmlspecialchars($t->getPopis()) ?></td>
-                            <?php if ($isAdmin): ?>
+                            <?php if ($auth->isAdmin()): ?>
                                 <td class="text-end">
                                     <a href="<?php echo $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">Upraviť</a>
                                     <a href="<?php echo $link->url('training.delete', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Naozaj zmazať tréning?')">Zmazať</a>

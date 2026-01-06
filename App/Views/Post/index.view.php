@@ -1,38 +1,68 @@
 <?php
-
 /** @var Framework\Support\LinkGenerator $link */
-/** @var array $formErrors */
-/** @var \App\Models\Post[] $posts */
-/** @var \Framework\Core\IAuthenticator $auth */
+/** @var Post[] $posts */
+/** @var IAuthenticator $auth */
 
 use App\Configuration;
+use App\Models\Post;
+use Framework\Core\IAuthenticator;
+
+
 ?>
 
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
             <?php $currentAlbumId = isset($albumId) ? (int)$albumId : 0; ?>
-            <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>" class="btn btn-success">Pridať príspevok</a>
+            <?php if ($auth->isAdmin()): ?>
+                <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>" class="btn btn-success">Pridať príspevok</a>
+            <?php endif; ?>
         </div>
     </div>
-    <!-- Use row-cols utilities so items wrap correctly at breakpoints; add flex-wrap as explicit fallback -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center flex-wrap">
+
+    <div class="row g-4 justify-content-center">
         <?php foreach ($posts as $post): ?>
-            <div class="col">
-                <div class="border post d-flex flex-column h-100">
+            <div class="col-auto">
+                <div class="border album d-flex flex-column h-100">
                     <div>
-                        <img src="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>" class="card-img" alt="Post image">
+                        <a href="#" class="post-image-link" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>">
+                            <img src="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>" class="card-img" alt="Post image">
+                        </a>
                     </div>
                     <div class="m-2">
                         <?= $post->getText() ?>
                     </div>
-                    <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
-                        <?php // show actions (adjust auth check as needed) ?>
-                        <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
-                        <a href="<?= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-danger">Zmazať</a>
-                    </div>
+                    <?php if ($auth->isAdmin()): ?>
+                        <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
+                            <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
+                            <a href="<?= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-danger" onclick="return confirm('Naozaj zmazať príspevok?')">Zmazať</a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         <?php endforeach; ?>
     </div>
 </div>
+
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-0 bg-transparent">
+            <div class="modal-body text-center p-0 position-relative">
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <button type="button" id="prevImg" class="btn text-white position-absolute top-50 start-0 translate-middle-y fs-1 border-0 bg-transparent" style="z-index: 11;">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+
+                <img id="imageModalImg" src="" alt="Full image">
+
+                <button type="button" id="nextImg" class="btn text-white position-absolute top-50 end-0 translate-middle-y fs-1 border-0 bg-transparent" style="z-index: 11;">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load external JS that manages the post image modal -->
+<script src="<?= $link->asset('js/show-move-posts.js') ?>"></script>

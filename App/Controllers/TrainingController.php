@@ -14,9 +14,13 @@ class TrainingController extends BaseController
 {
     public function index(Request $request): Response
     {
+        $auth = $this->app->getAuthenticator();
         try {
             $trainings = Training::getAll(null, [], 'den ASC, cas_zaciatku ASC');
-            return $this->html(['trainings' => $trainings]);
+            return $this->html([
+                'trainings' => $trainings,
+                'auth' => $auth
+                ]);
         } catch (Exception $e) {
             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
         }

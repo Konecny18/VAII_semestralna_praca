@@ -15,6 +15,7 @@ class PostController extends BaseController
 
     public function index(Request $request): Response
     {
+        $auth = $this->app->getAuthenticator();
         try {
             $albumId = (int)$request->value('albumId');
             if ($albumId > 0) {
@@ -26,7 +27,8 @@ class PostController extends BaseController
             return $this->html(
                 [
                     'posts' => $posts,
-                    'albumId' => $albumId
+                    'albumId' => $albumId,
+                    'auth' => $auth
                 ]
             );
         } catch (Exception $e) {
