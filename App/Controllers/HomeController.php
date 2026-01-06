@@ -59,4 +59,9 @@ class HomeController extends BaseController
     {
         return $this->html();
     }
+
+    public function sponzor(Request $request): Response
+    {
+        return$this->html();
+    }
 }

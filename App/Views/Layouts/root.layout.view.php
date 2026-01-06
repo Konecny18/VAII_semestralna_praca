@@ -43,6 +43,8 @@ if (!isset($user)) {
     <link rel="stylesheet" href="<?= $link->asset('css/klub.css') ?>?v=1">
     <!-- Include events stylesheet -->
     <link rel="stylesheet" href="<?= $link->asset('css/events.css') ?>">
+    <!-- Include sponzor stylesheet -->
+    <link rel="stylesheet" href="<?= $link->asset('css/sponzor.css') ?>">
 
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -78,7 +80,7 @@ if (!isset($user)) {
                         <li><a class="dropdown-item " href="<?= $link->url('home.contact')?>">Kontakt</a></li>
                         <li><a class="dropdown-item " href="<?= $link->url('training.index')?>">Rozvrh tréningov</a></li>
                         <li><a class="dropdown-item" href="<?= $link->url('event.index')?>">Podujatia</a></li>
-                        <li><a class="dropdown-item" href="#">Partneri</a></li>
+                        <li><a class="dropdown-item" href="<?= $link->url('home.sponzor')?>">Partneri</a></li>
                     </ul>
                 </li>
             </ul>
