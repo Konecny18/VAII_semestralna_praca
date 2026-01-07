@@ -1,5 +1,8 @@
 <?php
-/** @var \Framework\Support\LinkGenerator $link */
+/** @var LinkGenerator $link */
+
+use Framework\Support\LinkGenerator;
+
 ?>
 
 <div class="container my-5 sponzor-page">
