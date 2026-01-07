@@ -3,7 +3,7 @@
 use Framework\Support\LinkGenerator;
 ?>
 
-<div class="container-fluid px-0 obal-carousel">
+<div class="px-0 obal-carousel">
     <div id="carouselHome" class="carousel slide carousel-fade" data-bs-ride="carousel">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#carouselHome" data-bs-slide-to="0" class="active" aria-current="true"></button>
@@ -55,7 +55,7 @@ use Framework\Support\LinkGenerator;
 </div>
 
 
-<div class="container moje-karty">
+<div class="moje-karty">
     <div class="row g-4 text-center">
         <div class="col-md-4">
             <div class="card shadow-lg p-4 karta-info">

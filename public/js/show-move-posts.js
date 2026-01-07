@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     //je const lebo nechcem aby sa menil zoznam obrazkov na nieco ine ako cislo alebo txt
-    const zoznamObrazkov = Array.from(document.querySelectorAll('.post-image-link'));
+    const zoznamObrazkov = Array.from(document.querySelectorAll('.klikatelny-obrazok'));
     //ked niesu obrazky na stranke tak konci script
     if (!zoznamObrazkov || zoznamObrazkov.length === 0) return; // nothing to do
 

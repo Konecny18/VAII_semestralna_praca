@@ -27,6 +27,7 @@ $owners = $owners ?? [];
 <?php if (empty($records)): ?>
     <p>Žiadne záznamy.</p>
 <?php else: ?>
+    <!--bootstrap triedy-->
     <table class="table table-striped">
         <thead>
         <tr>

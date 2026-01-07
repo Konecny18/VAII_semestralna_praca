@@ -13,18 +13,18 @@
     height: 100%;
 }
 
-.card-img {
+.obrazok-karta {
     width: 100%;
     height: 400px;
     object-fit: cover;
 }
 
-.post-image-link {
+.klikatelny-obrazok {
     cursor: zoom-in;
     display: block;
 }
 
-.post-image-link:hover .card-img {
+.klikatelny-obrazok:hover .obrazok-karta {
     filter: brightness(0.8);
     transition: filter 0.3s ease;
 }
@@ -80,7 +80,7 @@
 }
 
 @media (max-width: 576px) {
-    .card-img {
+    .obrazok-karta {
         height: 180px;
     }
 }

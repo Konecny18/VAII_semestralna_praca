@@ -10,39 +10,40 @@ use Framework\Core\IAuthenticator;
 
 ?>
 
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <?php $currentAlbumId = isset($albumId) ? (int)$albumId : 0; ?>
-            <?php if ($auth->isAdmin()): ?>
-                <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>" class="btn btn-success">Pridať príspevok</a>
-            <?php endif; ?>
-        </div>
-    </div>
 
-    <div class="row g-4 justify-content-center">
-        <?php foreach ($posts as $post): ?>
-            <div class="col-auto">
-                <div class="border album d-flex flex-column h-100">
-                    <div>
-                        <a href="#" class="post-image-link" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>">
-                            <img src="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>" class="card-img" alt="Post image">
-                        </a>
-                    </div>
-                    <div class="m-2">
-                        <?= $post->getText() ?>
-                    </div>
-                    <?php if ($auth->isAdmin()): ?>
-                        <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
-                            <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
-                            <a href="<?= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-danger" onclick="return confirm('Naozaj zmazať príspevok?')">Zmazať</a>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-        <?php endforeach; ?>
+<div class="row mb-4">
+    <div class="col">
+        <?php $currentAlbumId = isset($albumId) ? (int)$albumId : 0; ?>
+        <?php if ($auth->isAdmin()): ?>
+            <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>" class="btn btn-success">Pridať príspevok</a>
+        <?php endif; ?>
     </div>
 </div>
+
+<div class="row g-4 justify-content-center">
+    <?php foreach ($posts as $post): ?>
+        <div class="col-auto">
+<!--            pouzivam album aby to vyzeralo tak isto ako v albume-->
+            <div class="border album d-flex flex-column h-100">
+                <div>
+                    <a href="#" class="klikatelny-obrazok" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>">
+                        <img src="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>" class="obrazok-karta" alt="Post image">
+                    </a>
+                </div>
+                <div class="m-2">
+                    <?= $post->getText() ?>
+                </div>
+                <?php if ($auth->isAdmin()): ?>
+                    <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
+                        <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
+                        <a href="<?= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-danger" onclick="return confirm('Naozaj zmazať príspevok?')">Zmazať</a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
+
 
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl">

@@ -5,10 +5,10 @@ use Framework\Support\LinkGenerator;
 
 ?>
 
-<div class="container my-5 sponzor-page">
-    <div class="text-center mb-5 page-header">
+<div class="my-5 sponzor-stranka">
+    <div class="text-center mb-5 hlavicka-stranky">
         <h1 class="display-4 fw-bold text-uppercase">Naši Partneri</h1>
-        <div class="header-line bg-primary mx-auto"></div>
+        <div class="ciara-header bg-primary mx-auto"></div>
         <p class="lead mt-3 text-secondary">Vďaka týmto organizáciám môžeme rásť a dosahovať lepšie výsledky.</p>
     </div>
 
@@ -17,7 +17,7 @@ use Framework\Support\LinkGenerator;
         <div class="row g-4 justify-content-center">
             <div class="col-md-6 col-lg-5">
                 <div class="card h-100 border-0 text-center p-4">
-                    <div class="logo-wrapper-large d-flex align-items-center justify-content-center mb-3">
+                    <div class="obal-pre-loga-generalnych d-flex align-items-center justify-content-center mb-3">
                         <img src="<?= $link->asset('images/viagrande_logo.jpg') ?>" class="img-fluid" alt="Generálny sponzor">
                     </div>
                     <div class="card-body">
@@ -35,7 +35,7 @@ use Framework\Support\LinkGenerator;
         <div class="row g-4">
             <div class="col-md-4 col-sm-6">
                 <div class="card h-100 border-0 text-center p-3">
-                    <div class="logo-wrapper d-flex align-items-center justify-content-center">
+                    <div class="obal-ostatnych-log d-flex align-items-center justify-content-center">
                         <img src="<?= $link->asset('images/fatraski_logo.jpg') ?>" class="img-fluid" alt="Logo 2">
                     </div>
                     <div class="card-body">
@@ -47,7 +47,7 @@ use Framework\Support\LinkGenerator;
 
             <div class="col-md-4 col-sm-6">
                 <div class="card h-100 border-0 text-center p-3">
-                    <div class="logo-wrapper d-flex align-items-center justify-content-center">
+                    <div class="obal-ostatnych-log d-flex align-items-center justify-content-center">
                         <img src="<?= $link->asset('images/ecco_logo.png') ?>" class="img-fluid" alt="Logo 3">
                     </div>
                     <div class="card-body">
@@ -59,7 +59,7 @@ use Framework\Support\LinkGenerator;
 
             <div class="col-md-4 col-sm-6">
                 <div class="card h-100 border-0 text-center p-3">
-                    <div class="logo-wrapper d-flex align-items-center justify-content-center">
+                    <div class="obal-ostatnych-log d-flex align-items-center justify-content-center">
                         <img src="<?= $link->asset('images/aluprint_logo.jpg') ?>" class="img-fluid" alt="Logo 4">
                     </div>
                     <div class="card-body">
@@ -71,7 +71,7 @@ use Framework\Support\LinkGenerator;
         </div>
     </div>
 
-    <div class="card border-primary bg-light cta-card">
+    <div class="card border-primary bg-light vyzva-na-spolupracu-karta">
         <div class="card-body text-center py-5">
             <h2 class="fw-bold">Chcete sa k nim pridať?</h2>
             <p class="lead mb-4">Budujeme silnú komunitu a radi privítame nových partnerov do našej rodiny.</p>

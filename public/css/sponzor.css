@@ -1,40 +1,40 @@
 /* Základné nastavenie hlavičky */
-.sponzor-page .page-header h1 {
+.sponzor-stranka .hlavicka-stranky h1 {
     letter-spacing: 2px;
 }
 
 /*ciara pod hlavnym textom*/
-.sponzor-page .header-line {
+.sponzor-stranka .ciara-header {
     height: 4px;
     max-width: 430px;
 }
 
 /* Obaly pre logá - pridali sme overflow a pozíciu */
-.sponzor-page .logo-wrapper-large,
-.sponzor-page .logo-wrapper {
+.sponzor-stranka .obal-pre-loga-generalnych,
+.sponzor-stranka .obal-ostatnych-log {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.sponzor-page .logo-wrapper-large {
+.sponzor-stranka .obal-pre-loga-generalnych {
     height: 250px;
 }
 
-.sponzor-page .logo-wrapper {
+.sponzor-stranka .obal-ostatnych-log {
     height: 180px;
 }
 
 /* KLÚČOVÁ OPRAVA: Pravidlo pre samotné obrázky */
-.sponzor-page .logo-wrapper img,
-.sponzor-page .logo-wrapper-large img {
+.sponzor-stranka .obal-ostatnych-log img,
+.sponzor-stranka .obal-pre-loga-generalnych img {
     max-width: 100%;  /* Obrázok nebude širší ako karta */
     max-height: 100%; /* Obrázok nebude vyšší ako wrapper */
     object-fit: contain; /* Zachová pomer strán a zmestí sa do priestoru */
 }
 
 /* Štýly pre karty a Hover efekt */
-.sponzor-page .card {
+.sponzor-stranka .card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     /* Prechod z bielej hore do jemnej šedej dole */
     background: linear-gradient(180deg, #f3e28b 0%, #4094ef 100%);
@@ -43,14 +43,14 @@
     height: 100%;
 }
 
-.sponzor-page div.card:hover {
+.sponzor-stranka div.card:hover {
     transform: translateY(-8px);
     box-shadow: 0 25px 50px rgba(13, 110, 253, 0.4);
 }
 
 /* 2. Štýl pre CTA kartu (výzva na pridanie sa) */
 /* Použijeme viac tried za sebou, aby sme zvýšili silu bez !important */
-.sponzor-page div.card.cta-card {
+.sponzor-stranka div.card.vyzva-na-spolupracu-karta {
     /* radial-gradient(tvar, farba-v-strede, farba-na-okraj) */
     background: radial-gradient(circle, #ffffff 0%, #e7f0ff 100%);
     border: 1px solid #0d6efd;
@@ -59,7 +59,7 @@
 
 /* Responzivita pre nadpisy */
 @media (max-width: 576px) {
-    .sponzor-page .card .card-body h5 {
+    .sponzor-stranka .card .card-body h5 {
         font-size: 1rem;
     }
 }
