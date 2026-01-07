@@ -9,7 +9,7 @@ body {
 }
 
 /* Toto je tá "pružina", ktorú si v HTML nazval .page-content */
-.page-content {
+.content-stranky-kontakt {
     flex: 1 0 auto; /* Vyplní všetko voľné miesto */
 }
 

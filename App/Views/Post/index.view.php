@@ -51,7 +51,7 @@ use Framework\Core\IAuthenticator;
                 <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
 
                 <button type="button" id="prevImg" class="btn text-white position-absolute top-50 start-0 translate-middle-y fs-1 border-0 bg-transparent" style="z-index: 11;">
-                    <i class="bi bi-chevron-right"></i>
+                    <i class="bi bi-chevron-left"></i>
                 </button>
 
                 <img id="imageModalImg" src="" alt="Full image">

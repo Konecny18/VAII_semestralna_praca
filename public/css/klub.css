@@ -1,68 +1,117 @@
-/* Container - o šírku sa stará Bootstrap mriežka (col-...) */
-/*otacanie vyzera lepsie plynulo*/
-.flip-card {
+/* ============================= */
+/* ZÁKLADNÉ NASTAVENIA STRÁNKY   */
+/* ============================= */
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    color: #212529;
+}
+
+/* ============================= */
+/* HERO SEKCIa                  */
+/* ============================= */
+
+.hero-section {
+    background: linear-gradient(
+            rgba(0, 0, 0, 0.6),
+            rgba(0, 0, 0, 0.6)
+    ),
+    url("../images/tat_logo.png") center / contain no-repeat;
+    padding: 6rem 0;
+}
+
+.hero-section h1 {
+    letter-spacing: 0.05em;
+}
+
+.hero-section p {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* ============================= */
+/* OTOČNÉ KARTY – ZÁKLAD         */
+/* ============================= */
+
+.otocenie-karty {
     perspective: 1000px;
     width: 100%;
     display: block;
+    transition: transform 0.3s ease;
 }
 
-/* Vnútorný obal */
-.flip-card-inner {
+.otocenie-karty:hover {
+    transform: translateY(-6px);
+}
+
+/* ============================= */
+/* VNÚTRO KARTY                 */
+/* ============================= */
+
+.otocenie-karty-vnutro {
     position: relative;
     width: 100%;
-    /* Výška karty - prispôsob si podľa potreby */
-    height: clamp(300px, 45vh, 600px);
+    height: clamp(300px, 55vh, 720px);
     text-align: center;
     transition: transform 0.8s ease;
     transform-style: preserve-3d;
 }
 
-/* Otočenie */
-.flip-card:hover .flip-card-inner,
-.flip-card:focus-within .flip-card-inner {
+/* OTOČENIE */
+.otocenie-karty:hover .otocenie-karty-vnutro,
+.otocenie-karty:focus-within .otocenie-karty-vnutro {
     transform: rotateY(180deg);
 }
 
-/* Spoločné vlastnosti strán */
-.flip-card-front,
-.flip-card-back {
+/* ============================= */
+/* SPOLOČNÉ STRANY KARTY         */
+/* ============================= */
+
+.otacacia-karta-predok,
+.otacacia-karta-zadok {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden; /*skryje zadnu stranu */
-    border-radius: 8px;
+    backface-visibility: hidden;
+    border-radius: 12px;
     overflow: hidden;
     display: flex;
-    flex-direction: column; /* Prvky radíme pod seba */
+    flex-direction: column;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* --- PREDNÁ STRANA --- */
-.flip-card-front {
+/* ============================= */
+/* PREDNÁ STRANA                */
+/* ============================= */
+
+.otacacia-karta-predok {
     background-color: goldenrod;
     color: #000;
 }
 
-/* Horný text - Stanovená medzera */
-.flip-card-front .card-title {
+.otacacia-karta-predok .card-title {
     margin: 0;
-    padding: 15px 10px; /* Definovaná medzera od okrajov */
-    flex: 0 0 auto;    /* Zoberie len nevyhnutné miesto podľa textu */
+    padding: 15px 10px;
     font-size: 1.1rem;
     font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.7);
 }
 
-/* OBRÁZOK - Vyplní všetok zvyšný priestor */
-.flip-card-front .card-img-top {
+.otacacia-karta-predok .card-img-top {
     width: 100%;
-    flex-grow: 1;      /* KĽÚČOVÉ: Obrázok pohltí všetok voľný priestor pod textom */
-    object-fit: fill; /* Oreže fotku tak, aby vyplnila plochu*/
-    min-height: 0;     /* Dôležité, aby flexbox mohol obrázok zmenšiť */
+    flex-grow: 1;
+    object-fit: contain;
+    min-height: 0;
     display: block;
 }
 
-/* --- ZADNÁ STRANA --- */
-.flip-card-back {
+/* ============================= */
+/* ZADNÁ STRANA                 */
+/* ============================= */
+
+.otacacia-karta-zadok {
     background-color: #0d6efd;
     color: #fff;
     transform: rotateY(180deg);
@@ -72,15 +121,117 @@
     text-align: center;
 }
 
-/* Responzivita - Riešime už len výšku karty, o vnútro sa postará Flexbox automaticky */
+.otacacia-karta-zadok .card-title {
+    margin-bottom: 1rem;
+}
+
+/* ============================= */
+/* PRÍSTUPNOSŤ (FOCUS)          */
+/* ============================= */
+
+.otocenie-karty:focus {
+    outline: 3px solid rgba(13, 110, 253, 0.25);
+    outline-offset: 4px;
+}
+
+/* ============================= */
+/* RESPONSIVITA                 */
+/* ============================= */
+
 @media (max-width: 576px) {
-    .flip-card-inner {
+    .hero-section {
+        padding: 4rem 0;
+    }
+
+    .otocenie-karty-vnutro {
         height: 350px;
     }
 }
 
-/* Vizuálny indikátor pre klávesnicu */
-.flip-card:focus {
-    outline: 3px solid rgba(13,110,253,0.18);
-    outline-offset: 4px;
-}
+
+/*!* Container - o šírku sa stará Bootstrap mriežka (col-...) *!*/
+/*!*otacanie vyzera lepsie plynulo*!*/
+/*.otocenie-karty {*/
+/*    perspective: 1000px;*/
+/*    width: 100%;*/
+/*    display: block;*/
+/*}*/
+
+/*!* Vnútorný obal *!*/
+/*.otocenie-karty-vnutro {*/
+/*    position: relative;*/
+/*    width: 100%;*/
+/*    !* Výška karty - prispôsob si podľa potreby *!*/
+/*    height: clamp(300px, 45vh, 600px);*/
+/*    text-align: center;*/
+/*    transition: transform 0.8s ease;*/
+/*    transform-style: preserve-3d;*/
+/*}*/
+
+/*!* Otočenie *!*/
+/*.otocenie-karty:hover .otocenie-karty-vnutro,*/
+/*.otocenie-karty:focus-within .otocenie-karty-vnutro {*/
+/*    transform: rotateY(180deg);*/
+/*}*/
+
+/*!* Spoločné vlastnosti strán *!*/
+/*.otacacia-karta-predok,*/
+/*.otacacia-karta-zadok {*/
+/*    position: absolute;*/
+/*    inset: 0;*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    backface-visibility: hidden; !*skryje zadnu stranu *!*/
+/*    border-radius: 8px;*/
+/*    overflow: hidden;*/
+/*    display: flex;*/
+/*    flex-direction: column; !* Prvky radíme pod seba *!*/
+/*}*/
+
+/*!* --- PREDNÁ STRANA --- *!*/
+/*.otacacia-karta-predok {*/
+/*    background-color: goldenrod;*/
+/*    color: #000;*/
+/*}*/
+
+/*!* Horný text - Stanovená medzera *!*/
+/*.otacacia-karta-predok .card-title {*/
+/*    margin: 0;*/
+/*    padding: 15px 10px; !* Definovaná medzera od okrajov *!*/
+/*    flex: 0 0 auto;    !* Zoberie len nevyhnutné miesto podľa textu *!*/
+/*    font-size: 1.1rem;*/
+/*    font-weight: bold;*/
+/*}*/
+
+/*!* OBRÁZOK - Vyplní všetok zvyšný priestor *!*/
+/*.otacacia-karta-predok .card-img-top {*/
+/*    width: 100%;*/
+/*    flex-grow: 1;      !* KĽÚČOVÉ: Obrázok pohltí všetok voľný priestor pod textom *!*/
+/*    object-fit: fill; !* Oreže fotku tak, aby vyplnila plochu*!*/
+/*    min-height: 0;     !* Dôležité, aby flexbox mohol obrázok zmenšiť *!*/
+/*    display: block;*/
+/*}*/
+
+/*!* --- ZADNÁ STRANA --- *!*/
+/*.otacacia-karta-zadok {*/
+/*    background-color: #0d6efd;*/
+/*    color: #fff;*/
+/*    transform: rotateY(180deg);*/
+/*    align-items: center;*/
+/*    justify-content: center;*/
+/*    padding: 1.5rem;*/
+/*    text-align: center;*/
+/*}*/
+
+/*!* Responzivita - Riešime už len výšku karty, o vnútro sa postará Flexbox automaticky *!*/
+/*@media (max-width: 576px) {*/
+/*    .otocenie-karty-vnutro {*/
+/*        height: 350px;*/
+/*    }*/
+/*}*/
+
+/*!* Vizuálny indikátor pre klávesnicu *!*/
+/*.otocenie-karty:focus {*/
+/*    outline: 3px solid rgba(13,110,253,0.18);*/
+/*    outline-offset: 4px;*/
+/*}*/

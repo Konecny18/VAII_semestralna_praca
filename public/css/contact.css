@@ -1,22 +1,48 @@
 /* Slightly larger base text for the contact page */
-.contact-page {
+.kontakt-stranka {
     /* Slightly larger base text for the contact page */
     font-size: 1.3rem; /* ~5% larger than normal */
     line-height: 1.6;
     color: #222;
 }
 
-.contact-page h2 {
-    font-size: 2.7rem; /* slightly larger headings */
-    margin-bottom: 1rem;
+.kontakt-stranka h2 {
+    font-size: 2.5rem;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+/* Oprava tvojej čiary */
+.ciara-pod-nadpisom {
+    /*povie prehliadacu ze je pevny objekt aj ked je prazdny*/
+    /*je to pre istotu aj ked div je normalne blok*/
+    display: block;
+    width: 100%;
+    max-width: 60px;
+    height: 4px;
+    background-color: #0d6efd;
+    margin-bottom: 1.5rem;
+    border-radius: 2px; /*zaoblenie okrajov*/
+}
+
+.rozdelenie-blokov {
+    display: block;     /*povie prehliadacu ze je pevny objekt aj ked je prazdny*/
+    width: 100%;          /* Čiara sa roztiahne na celú šírku stĺpca */
+    max-width: 400px;     /* Ale nikdy nebude širšia ako 400px */
+    height: 2px;
+    background-color: #a3a3a3;
+    margin-top: 0.5rem;   /* Pridal som margin hore, aby nebola prilepená na texte */
+    margin-bottom: 0.5rem;
+    border-radius: 2px;
+    opacity: 0.7;         /* Jemne ju zosvetlíme, aby "nekričala" viac ako nadpis */
 }
 
 @media (max-width: 576px) {
     /* On very small screens, increase readability a bit more */
-    .contact-page {
+    .kontakt-stranka {
         font-size: 1.08rem;
     }
-    .contact-page h2 {
-        font-size: 1.3rem;
+    .kontakt-stranka h2 {
+        font-size: 1.6rem;
     }
 }

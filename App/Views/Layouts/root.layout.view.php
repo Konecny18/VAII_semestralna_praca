@@ -111,8 +111,9 @@ if (!isset($user)) {
 </nav>
 
 
-<main class="page-content">
-    <div class="container-fluid mt-3">
+<main class="content-stranky-kontakt">
+<!--    ked dam iba container bez fluid tak vsetky stranky budu odsadene od krajov-->
+    <div class="container mt-3">
         <div class="web-content">
             <?= $contentHTML ?>
         </div>
