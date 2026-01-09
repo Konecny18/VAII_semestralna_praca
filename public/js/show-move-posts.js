@@ -1,3 +1,14 @@
+/**
+ * show-move-posts.js
+ *
+ * Skript pre galériu príspevkov: otváranie obrázka v modale, navigácia medzi obrázkami (šípky a tlačidlá)
+ * a vyčistenie modalu pri zatvorení.
+ *
+ * - Očakáva, že v HTML sú prvky s triedou `.klikatelny-obrazok` s atribútom `data-image` obsahujúcim URL obrázka.
+ * - Modal obsahuje prvky s id `imageModal`, `imageModalImg`, `prevImg`, `nextImg`.
+ * - Podporuje klávesové šípky (ArrowLeft, ArrowRight).
+ */
+
 document.addEventListener('DOMContentLoaded', function () {
     //je const lebo nechcem aby sa menil zoznam obrazkov na nieco ine ako cislo alebo txt
     const zoznamObrazkov = Array.from(document.querySelectorAll('.klikatelny-obrazok'));

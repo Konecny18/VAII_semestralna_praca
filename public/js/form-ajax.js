@@ -1,3 +1,16 @@
+/**
+ * form-ajax.js
+ *
+ * Univerzálny frontend helper na odosielanie formulárov cez AJAX (fetch).
+ * - Očakáva atribút `data-ajax-form` na formulári a voliteľny prvok s `data-ajax-feedback` pre zobrazenie správ.
+ * - Automaticky pridáva spinner do tlačidiel pri odosielaní a spracuje JSON odpoveď servera
+ *   v tvare { success: boolean, message?: string, redirect?: string, errors?: [] }.
+ *
+ * Použitie:
+ * - Pridajte atribut `data-ajax-form` do form elementu.
+ * - Vo vnútri formulára pridajte element (napr. <div>) s `data-ajax-feedback` pre chybové / úspešné správy.
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
     // Grab every form that opted into the AJAX helper through the data attribute.
     const ajaxForms = document.querySelectorAll('form[data-ajax-form]');

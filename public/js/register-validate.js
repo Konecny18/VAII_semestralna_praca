@@ -1,3 +1,19 @@
+/**
+ * register-validate.js
+ *
+ * Klientská (frontend) validácia a asynchrónna kontrola dostupnosti emailu pri registrácii.
+ * - Debounced AJAX volanie na endpoint /auth/checkEmail (alebo URL poskytnutú vo view cez window.__CHECK_EMAIL_URL__).
+ * - Pridáva vizuálnu spätnú väzbu (Bootstrap triedy is-valid / is-invalid a element .invalid-feedback).
+ *
+ * Použitie:
+ * - Umiestnite tento skript na stránku s formulárom registrácie, kde input pre email má id="email".
+ * - Voliteľne definujte global `window.__CHECK_EMAIL_URL__` s vlastnou URL.
+ *
+ * Bezpečnosť a UX:
+ * - Skript najprv validuje formát emailu na klientovi a len potom osloví server.
+ * - Volania sú debounced (pauza 400 ms), aby sa znížil počet požiadaviek pri písaní.
+ */
+
 // Client-side email availability check for registration form
 // - Debounced AJAX call to /auth/checkEmail (or url generated in the view)
 (function(){

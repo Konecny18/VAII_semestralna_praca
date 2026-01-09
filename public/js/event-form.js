@@ -1,3 +1,14 @@
+/**
+ * event-form.js
+ *
+ * Klientská validácia formulára pre podujatia (plagát, PDF propozície, dátum).
+ * - Kontroluje príponu a veľkosť súborov (plagát obrázok a PDF dokument) a dátum podujatia (musi byť väčší ako dnes).
+ * - Pri odoslaní formu vykoná všetky kontroly a zabráni odoslaniu ak niektorá z nich zlyhá.
+ *
+ * Použitie:
+ * - Skript očakáva, že formulár používa triedu `.needs-validation` a polia majú id `plagat`, `dokument_propozicie`, `datum_podujatia`.
+ */
+
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
