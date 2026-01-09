@@ -73,9 +73,11 @@ if (!isset($user)) {
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('home.klub') ?>">Klub TAT</a>
                 </li>
+                <?php if ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn()): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('record.index') ?>">Výkony</a>
                 </li>
+                <?php endif; ?>
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
