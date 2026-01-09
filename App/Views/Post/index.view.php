@@ -30,13 +30,15 @@ use Framework\Core\IAuthenticator;
                         <img src="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>" class="obrazok-karta" alt="Post image">
                     </a>
                 </div>
-                <div class="m-2">
-                    <?= $post->getText() ?>
-                </div>
                 <?php if ($auth->isAdmin()): ?>
                     <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
                         <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
-                        <a href="<?= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-danger" onclick="return confirm('Naozaj zmazať príspevok?')">Zmazať</a>
+<!--                        <a href="--><?php //= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?><!--" class="btn btn-danger" onclick="return confirm('Naozaj zmazať príspevok?')">Zmazať</a>-->
+                        <a href="<?= $link->url('post.delete', ['id' => $post->getId()]) ?>"
+                           class="btn btn-sm btn-danger delete-btn"
+                           data-message="Naozaj chceš vymazať túto fotku z albumu?">
+                            <i class="bi bi-trash"></i> Zmazať
+                        </a>
                     </div>
                 <?php endif; ?>
             </div>
@@ -67,3 +69,5 @@ use Framework\Core\IAuthenticator;
 
 <!-- Load external JS that manages the post image modal -->
 <script src="<?= $link->asset('js/show-move-posts.js') ?>"></script>
+
+<!--<script src="--><?php //= $link->asset('js/delete-confirmation.js') ?><!--"></script>-->

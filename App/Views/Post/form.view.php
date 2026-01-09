@@ -30,18 +30,13 @@ $isEdit = !empty(@$post?->getId());
 
                 <label for="picture" class="form-label fw-bold">Súbor obrázka</label>
                 <div class="input-group mb-3 has-validation">
-                    <input type="file" class="form-control " name="picture" id="picture" accept="image/png, image/jpeg"
+                    <input type="file" class="form-control " name="pictures[]" id="picture" accept="image/png, image/jpeg"
                     <?= $isEdit ? '' : 'required' ?>
-                    >
+                    multiple>
                 </div>
                 <?php if (@$post?->getPicture() != ""): ?>
                     <div class="text-muted mb-3">Pôvodný súbor: <?= substr($post->getPicture(), strpos($post->getPicture(), '-') + 1) ?></div>
                 <?php endif; ?>
-                <label for="text" class="form-label fw-bold">Text príspevku</label>
-                <div class="input-group has-validation mb-3 ">
-                    <textarea class="form-control" aria-label="With textarea" name="text" id="text"
-                    minlength="5" maxlength="255"><?= @$post?->getText() ?></textarea>
-                </div>
                 <button type="submit" class="btn btn-primary">Uložiť</button>
             </form>
         </div>

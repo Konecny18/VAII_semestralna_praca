@@ -1,0 +1,6 @@
+/* Styles specific to the records listing (Record views) */
+.record-action-form {
+    display: inline-block;
+    margin-left: 6px;
+}
+

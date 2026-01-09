@@ -40,7 +40,10 @@ use Framework\Core\IAuthenticator;
 
                         <?php if ($auth->isAdmin()): ?>
                             <a href="<?= $link->url('album.edit', ['id' => $album->getId()]) ?>" class="btn btn-warning">Upraviť</a>
-                            <a href="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>" class="btn btn-danger" onclick="return confirm('Naozaj zmazať album?')">Zmazať</a>
+                            <a href="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>"
+                               class="btn btn-danger delete-btn"
+                               data-message="Odstrániť album a všetky jeho fotky?">
+                                Zmazať</a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -48,3 +51,5 @@ use Framework\Core\IAuthenticator;
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
+
+<!--<script src="--><?php //= $link->asset('js/delete-confirmation.js') ?><!--"></script>-->

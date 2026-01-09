@@ -30,6 +30,8 @@ if (!isset($user)) {
     <!-- Bootstrap (match index.html) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="<?= $link->asset('js/delete-confirmation.js') ?>"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Existing app assets -->
@@ -45,6 +47,9 @@ if (!isset($user)) {
     <link rel="stylesheet" href="<?= $link->asset('css/events.css') ?>">
     <!-- Include sponzor stylesheet -->
     <link rel="stylesheet" href="<?= $link->asset('css/sponzor.css') ?>">
+
+    <!-- Include record stylesheet -->
+    <link rel="stylesheet" href="<?= $link->asset('css/record.css') ?>?v=1">
 
 </head>
 <body class="d-flex flex-column min-vh-100">

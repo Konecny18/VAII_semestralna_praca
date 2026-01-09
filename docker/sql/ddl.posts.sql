@@ -7,7 +7,6 @@
 CREATE TABLE `posts` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `albumId` INT NOT NULL,
-  `text` TEXT DEFAULT NULL,
   `picture` VARCHAR(300) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_albumId` (`albumId`),
@@ -15,5 +14,8 @@ CREATE TABLE `posts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
-ALTER TABLE `posts`
-    MODIFY COLUMN `text` VARCHAR(255) DEFAULT NULL;
+# ALTER TABLE `posts`
+#     MODIFY COLUMN `text` VARCHAR(255) DEFAULT NULL;
+#
+#
+# ALTER TABLE `posts` drop column `text`;

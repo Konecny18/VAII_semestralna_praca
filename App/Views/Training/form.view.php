@@ -70,7 +70,6 @@ $days = [
                 </div>
 
                 <div class="d-flex gap-2">
-<!--                    <button type="submit" class="btn btn-primary">Uložiť</button>-->
                     <button type="submit" class="btn btn-primary">Uložiť</button>
                     <a href="<?= $link->url('training.index') ?>" class="btn btn-secondary">Zrušiť</a>
                 </div>

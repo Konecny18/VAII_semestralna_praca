@@ -12,7 +12,6 @@ class Post extends Model
     public function __construct(
         protected ?int $id = null,
         protected ?int $albumId = null,
-        protected string $text = '',
         protected string $picture = ''
     )
     {
@@ -29,11 +28,6 @@ class Post extends Model
         return $this->albumId;
     }
 
-    public function getText(): string
-    {
-        return $this->text;
-    }
-
     public function getPicture(): string
     {
         return $this->picture;
@@ -47,11 +41,6 @@ class Post extends Model
     public function setAlbumId(?int $albumId): void
     {
         $this->albumId = $albumId;
-    }
-
-    public function setText(string $text): void
-    {
-        $this->text = $text;
     }
 
     public function setPicture(string $picture): void

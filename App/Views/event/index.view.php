@@ -88,7 +88,10 @@ $url = function(string $route, array $params = []) use ($link) {
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <button type="button" class="dropdown-item py-2 text-danger" onclick="event.stopPropagation(); if (confirm('Naozaj zmazať podujatie?')) { document.getElementById('delete-event-<?= $event->getId() ?>').submit(); }">
+                                            <button type="button"
+                                                    class="btn-delete-event dropdown-item py-2 text-danger"
+                                                    data-form-id="delete-event-<?= $event->getId() ?>"
+                                                    data-message="Naozaj chceš zmazať toto podujatie?">
                                                 <i class="bi bi-trash me-2"></i> Zmazať
                                             </button>
                                             <form id="delete-event-<?= $event->getId() ?>" method="post" action="<?= htmlspecialchars($url('event.delete', ['id' => $event->getId()])) ?>" style="display:none;"></form>

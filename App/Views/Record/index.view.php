@@ -72,9 +72,14 @@ $owners = $owners ?? [];
                     ?>
 
                     <?php if ($showActions): ?>
-                        <a class="btn btn-sm btn-primary" href="<?php echo $link->url('record.edit', ['id' => $rec->getId()]) ?>">Upraviť</a>
-                        <form method="post" action="<?php echo $link->url('record.delete', ['id' => $rec->getId()]) ?>" style="display:inline-block;margin-left:6px;" onsubmit="return confirm('Naozaj zmazať záznam?');">
-                            <button type="submit" class="btn btn-sm btn-danger">Zmazať</button>
+                        <a class="btn btn-sm btn-warning" href="<?php echo $link->url('record.edit', ['id' => $rec->getId()]) ?>">Upraviť</a>
+                        <form method="post" action="<?= $link->url('record.delete', ['id' => $rec->getId()]) ?>"
+                              class="record-action-form"
+                              id="delete-form-<?= $rec->getId() ?>"> <button type="submit"
+                             class="btn btn-sm btn-danger delete-btn"
+                             data-message="Naozaj chceš vymazať tento záznam?">
+                                <i class="bi bi-trash"></i> Zmazať
+                            </button>
                         </form>
                     <?php endif; ?>
                 </td>

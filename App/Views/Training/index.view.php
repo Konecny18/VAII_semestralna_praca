@@ -57,7 +57,11 @@ $days = [
                         <?php if ($auth->isAdmin()): ?>
                             <td class="text-end">
                                 <a href="<?php echo $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">Upraviť</a>
-                                <a href="<?php echo $link->url('training.delete', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-danger" onclick="return confirm('Naozaj zmazať tréning?')">Zmazať</a>
+                                <a href="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
+                                   class="btn btn-sm btn-danger delete-btn"
+                                   data-message="Naozaj chceš zmazať tento tréning?">
+                                    <i class="bi bi-trash"></i> Zmazať
+                                </a>
                             </td>
                         <?php endif; ?>
                     </tr>

@@ -14,4 +14,4 @@ ALTER TABLE `users`
 
 -- delete from users;   -- zakomentované, odstránené riziko vymazania dát pri spustení DDL
 
-delete from users;
+# delete from users;
