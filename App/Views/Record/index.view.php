@@ -44,7 +44,7 @@ $owners = $owners ?? [];
         </thead>
         <tbody>
         <?php foreach ($records as $rec): ?>
-            <tr>
+            <tr id="record-row-<?= $rec->getId() ?>">
                 <?php if ($auth->isAdmin()): ?>
                     <td><?= htmlspecialchars((string)$rec->getId(), ENT_QUOTES, 'UTF-8') ?></td>
                 <?php endif; ?>
@@ -73,14 +73,13 @@ $owners = $owners ?? [];
 
                     <?php if ($showActions): ?>
                         <a class="btn btn-sm btn-warning" href="<?php echo $link->url('record.edit', ['id' => $rec->getId()]) ?>">Upraviť</a>
-                        <form method="post" action="<?= $link->url('record.delete', ['id' => $rec->getId()]) ?>"
-                              class="record-action-form"
-                              id="delete-form-<?= $rec->getId() ?>"> <button type="submit"
-                             class="btn btn-sm btn-danger delete-btn"
-                             data-message="Naozaj chceš vymazať tento záznam?">
-                                <i class="bi bi-trash"></i> Zmazať
-                            </button>
-                        </form>
+                        <a href="<?= $link->url('record.delete', ['id' => $rec->getId()]) ?>"
+                           class="btn btn-sm btn-danger delete-btn"
+                           data-ajax="true"
+                           data-target-id="record-row-<?= $rec->getId() ?>"
+                           data-message="Naozaj chceš vymazať tento športový záznam?">
+                            <i class="bi bi-trash"></i> Zmazať
+                        </a>
                     <?php endif; ?>
                 </td>
             </tr>

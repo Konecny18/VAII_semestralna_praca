@@ -148,26 +148,53 @@ class TrainingController extends BaseController
         }
     }
 
+    /**
+     * @throws HttpException
+     * @throws Exception
+     */
     public function delete(Request $request): Response
     {
         try {
             $id = (int)$request->value('id');
             $training = Training::getOne($id);
+
             if (is_null($training)) {
+                //pre AJAX vratim chybu v JSON formate
+                if ($request->isAjax()) {
+                    return $this->json(['success' => false, 'message' => 'Training nebol nájdený.'], 404);
+                }
                 throw new HttpException(404);
             }
             // Only admin can delete trainings
             if (!$this->user->isLoggedIn()) {
+                if ($request->isAjax()) {
+                    return $this->json(['success' => false, 'message' => 'Musíte sa prihlásiť.'], 401);
+                }
                 return $this->redirect(Configuration::LOGIN_URL);
             }
             $identity = $this->user->getIdentity();
             $role = $identity?->getRole() ?? null;
+
             if ($role !== 'admin') {
+                //kontrola pre AJAX
+                if ($request->isAjax()) {
+                    return $this->json(['success' => false, 'message' => 'Nemáte oprávnenie zmazať tréningy.'], 403);
+                }
                 throw new HttpException(403, 'Nemáte oprávnenie zmazať tréningy.');
             }
 
             $training->delete();
+
+            //AJAX uspech
+            if ($request->isAjax()) {
+                return $this->json(['success' => true]);
+            }
+
         } catch (Exception $e) {
+            //vratenie AJAX chyby
+            if ($request->isAjax()) {
+                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()], 500);
+            }
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }
         return $this->redirect($this->url('training.index'));

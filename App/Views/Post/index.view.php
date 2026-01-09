@@ -22,7 +22,7 @@ use Framework\Core\IAuthenticator;
 
 <div class="row g-4 justify-content-center">
     <?php foreach ($posts as $post): ?>
-        <div class="col-auto">
+        <div class="col-auto" id="post-card-<?= $post->getId() ?>">
 <!--            pouzivam album aby to vyzeralo tak isto ako v albume-->
             <div class="border album d-flex flex-column h-100">
                 <div>
@@ -36,6 +36,8 @@ use Framework\Core\IAuthenticator;
 <!--                        <a href="--><?php //= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?><!--" class="btn btn-danger" onclick="return confirm('Naozaj zmazať príspevok?')">Zmazať</a>-->
                         <a href="<?= $link->url('post.delete', ['id' => $post->getId()]) ?>"
                            class="btn btn-sm btn-danger delete-btn"
+                           data-ajax="true"
+                           data-target-id="post-card-<?= $post->getId() ?>"
                            data-message="Naozaj chceš vymazať túto fotku z albumu?">
                             <i class="bi bi-trash"></i> Zmazať
                         </a>
@@ -53,15 +55,16 @@ use Framework\Core\IAuthenticator;
             <div class="modal-body text-center p-0 position-relative">
                 <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
 
-                <button type="button" id="prevImg" class="btn text-white position-absolute top-50 start-0 translate-middle-y fs-1 border-0 bg-transparent" style="z-index: 11;">
+                <button type="button" id="prevImg" class="gallery-nav gallery-nav-left">
                     <i class="bi bi-chevron-left"></i>
                 </button>
 
                 <img id="imageModalImg" src="" alt="Full image">
 
-                <button type="button" id="nextImg" class="btn text-white position-absolute top-50 end-0 translate-middle-y fs-1 border-0 bg-transparent" style="z-index: 11;">
+                <button type="button" id="nextImg" class="gallery-nav gallery-nav-right">
                     <i class="bi bi-chevron-right"></i>
                 </button>
+
             </div>
         </div>
     </div>
@@ -69,5 +72,3 @@ use Framework\Core\IAuthenticator;
 
 <!-- Load external JS that manages the post image modal -->
 <script src="<?= $link->asset('js/show-move-posts.js') ?>"></script>
-
-<!--<script src="--><?php //= $link->asset('js/delete-confirmation.js') ?><!--"></script>-->

@@ -205,21 +205,47 @@ class PostController extends BaseController
             $id = (int)$request->value('id');
             $post = Post::getOne($id);
 
+
             if (is_null($post)) {
+                //pre AJAX vrati chybu v JSON formate
+                if ($request->isAjax()) {
+                    return $this->json(['success' => false, 'message' => 'Obrazok nebol nájdený.'], 404);
+                }
                 throw new HttpException(404);
             }
 
-            $albumId = $post->getAlbumId();
-            @unlink(Configuration::UPLOAD_DIR . $post->getPicture());
+            //zmazanie subora z disku
+            if ($post->getPicture()) {
+                // Ak Configuration::UPLOAD_URL je "/uploads/",
+                // ltrim odstráni začiatočné lomko, aby vznikla cesta "uploads/meno.jpg"
+                $relativeUrl = ltrim(Configuration::UPLOAD_URL, '/');
+                $filePath = $relativeUrl . $post->getPicture();
+                //$filePath = Configuration::UPLOAD_DIR . $post->getPicture();
+//                $filePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . Configuration::UPLOAD_URL . str_replace('/', DIRECTORY_SEPARATOR, $post->getPicture());
+                if (file_exists($filePath)) {
+                    @unlink($filePath);
+                }
+            }
             $post->delete();
 
+            //Ak je AJAX vratim uspech a ukoncim metodu
+            if ($request->isAjax()) {
+                return $this->json(['success' => true]);
+            }
+
+
         } catch (\Exception $e) {
+            if ($request->isAjax()) {
+                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()], 500);
+            }
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }
         // keep album context when redirecting
         if (!empty($albumId)) {
             return $this->redirect($this->url('post.index', ['albumId' => $albumId]));
         }
+
+        //klasicky redirect pre pripad AJAXu
         return $this->redirect($this->url('post.index'));
     }
 

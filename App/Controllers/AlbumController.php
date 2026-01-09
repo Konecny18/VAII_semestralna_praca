@@ -105,6 +105,7 @@ class AlbumController extends BaseController
                             $formValues['picture'] = $picture;
                             // record old and new file paths; deletion of old file will happen after DB save
                             if ($isEdit && $existing && $existing->getPicture() != '') {
+                                //$oldFilePath = Configuration::UPLOAD_DIR . str_replace('images/', '', $existing->getPicture());
                                 $oldFilePath = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $existing->getPicture());
                             }
                             $newFileFullPath = $destFull;
@@ -194,6 +195,10 @@ class AlbumController extends BaseController
     }
 
 
+    /**
+     * @throws HttpException
+     * @throws \Exception
+     */
     public function delete(Request $request): Response
     {
         try {
@@ -201,21 +206,40 @@ class AlbumController extends BaseController
             $album = Album::getOne($id);
 
             if (is_null($album)) {
+                //pre AJAX vratim chybu v JSON formate
+                if ($request->isAjax()) {
+                    return $this->json(['success' => false, 'message' => 'Album nebol nájdený.'], 404);
+                }
                 throw new HttpException(404);
             }
 
-            // build full path to public file and delete if exists
-            $filePath = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $album->getPicture());
-            if ($filePath && file_exists($filePath)) {
-                @unlink($filePath);
+            //zmazanie fyzickeho subora obrazka
+            if ($album->getPicture()) {
+                $cesta = str_replace('images/', '', $album->getPicture());
+                $filePath = 'images' . DIRECTORY_SEPARATOR . $cesta;
+                //$filePath = Configuration::UPLOAD_DIR . str_replace('images/', '', $album->getPicture());
+                //$filePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $album->getPicture());
+                if ($filePath && file_exists($filePath)) {
+                    @unlink($filePath);
+                }
             }
 
+            //zmazanie z DTB
             $album->delete();
 
+            //ZMENA PRE AJAX
+            if ($request->isAjax()) {
+                return $this->json(['success' => true]);
+            }
+
         } catch (\Exception $e) {
+            if ($request->isAjax()) {
+                return $this->json(['success' => false, 'message' => 'DB Chyba: ' . $e->getMessage()], 500);
+            }
             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
         }
 
+        //klasicke presmerovanie ak data-ajax nieje true
         return $this->redirect($this->url("album.index"));
     }
 

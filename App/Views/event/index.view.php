@@ -43,7 +43,7 @@ $url = function(string $route, array $params = []) use ($link) {
 <?php else: ?>
     <div class="list-group border-0">
         <?php foreach ($events as $event): ?>
-            <div class="list-group-item p-0 mb-3 rounded-3 border shadow-sm bg-white">
+            <div id="event-row-<?= $event->getId() ?>" class="list-group-item p-0 mb-3 rounded-3 border shadow-sm bg-white">
                 <div class="row g-0 align-items-center">
 
                     <div class="col d-flex align-items-center p-4 prepnutie-eventu"
@@ -88,12 +88,13 @@ $url = function(string $route, array $params = []) use ($link) {
                                         </li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
-                                            <button type="button"
-                                                    class="btn-delete-event dropdown-item py-2 text-danger"
-                                                    data-form-id="delete-event-<?= $event->getId() ?>"
-                                                    data-message="Naozaj chceš zmazať toto podujatie?">
+                                            <a href="<?= $url('event.delete', ['id' => $event->getId()]) ?>"
+                                               class="dropdown-item py-2 text-danger delete-btn"
+                                               data-ajax="true"
+                                               data-target-id="event-row-<?= $event->getId() ?>"
+                                               data-message="Naozaj chceš zmazať toto podujatie?">
                                                 <i class="bi bi-trash me-2"></i> Zmazať
-                                            </button>
+                                            </a>
                                             <form id="delete-event-<?= $event->getId() ?>" method="post" action="<?= htmlspecialchars($url('event.delete', ['id' => $event->getId()])) ?>" style="display:none;"></form>
                                         </li>
                                     </ul>

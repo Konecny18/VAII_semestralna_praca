@@ -50,7 +50,7 @@ $days = [
                 </thead>
                 <tbody>
                 <?php foreach ($trainings as $t): ?>
-                    <tr>
+                    <tr id="training-row-<?= $t->getId() ?>">
                         <td><?php echo $days[$t->getDen()] ?? htmlspecialchars($t->getDen()) ?></td>
                         <td><?php echo htmlspecialchars(substr((string)$t->getCasZaciatku(), 0, 5)) ?> - <?php echo htmlspecialchars(substr((string)$t->getCasKonca(), 0, 5)) ?></td>
                         <td><?php echo htmlspecialchars($t->getPopis()) ?></td>
@@ -59,7 +59,9 @@ $days = [
                                 <a href="<?php echo $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">Upraviť</a>
                                 <a href="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
                                    class="btn btn-sm btn-danger delete-btn"
-                                   data-message="Naozaj chceš zmazať tento tréning?">
+                                   data-ajax="true"
+                                   data-target-id="training-row-<?= $t->getId() ?>"
+                                   data-message="Naozaj chceš zmazať tento tréning z rozvrhu?">
                                     <i class="bi bi-trash"></i> Zmazať
                                 </a>
                             </td>

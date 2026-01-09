@@ -209,27 +209,52 @@ class RecordController extends BaseController
         }
     }
 
+    /**
+     * @throws HttpException
+     * @throws \Exception
+     */
     public function delete(Request $request): Response
     {
         try {
             $id = (int)$request->value('id');
             $record = Record::getOne($id);
+
             if (is_null($record)) {
+                //pre AJAX vratim chybu v JSON formate
+                if ($request->isAjax()) {
+                    return $this->json(['success' => false, 'message' => 'Record nebol nájdený.'], 404);
+                }
                 throw new HttpException(404);
             }
-            // Only owner or admin can delete
+
+            // kontrola opravneni
             $identity = $this->user->getIdentity();
             $role = $identity?->getRole() ?? null;
             $userId = $identity?->getId() ?? null;
+
             if ($role !== 'admin' && $userId !== $record->getUserId()) {
+                if ($request->isAjax()) {
+                    return $this->json(['success' => false, 'message' => 'Nemáte oprávnenie zmazať tento záznam.'], 403);
+                }
                 throw new HttpException(403, 'Nemáte oprávnenie zmazať tento záznam.');
             }
 
             $record->delete();
+
+            //AJAX
+            if ($request->isAjax()) {
+                return $this->json(['success' => true]);
+            }
+
+
         } catch (\Exception $e) {
+            if ($request->isAjax()) {
+                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()], 500);
+            }
             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
         }
 
+        //klasicke presmerovanie ak data-ajax nieje true
         return $this->redirect($this->url('record.index'));
     }
 

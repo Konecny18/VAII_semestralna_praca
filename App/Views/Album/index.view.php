@@ -22,7 +22,7 @@ use Framework\Core\IAuthenticator;
         <div class="col-12 text-center my-4">Žiadne albumy.</div>
     <?php else: ?>
         <?php foreach ($albums as $album): ?>
-            <div class="col-auto">
+            <div class="col-auto" id="album-card-<?= $album->getId() ?>">
                 <div class="border album d-flex flex-column position-relative h-100">
                     <div>
                         <?php $picture = $album->getPicture(); ?>
@@ -42,6 +42,8 @@ use Framework\Core\IAuthenticator;
                             <a href="<?= $link->url('album.edit', ['id' => $album->getId()]) ?>" class="btn btn-warning">Upraviť</a>
                             <a href="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>"
                                class="btn btn-danger delete-btn"
+                               data-ajax="true"
+                               data-target-id="album-card-<?= $album->getId() ?>"
                                data-message="Odstrániť album a všetky jeho fotky?">
                                 Zmazať</a>
                         <?php endif; ?>
@@ -52,4 +54,4 @@ use Framework\Core\IAuthenticator;
     <?php endif; ?>
 </div>
 
-<!--<script src="--><?php //= $link->asset('js/delete-confirmation.js') ?><!--"></script>-->
+<!--<script src="--><?php //= $link->asset('js/delete-confirmation-ajax.js') ?><!--"></script>-->
