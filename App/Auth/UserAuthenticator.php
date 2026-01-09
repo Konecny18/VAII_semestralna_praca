@@ -6,12 +6,28 @@ use Framework\Auth\SessionAuthenticator;
 use Framework\Core\IIdentity;
 use Framework\DB\Connection;
 
+/**
+ * Class UserAuthenticator
+ *
+ * Implementuje autentifikáciu používateľa cez tabuľku `users` v databáze.
+ * Rozširuje SessionAuthenticator a poskytuje metódu pre overenie emailu a hesla.
+ * Používateľská identita je reprezentovaná triedou `UserIdentity`.
+ *
+ * Poznámka: metóda `authenticate` očakáva ako prvý parameter email (už prekonvertovaný na lowercase).
+ *
+ * @package App\Auth
+ */
 class UserAuthenticator extends SessionAuthenticator
 {
     /**
-     * Authenticate a user by email and password against the `users` table.
-     * The method expects the first parameter to be the email (lowercased by the controller).
-     * Returns an IIdentity on success or null on failure.
+     * Overí prihlasovacie údaje (email a heslo) proti tabuľke `users`.
+     *
+     * - Ak je overenie úspešné, vráti inštanciu implementujúcu IIdentity (UserIdentity).
+     * - Ak overenie zlyhá (nesprávne údaje, chýbajúci používateľ alebo DB chyba), vráti null.
+     *
+     * @param string $username Email používateľa (očakáva sa lowercased)
+     * @param string $password Ne-hashované heslo poskytnuté pri prihlasovaní
+     * @return IIdentity|null Vráti UserIdentity pri úspechu, inak null
      */
     protected function authenticate(string $username, string $password): ?IIdentity
     {
@@ -52,6 +68,14 @@ class UserAuthenticator extends SessionAuthenticator
         }
     }
 
+    /**
+     * Zistí, či je momentálne používateľ prihlásený.
+     *
+     * Táto metóda používa internú SessionAuthenticator logiku (getUser()) a vracia true,
+     * ak je v session existujúca prihlásená identita.
+     *
+     * @return bool True ak je používateľ prihlásený, inak false.
+     */
     public function isLoggedIn(): bool
     {
         // 1. Skontrolujeme, či je používateľ vôbec prihlásený
@@ -64,7 +88,8 @@ class UserAuthenticator extends SessionAuthenticator
 
     /**
      * Zistí, či je aktuálne prihlásený používateľ administrátor.
-     * @return bool
+     *
+     * @return bool True ak má používateľ rolu 'admin', inak false.
      */
     public function isAdmin(): bool
     {

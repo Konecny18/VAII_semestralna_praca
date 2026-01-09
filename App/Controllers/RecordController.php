@@ -10,8 +10,22 @@ use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 use Framework\DB\Connection;
 
+/**
+ * Class RecordController
+ *
+ * Spravuje CRUD operácie pre výkony (records). Obsahuje kontrolu oprávnení (iba majiteľ alebo admin môže upravovať / mazať),
+ * prehliadanie záznamov a ich validáciu pred uložením.
+ *
+ * @package App\Controllers
+ */
 class RecordController extends BaseController
 {
+    /**
+     * Zobrazí zoznam záznamov. Admin vidí všetky záznamy; bežný používateľ len svoje.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function index(Request $request): Response
     {
         $auth = $this->app->getAuthenticator();
@@ -83,6 +97,12 @@ class RecordController extends BaseController
         }
     }
 
+    /**
+     * Zobrazí formulár pre pridanie nového záznamu. Vyžaduje prihlásenie.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function add(Request $request): Response
     {
         // Require login to add a new record - redirect to login if not logged in
@@ -92,6 +112,13 @@ class RecordController extends BaseController
         return $this->html();
     }
 
+    /**
+     * Zobrazí formulár na úpravu záznamu (len majiteľ alebo admin).
+     *
+     * @param Request $request
+     * @return Response
+     * @throws HttpException ak záznam neexistuje alebo nie je oprávnenie
+     */
     public function edit(Request $request): Response
     {
         $id = (int)$request->value('id');
@@ -110,6 +137,13 @@ class RecordController extends BaseController
         return $this->html(compact('record'), 'edit');
     }
 
+    /**
+     * Uloží nový alebo upravený záznam. Vykonáva server-side validáciu vstupov.
+     *
+     * @param Request $request
+     * @return Response
+     * @throws HttpException
+     */
     public function save(Request $request): Response
     {
         // --- 1. Inicializácia a Sanitizácia ---
@@ -210,8 +244,11 @@ class RecordController extends BaseController
     }
 
     /**
+     * Odstráni záznam (len majiteľ alebo admin). Pri AJAX požiadavke vráti JSON.
+     *
+     * @param Request $request
+     * @return Response
      * @throws HttpException
-     * @throws \Exception
      */
     public function delete(Request $request): Response
     {
@@ -245,7 +282,6 @@ class RecordController extends BaseController
             if ($request->isAjax()) {
                 return $this->json(['success' => true]);
             }
-
 
         } catch (\Exception $e) {
             if ($request->isAjax()) {

@@ -14,20 +14,18 @@ use PDOException;
 /**
  * Class AuthController
  *
- * This controller handles authentication actions such as login, logout, and redirection to the login page. It manages
- * user sessions and interactions with the authentication system.
+ * Rieši autentifikáciu používateľov: prihlásenie, odhlásenie a registráciu. Obsahuje aj AJAX endpoint
+ * na rýchlu kontrolu dostupnosti emailu pri registrácii.
  *
  * @package App\Controllers
  */
 class AuthController extends BaseController
 {
     /**
-     * Redirects to the login page.
+     * Presmeruje na prihlasovaciu stránku definovanú v konfigurácii.
      *
-     * This action serves as the default landing point for the authentication section of the application, directing
-     * users to the login URL specified in the configuration.
-     *
-     * @return Response The response object for the redirection to the login page.
+     * @param Request $request
+     * @return Response
      */
     public function index(Request $request): Response
     {
@@ -35,15 +33,12 @@ class AuthController extends BaseController
     }
 
     /**
-     * Authenticates a user and processes the login request.
+     * Spracuje pokus o prihlásenie. Pri úspechu presmeruje používateľa na domovskú stránku,
+     * pri neúspechu vráti chybovú správu do view.
      *
-     * This action handles user login attempts. If the login form is submitted, it attempts to authenticate the user
-     * with the provided credentials. Upon successful login, the user is redirected to the admin dashboard.
-     * If authentication fails, an error message is displayed on the login page.
-     *
-     * @return Response The response object which can either redirect on success or render the login view with
-     *                  an error message on failure.
-     * @throws Exception If the parameter for the URL generator is invalid throws an exception.
+     * @param Request $request
+     * @return Response
+     * @throws Exception
      */
     public function login(Request $request): Response
     {
@@ -96,12 +91,10 @@ class AuthController extends BaseController
     }
 
     /**
-     * Logs out the current user.
+     * Odhlási aktuálneho používateľa a vráti view (alebo redirect podľa potreby).
      *
-     * This action terminates the user's session and redirects them to a view. It effectively clears any authentication
-     * tokens or session data associated with the user.
-     *
-     * @return ViewResponse The response object that renders the logout view.
+     * @param Request $request
+     * @return Response
      */
     public function logout(Request $request): Response
     {
@@ -110,9 +103,10 @@ class AuthController extends BaseController
     }
 
     /**
-     * Registration page and handler.
-     * GET -> show registration form
-     * POST -> validate and create user
+     * Registrácia nového používateľa. Pri POST validuje vstupy a vloží nový záznam do DB.
+     *
+     * @param Request $request
+     * @return Response
      */
     public function register(Request $request): Response
     {
@@ -201,6 +195,9 @@ class AuthController extends BaseController
     /**
      * AJAX endpoint to check if an email is already registered.
      * Returns JSON: { success: true, exists: bool }
+     *
+     * @param Request $request
+     * @return Response
      */
     public function checkEmail(Request $request): Response
     {

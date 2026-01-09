@@ -9,20 +9,45 @@ use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 
+/**
+ * Class EventController
+ *
+ * Spravuje CRUD operácie pre podujatia (events). Zahŕňa nahrávanie plagátu a PDF propozícií,
+ * validáciu dátumu (musia byť v budúcnosti) a obmedzenie prístupu na administrátorov pre úpravy.
+ *
+ * @package App\Controllers
+ */
 class EventController extends BaseController
 {
+    /**
+     * Zobrazí zoznam všetkých podujatí (zoradené podľa dátumu udalosti).
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function index(Request $request): Response
     {
         $events = Event::getAll(null, [], 'datum_podujatia DESC');
         return $this->html(compact('events'));
     }
 
+    /**
+     * Zobrazí formulár na vytvorenie nového podujatia (len admin).
+     *
+     * @return Response
+     */
     public function add(): Response
     {
         $this->checkAdmin();
         return $this->html(['event' => new Event()]);
     }
 
+    /**
+     * Zobrazí formulár na úpravu existujúceho podujatia (len admin).
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function edit(Request $request): Response
     {
         $this->checkAdmin();
@@ -33,6 +58,12 @@ class EventController extends BaseController
         return $this->html(compact('event'), 'edit');
     }
 
+    /**
+     * Spracuje uloženie nového alebo upraveného podujatia. Spracováva nahraté súbory a validuje vstup.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function save(Request $request): Response
     {
         $this->checkAdmin();
@@ -70,6 +101,12 @@ class EventController extends BaseController
         return $this->html(['errors' => $errors ?? [], 'event' => $event], $isEdit ? 'edit' : 'add');
     }
 
+    /**
+     * Odstráni podujatie vrátane súborov (plagát, propozície). Len pre admin.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function delete(Request $request): Response
     {
         $this->checkAdmin();

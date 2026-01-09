@@ -11,9 +11,25 @@ use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 use Framework\Http\UploadedFile;
 
+/**
+ * Class PostController
+ *
+ * Spravuje príspevky (posty / fotografie) v rámci albumov. Umožňuje zobraziť zoznam príspevkov, pridávať nové
+ * (vrátane hromadného nahrávania obrázkov), upravovať existujúce a mazať príspevky. Operácie na úpravu sú obmedzené
+ * podľa autorizácie (zvyčajne len admin alebo vlastník podľa implementácie vo view/auth).
+ *
+ * @package App\Controllers
+ */
 class PostController extends BaseController
 {
 
+    /**
+     * Zobrazí zoznam príspevkov v rámci voliteľného albumu.
+     *
+     * @param Request $request
+     * @return Response HTML s listom príspevkov
+     * @throws HttpException pri chybe DB
+     */
     public function index(Request $request): Response
     {
         $auth = $this->app->getAuthenticator();
@@ -37,13 +53,25 @@ class PostController extends BaseController
         }
     }
 
-
+    /**
+     * Zobrazí formulár pre pridanie nového príspevku (s možnosťou nahrania jedného alebo viacerých obrázkov).
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function add(Request $request): Response
     {
         $albumId = (int)$request->value('albumId');
         return $this->html(['albumId' => $albumId]);
     }
 
+    /**
+     * Zobrazí stránku pre úpravu existujúceho príspevku.
+     *
+     * @param Request $request
+     * @return Response
+     * @throws HttpException ak príspevok neexistuje
+     */
     public function edit(Request $request): Response
     {
         $id = (int)$request->value('id');
@@ -56,7 +84,12 @@ class PostController extends BaseController
     }
 
     /**
-     * @throws HttpException
+     * Uloží nový alebo upravený príspevok. Pri vytváraní podporuje viacnásobné nahranie obrázkov.
+     * Validuje nahrané súbory a vykonáva rollback v prípade chyby.
+     *
+     * @param Request $request
+     * @return Response Presmerovanie po úspechu alebo zobrazenie formulára s chybami
+     * @throws HttpException pri závažných chybách (IO/DB)
      */
     public function save(Request $request): Response
     {
@@ -196,6 +229,10 @@ class PostController extends BaseController
     }
 
     /**
+     * Odstráni príspevok a jeho obrázok zo servera a DB. Pri AJAX požiadavke vráti JSON.
+     *
+     * @param Request $request
+     * @return Response
      * @throws HttpException
      * @throws Exception
      */

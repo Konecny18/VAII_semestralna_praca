@@ -9,21 +9,19 @@ use Framework\Http\Responses\Response;
 /**
  * Class AdminController
  *
- * This controller manages admin-related actions within the application.It extends the base controller functionality
- * provided by BaseController.
+ * Spravuje administratívne akcie v aplikácii. Tento kontrolér poskytuje základnú ochranu prístupu
+ * (metóda authorize) a index stránku pre administráciu.
  *
  * @package App\Controllers
  */
 class AdminController extends BaseController
 {
     /**
-     * Authorizes actions in this controller.
+     * Overí autorizáciu pre akcie tohto kontroléra.
      *
-     * This method checks if the user is logged in, allowing or denying access to specific actions based
-     * on the authentication state.
-     *
-     * @param string $action The name of the action to authorize.
-     * @return bool Returns true if the user is logged in; false otherwise.
+     * @param Request $request
+     * @param string $action Názov akcie, ktorú chceme autorizovať
+     * @return bool Vráti true, ak je používateľ prihlásený (má prístup), inak false
      */
     public function authorize(Request $request, string $action): bool
     {
@@ -31,11 +29,10 @@ class AdminController extends BaseController
     }
 
     /**
-     * Displays the index page of the admin panel.
+     * Zobrazí hlavný admin panel (dashboard).
      *
-     * This action requires authorization. It returns an HTML response for the admin dashboard or main page.
-     *
-     * @return Response Returns a response object containing the rendered HTML.
+     * @param Request $request
+     * @return Response HTML odpoveď s admin rozhraním
      */
     public function index(Request $request): Response
     {

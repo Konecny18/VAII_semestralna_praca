@@ -11,8 +11,23 @@ use Framework\Http\Request;
 use Framework\Http\UploadedFile;
 use Framework\Http\Responses\Response;
 
+/**
+ * Class AlbumController
+ *
+ * Spravuje galérie (albumy): prehliadanie, vytváranie, úprava a mazanie albumov.
+ * Rieši nahrávanie obrázkov pre albumy a server-side validáciu vstupov.
+ *
+ * @package App\Controllers
+ */
 class AlbumController extends BaseController
 {
+    /**
+     * Zobrazí zoznam albumov.
+     *
+     * @param Request $request
+     * @return Response
+     * @throws HttpException pri chybe DB
+     */
     public function index(Request $request): Response
     {
         $auth = $this->app->getAuthenticator();
@@ -26,22 +41,26 @@ class AlbumController extends BaseController
         } catch (\Exception $exception) {
             throw new HttpException(500, "DB chyba: " . $exception->getMessage());
         }
-        /*
-        $albums = Album::getAll(null, [], 'id DESC');
-        return $this->html(compact('albums'));*/
     }
 
     /**
-     * add new album
-     * GET -> show form
-     * POST -> save and redirect to album view
+     * Zobrazí formulár na vytvorenie nového albumu.
+     *
+     * @param Request $request
+     * @return Response
      */
-
     public function add(Request $request): Response
     {
         return $this->html();
     }
 
+    /**
+     * Zobrazí formulár pre úpravu existujúceho albumu.
+     *
+     * @param Request $request
+     * @return Response
+     * @throws HttpException ak album neexistuje
+     */
     public function edit(Request $request): Response
     {
         $id = (int)$request->value('id');
@@ -51,6 +70,14 @@ class AlbumController extends BaseController
         }
         return $this->html(compact('album'), 'edit');
     }
+
+    /**
+     * Spracuje vytvorenie alebo úpravu albumu (vrátane nahrávania obrázka).
+     * Validuje vstupy a pri chybe vráti formulár s chybovými hláseniami.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function save(Request $request): Response
     {
         // prepare default values for form re-population
@@ -194,8 +221,11 @@ class AlbumController extends BaseController
         return $this->html(array_merge(compact('errors', 'album')), $viewName);
     }
 
-
     /**
+     * Odstráni album (vrátane súboru). Ak ide o AJAX požiadavku, vráti JSON odpoveď.
+     *
+     * @param Request $request
+     * @return Response
      * @throws HttpException
      * @throws \Exception
      */

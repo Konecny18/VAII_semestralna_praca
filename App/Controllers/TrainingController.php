@@ -10,8 +10,22 @@ use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 
+/**
+ * Class TrainingController
+ *
+ * Spravuje CRUD operácie nad rozvrhom tréningov. Tento kontrolér umožňuje prehliadať zoznam tréningov,
+ * pridávať, upravovať a mazať záznamy o tréningoch. Všetky akcie na úpravu rozvrhu sú dostupné len pre adminov.
+ *
+ * @package App\Controllers
+ */
 class TrainingController extends BaseController
 {
+    /**
+     * Zobrazí zoznam všetkých tréningov zoradených podľa dňa a času.
+     *
+     * @param Request $request HTTP request objekt (na získanie kontextu/užívateľa)
+     * @return Response Vráti HTML odpoveď s vykresleným zoznamom tréningov.
+     */
     public function index(Request $request): Response
     {
         $auth = $this->app->getAuthenticator();
@@ -26,6 +40,13 @@ class TrainingController extends BaseController
         }
     }
 
+    /**
+     * Zobrazí formulár pre vytvorenie nového tréningu (dostupné len pre admina).
+     *
+     * @param Request $request
+     * @return Response HTML stránka s formulárom pre pridanie tréningu.
+     * @throws HttpException Ak používateľ nie je autorizovaný.
+     */
     public function add(Request $request): Response
     {
         // Only admin can add trainings
@@ -41,6 +62,13 @@ class TrainingController extends BaseController
         return $this->html([]);
     }
 
+    /**
+     * Zobrazí formulár pre úpravu existujúceho tréningu (len admin).
+     *
+     * @param Request $request
+     * @return Response HTML s formulárom na úpravu tréningu.
+     * @throws HttpException Ak tréning neexistuje alebo používateľ nie je autorizovaný.
+     */
     public function edit(Request $request): Response
     {
         $id = (int)$request->value('id');
@@ -61,6 +89,16 @@ class TrainingController extends BaseController
         return $this->html(['training' => $training]);
     }
 
+    /**
+     * Spracuje uloženie/aktualizáciu tréningu. Prijíma POST dáta z formulára, validuje ich a uloží do DB.
+     *
+     * - Pri neúspešnej validácii vráti zobrazenie formulára s chybami.
+     * - Pri úspechu presmeruje na index tréningov.
+     *
+     * @param Request $request HTTP request obsahujúci POST údaje
+     * @return Response Redirect alebo JSON pri AJAX požiadavke
+     * @throws HttpException pri nedostatočnej autorizácii alebo iných závažných chybách
+     */
     public function save(Request $request): Response
     {
         // --- 1. Získanie, Sanitizácia a Normalizácia Vstupu ---
@@ -149,8 +187,12 @@ class TrainingController extends BaseController
     }
 
     /**
-     * @throws HttpException
-     * @throws Exception
+     * Odstráni tréning so zadaným ID. Ak je požiadavka AJAX, vráti JSON úspech/chybu.
+     *
+     * @param Request $request
+     * @return Response
+     * @throws HttpException ak tréning neexistuje alebo používateľ nemá oprávnenie
+     * @throws Exception pri inom selhaní
      */
     public function delete(Request $request): Response
     {

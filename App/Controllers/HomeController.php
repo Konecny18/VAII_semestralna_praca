@@ -55,11 +55,23 @@ class HomeController extends BaseController
         return $this->html();
     }
 
+    /**
+     * Zobrazí stránku s informáciami o klube.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function klub(Request $request): Response
     {
         return $this->html();
     }
 
+    /**
+     * Zobrazí stránku s partnermi / sponzormi.
+     *
+     * @param Request $request
+     * @return Response
+     */
     public function sponzor(Request $request): Response
     {
         return$this->html();
