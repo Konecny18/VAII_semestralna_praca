@@ -58,9 +58,12 @@ class PostController extends BaseController
      *
      * @param Request $request
      * @return Response
+     * @throws HttpException
      */
     public function add(Request $request): Response
     {
+        //iba admin moze robit CRUD
+        $this->checkAdmin();
         $albumId = (int)$request->value('albumId');
         return $this->html(['albumId' => $albumId]);
     }
@@ -74,6 +77,7 @@ class PostController extends BaseController
      */
     public function edit(Request $request): Response
     {
+        $this->checkAdmin();
         $id = (int)$request->value('id');
         $post = Post::getOne($id);
         if (is_null($post)) {
@@ -93,6 +97,7 @@ class PostController extends BaseController
      */
     public function save(Request $request): Response
     {
+        $this->checkAdmin();
         // --- 1. Inicializácia ---
         // Získam ID príspevku. Ak chýba, viem, že vytváram nový (ADD), ak existuje, upravujem (EDIT).
         $idRaw = $request->post('id') ?? null;
@@ -238,6 +243,7 @@ class PostController extends BaseController
      */
     public function delete(Request $request): Response
     {
+        $this->checkAdmin();
         try {
             $id = (int)$request->value('id');
             $post = Post::getOne($id);

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Event;
 use App\Configuration;
+use Exception;
 use Framework\Core\BaseController;
 use Framework\Http\HttpException;
 use Framework\Http\Request;
@@ -24,6 +25,7 @@ class EventController extends BaseController
      *
      * @param Request $request
      * @return Response
+     * @throws Exception
      */
     public function index(Request $request): Response
     {
@@ -35,6 +37,7 @@ class EventController extends BaseController
      * Zobrazí formulár na vytvorenie nového podujatia (len admin).
      *
      * @return Response
+     * @throws HttpException
      */
     public function add(): Response
     {
@@ -63,6 +66,8 @@ class EventController extends BaseController
      *
      * @param Request $request
      * @return Response
+     * @throws HttpException
+     * @throws Exception
      */
     public function save(Request $request): Response
     {
@@ -106,6 +111,7 @@ class EventController extends BaseController
      *
      * @param Request $request
      * @return Response
+     * @throws HttpException
      */
     public function delete(Request $request): Response
     {
@@ -133,7 +139,7 @@ class EventController extends BaseController
                 return $this->json(['success' => true]);
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($request->isAjax()) {
                 return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()], 500);
             }
@@ -143,28 +149,19 @@ class EventController extends BaseController
         return $this->redirect($this->url('event.index'));
     }
 
-    /**
-     * Pomocná metóda na kontrolu Admina
-     */
-    private function checkAdmin(): void
-    {
-        if (!$this->user->isLoggedIn()) {
-            // Ak nie je prihlásený, presmeruj na login (vyžaduje Configuration::LOGIN_URL)
-            header('Location: ' . Configuration::LOGIN_URL);
-            exit;
-        }
-
-        $identity = $this->user->getIdentity();
-        if (($identity?->getRole() ?? null) !== 'admin') {
-            throw new HttpException(403, 'Nemáte oprávnenie na túto akciu.');
-        }
-    }
 
     private function uploadFile(Request $request, string $inputName, ?string $oldFile): string
     {
         $file = $request->file($inputName);
         if ($file && $file->isOk() && $file->getName() !== '') {
-            $path = 'uploads/' . time() . '_' . $file->getName();
+            // 1. Získame pôvodné meno
+            $originalName = $file->getName();
+
+            // 2. Očistím ho: nahradím všetko, čo nie je písmeno, číslo, bodka alebo pomlčka, podčiarkovníkom
+            $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', $originalName);
+
+            // 3. Poskladáme finálnu cestu s časovou pečiatkou
+            $path = 'uploads/' . time() . '_' . $safeName;
             if ($file->store(dirname(__DIR__, 2) . '/public/' . $path)) {
                 $this->deleteFile($oldFile);
                 return $path;

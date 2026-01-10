@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `records` (
   `nazov_discipliny` VARCHAR(255) NOT NULL,
   `dosiahnuty_vykon` VARCHAR(255) DEFAULT NULL,
   `datum_vykonu` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `poznamka` TEXT DEFAULT NULL,
+  `poznamka` VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `idx_records_user_id` (`user_id`),
   CONSTRAINT `fk_records_user` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE

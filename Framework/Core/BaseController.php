@@ -2,8 +2,10 @@
 
 namespace Framework\Core;
 
+use App\Configuration;
 use Exception;
 use Framework\Auth\AppUser;
+use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\Responses\JsonResponse;
 use Framework\Http\Responses\RedirectResponse;
@@ -173,6 +175,23 @@ abstract class BaseController
     protected function redirect(string $redirectUrl): RedirectResponse
     {
         return new RedirectResponse($redirectUrl);
+    }
+
+    /**
+     * Pomocná metóda na kontrolu Admina
+     */
+    protected function checkAdmin(): void
+    {
+        if (!$this->user->isLoggedIn()) {
+            // Ak nie je prihlásený, presmeruj na login (vyžaduje Configuration::LOGIN_URL)
+            header('Location: ' . Configuration::LOGIN_URL);
+            exit;
+        }
+
+        $identity = $this->user->getIdentity();
+        if (($identity?->getRole() ?? null) !== 'admin') {
+            throw new HttpException(403, 'Nemáte oprávnenie na túto akciu.');
+        }
     }
 
     /**

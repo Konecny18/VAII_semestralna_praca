@@ -18,6 +18,7 @@ use Framework\Http\Responses\Response;
  * Rieši nahrávanie obrázkov pre albumy a server-side validáciu vstupov.
  *
  * @package App\Controllers
+ * @method checkAdmin()
  */
 class AlbumController extends BaseController
 {
@@ -51,6 +52,8 @@ class AlbumController extends BaseController
      */
     public function add(Request $request): Response
     {
+        //kontrola iba admin moze robit CRUD operacie
+        $this->checkAdmin();
         return $this->html();
     }
 
@@ -80,6 +83,7 @@ class AlbumController extends BaseController
      */
     public function save(Request $request): Response
     {
+        $this->checkAdmin();
         // prepare default values for form re-population
         $formValues = ['text' => '', 'picture' => '', 'id' => null];
         $errors = [];
@@ -231,6 +235,8 @@ class AlbumController extends BaseController
      */
     public function delete(Request $request): Response
     {
+        $this->checkAdmin();
+
         try {
             $id = (int)$request->value('id');
             $album = Album::getOne($id);
@@ -245,10 +251,10 @@ class AlbumController extends BaseController
 
             //zmazanie fyzickeho subora obrazka
             if ($album->getPicture()) {
-                $cesta = str_replace('images/', '', $album->getPicture());
-                $filePath = 'images' . DIRECTORY_SEPARATOR . $cesta;
+//                $cesta = str_replace('images/', '', $album->getPicture());
+//                $filePath = 'images' . DIRECTORY_SEPARATOR . $cesta;
                 //$filePath = Configuration::UPLOAD_DIR . str_replace('images/', '', $album->getPicture());
-                //$filePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $album->getPicture());
+                $filePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $album->getPicture());
                 if ($filePath && file_exists($filePath)) {
                     @unlink($filePath);
                 }

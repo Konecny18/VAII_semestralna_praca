@@ -118,8 +118,9 @@ class AuthController extends BaseController
         ];
 
         if ($request->isPost()) {
-            $meno = trim((string)$request->post('meno') ?? '');
-            $priezvisko = trim((string)$request->post('priezvisko') ?? '');
+            //strip_tags pre ochranu XSS aby tam niekto nemohol dat <script>alert(1)</script>.
+            $meno = strip_tags(trim((string)$request->post('meno') ?? ''));
+            $priezvisko = strip_tags(trim((string)$request->post('priezvisko') ?? ''));
             // normalize email to lowercase for consistent storage and lookup
             $email = mb_strtolower(trim((string)$request->post('email') ?? ''));
             $password = (string)($request->post('password') ?? '');

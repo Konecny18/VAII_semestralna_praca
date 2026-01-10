@@ -11,7 +11,7 @@ CREATE TABLE `users` (
 ALTER TABLE `users`
   ADD COLUMN IF NOT EXISTS `priezvisko` VARCHAR(255) DEFAULT NULL AFTER `meno`;
 
-
--- delete from users;   -- zakomentované, odstránené riziko vymazania dát pri spustení DDL
+ALTER TABLE `users`
+    ADD UNIQUE (email);
 
 # delete from users;

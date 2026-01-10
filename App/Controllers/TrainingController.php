@@ -49,16 +49,7 @@ class TrainingController extends BaseController
      */
     public function add(Request $request): Response
     {
-        // Only admin can add trainings
-        if (!$this->user->isLoggedIn()) {
-            return $this->redirect(Configuration::LOGIN_URL);
-        }
-        $identity = $this->user->getIdentity();
-        $role = $identity?->getRole() ?? null;
-        if ($role !== 'admin') {
-            throw new HttpException(403, 'Nemáte oprávnenie pridávať tréningy.');
-        }
-
+        $this->checkAdmin();
         return $this->html([]);
     }
 
@@ -71,19 +62,12 @@ class TrainingController extends BaseController
      */
     public function edit(Request $request): Response
     {
+        $this->checkAdmin();
+
         $id = (int)$request->value('id');
         $training = Training::getOne($id);
         if (is_null($training)) {
             throw new HttpException(404);
-        }
-        // Only admin can edit trainings
-        if (!$this->user->isLoggedIn()) {
-            return $this->redirect(Configuration::LOGIN_URL);
-        }
-        $identity = $this->user->getIdentity();
-        $role = $identity?->getRole() ?? null;
-        if ($role !== 'admin') {
-            throw new HttpException(403, 'Nemáte oprávnenie upravovať tréningy.');
         }
 
         return $this->html(['training' => $training]);
@@ -101,6 +85,8 @@ class TrainingController extends BaseController
      */
     public function save(Request $request): Response
     {
+        $this->checkAdmin();
+
         // --- 1. Získanie, Sanitizácia a Normalizácia Vstupu ---
         $id = (int)$request->value('id');
         $isEdit = $id > 0;
@@ -123,11 +109,6 @@ class TrainingController extends BaseController
             }
             return null;
         };
-
-        // --- 2. Kontrola Autorizácie (Iba Admin) ---
-        if (!$this->user->isLoggedIn() || ($this->user->getIdentity()?->getRole() ?? null) !== 'admin') {
-            throw new HttpException(403, 'Nemáte oprávnenie upravovať rozvrh tréningov.');
-        }
 
         // --- 3. Validácia ---
         $formErrors = $this->formErrors($request);
@@ -196,6 +177,8 @@ class TrainingController extends BaseController
      */
     public function delete(Request $request): Response
     {
+        $this->checkAdmin();
+
         try {
             $id = (int)$request->value('id');
             $training = Training::getOne($id);
@@ -206,23 +189,6 @@ class TrainingController extends BaseController
                     return $this->json(['success' => false, 'message' => 'Training nebol nájdený.'], 404);
                 }
                 throw new HttpException(404);
-            }
-            // Only admin can delete trainings
-            if (!$this->user->isLoggedIn()) {
-                if ($request->isAjax()) {
-                    return $this->json(['success' => false, 'message' => 'Musíte sa prihlásiť.'], 401);
-                }
-                return $this->redirect(Configuration::LOGIN_URL);
-            }
-            $identity = $this->user->getIdentity();
-            $role = $identity?->getRole() ?? null;
-
-            if ($role !== 'admin') {
-                //kontrola pre AJAX
-                if ($request->isAjax()) {
-                    return $this->json(['success' => false, 'message' => 'Nemáte oprávnenie zmazať tréningy.'], 403);
-                }
-                throw new HttpException(403, 'Nemáte oprávnenie zmazať tréningy.');
             }
 
             $training->delete();
