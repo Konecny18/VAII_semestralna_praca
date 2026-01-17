@@ -144,60 +144,65 @@ class RecordController extends BaseController
      * @return Response
      * @throws HttpException
      */
+
     public function save(Request $request): Response
     {
-        // --- 1. Inicializácia a Sanitizácia ---
+        // CSRF first
+        $this->validateCsrf($request);
+
+        // Require login
+        if (!$this->user->isLoggedIn()) {
+            return $this->redirect(Configuration::LOGIN_URL);
+        }
+
+        // Initialize
+        $errors = [];
+        $record = null;
+
         $idRaw = $request->post('id') ?? null;
         $id = ($idRaw === '' || $idRaw === null) ? null : (int)$idRaw;
         $isEdit = !empty($id);
 
-        // Zásadná SANITIZÁCIA (XSS ochrana)
+        // Sanitization
         $nazov = strip_tags(trim((string)($request->post('nazov_discipliny') ?? '')));
         $vykon = strip_tags(trim((string)($request->post('dosiahnuty_vykon') ?? '')));
-        $datumRaw = trim((string)($request->post('datum_vykonu') ?? '')); // Dátum nesanitizujeme tagmi
+        $datumRaw = trim((string)($request->post('datum_vykonu') ?? ''));
         $poznamka = strip_tags(trim((string)($request->post('poznamka') ?? '')));
 
-        $errors = [];
-
-        // --- 2. Validácia (Volanie novej metódy) ---
-        // Posielame surové/sanitizované dáta, ktoré sa budú validovať.
+        // Validation
         $formErrors = $this->formErrors($nazov, $vykon, $datumRaw, $poznamka, $isEdit);
-
         if (count($formErrors) > 0) {
-            // Ak validácia zlyhala, pripravíme Model pre re-populáciu formulára
-            $record = ($isEdit) ? Record::getOne($id) : new Record();
+            $record = $isEdit ? Record::getOne($id) : new Record();
+            if (!$record) $record = new Record();
 
-            // Nastavíme hodnoty, aby sa zobrazili vo formulári
+            // repopulate fields
             $record->setNazovDiscipliny($nazov);
             $record->setDosiahnutyVykon($vykon ?: null);
             $record->setDatumVykonu($datumRaw ?: null);
             $record->setPoznamka($poznamka ?: null);
 
-            // Zabezpečíme, že na editácii zostane user_id, ak validácia zlyhala
+            // preserve user_id for edit if missing
             if ($isEdit && $record->getUserId() === 0) {
-                // Ak id existuje, ale record ho stratil, musíme ho znovu načítať
                 $existing = Record::getOne($id);
                 if ($existing) $record->setUserId($existing->getUserId());
             }
 
-            return $this->html(
-                ['errors' => $formErrors, 'record' => $record], $isEdit ? 'edit' : 'add'
-            );
+            return $this->html(['errors' => $formErrors, 'record' => $record], $isEdit ? 'edit' : 'add');
         }
 
-        // --- 3. Spracovanie a Uloženie (Iba ak je validácia úspešná) ---
+        // Save
         try {
+            $identity = $this->user->getIdentity();
+            $role = $identity?->getRole() ?? null;
+            $userId = $identity?->getId() ?? 0;
+
             if ($isEdit) {
                 $record = Record::getOne($id);
                 if (is_null($record)) {
                     throw new \Exception('Záznam neexistuje.');
                 }
-                // Kontrola AUTORIZÁCIE: Len majiteľ alebo admin môže editovať
-                $identity = $this->user->getIdentity();
-                $role = $identity?->getRole() ?? null;
-                $userId = $identity?->getId() ?? null;
+
                 if ($role !== 'admin' && $userId !== $record->getUserId()) {
-                    // Vraciame 403, namiesto uloženia chyby do poľa
                     throw new HttpException(403, 'Nemáte oprávnenie upravovať tento záznam.');
                 }
 
@@ -206,40 +211,29 @@ class RecordController extends BaseController
                 $record->setDatumVykonu($datumRaw ?: null);
                 $record->setPoznamka($poznamka ?: null);
             } else {
-                // Vytváranie nového záznamu
-                if (!$this->user->isLoggedIn()) {
-                    return $this->redirect(Configuration::LOGIN_URL);
-                }
-
-                // Získame ID prihláseného používateľa (autorizácia)
-                $identity = $this->user->getIdentity();
-                $userId = method_exists($identity, 'getId') ? $identity->getId() : 0;
                 if ($userId === 0) {
                     throw new \Exception('Prihlásený používateľ nemá platné ID.');
                 }
-
                 $record = new Record(null, (int)$userId, $nazov, $vykon ?: null, $datumRaw ?: null, $poznamka ?: null);
             }
 
             $record->save();
             return $this->redirect($this->url('record.index'));
-
         } catch (HttpException $e) {
-            // Znovu vyvolanie pre 403 chybu
             throw $e;
         } catch (\Throwable $e) {
-            // Zachytenie DB a iných chýb
             $errors[] = 'Nepodarilo sa uložiť záznam: ' . $e->getMessage();
 
-            // Ak bola chyba, vrátime sa do formulára s chybou
+            // Ensure record exists for repopulation
+            if (!$record) $record = $isEdit ? Record::getOne($id) : new Record();
+            if (!$record) $record = new Record();
+
             $record->setNazovDiscipliny($nazov);
             $record->setDosiahnutyVykon($vykon ?: null);
             $record->setDatumVykonu($datumRaw ?: null);
             $record->setPoznamka($poznamka ?: null);
 
-            return $this->html(
-                ['errors' => $errors, 'record' => $record], $isEdit ? 'edit' : 'add'
-            );
+            return $this->html(['errors' => $errors, 'record' => $record], $isEdit ? 'edit' : 'add');
         }
     }
 
@@ -252,6 +246,9 @@ class RecordController extends BaseController
      */
     public function delete(Request $request): Response
     {
+        // 1. CSRF ochrana (aby niekto iný nemohol poslať link na zmazanie mojho výkonu)
+        $this->validateCsrf($request);
+
         try {
             $id = (int)$request->value('id');
             $record = Record::getOne($id);

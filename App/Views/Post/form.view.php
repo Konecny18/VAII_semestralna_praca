@@ -13,32 +13,28 @@ $isEdit = !empty(@$post?->getId());
 
 ?>
 
-<?php if (!is_null(@$formErrors)): ?>
-    <?php foreach ($formErrors as $error): ?>
-        <div class="alert alert-danger" role="alert">
-            <?= $error ?>
-        </div>
-    <?php endforeach; ?>
-<?php endif; ?>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-10 d-flex gap-4 flex-column">
-            <form method="post" action="<?= $link->url('post.save') ?>" enctype="multipart/form-data">
+<form method="post" action="<?= $link->url('post.save') ?>" enctype="multipart/form-data">
 
-                <input type="hidden" name="id" value="<?= @$post?->getId() ?>">
-                <input type="hidden" name="albumId" value="<?= isset($albumId) ? (int)$albumId : (@$post?->getAlbumId() ?? '') ?>">
+    <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
 
-                <label for="picture" class="form-label fw-bold">Súbor obrázka</label>
-                <div class="input-group mb-3 has-validation">
-                    <input type="file" class="form-control " name="pictures[]" id="picture" accept="image/png, image/jpeg"
-                    <?= $isEdit ? '' : 'required' ?>
-                    multiple>
-                </div>
-                <?php if (@$post?->getPicture() != ""): ?>
-                    <div class="text-muted mb-3">Pôvodný súbor: <?= substr($post->getPicture(), strpos($post->getPicture(), '-') + 1) ?></div>
-                <?php endif; ?>
-                <button type="submit" class="btn btn-primary">Uložiť</button>
-            </form>
-        </div>
+    <input type="hidden" name="id" value="<?= @$post?->getId() ?>">
+
+    <input type="hidden" name="albumId" value="<?= isset($albumId) ? (int)$albumId : (@$post?->getAlbumId() ?? '') ?>">
+
+    <label for="picture" class="form-label fw-bold">Súbor obrázka</label>
+    <div class="input-group mb-3 has-validation">
+        <input type="file" class="form-control " name="pictures[]" id="picture" accept="image/png, image/jpeg"
+        <?= $isEdit ? '' : 'required' ?>
+        multiple>
     </div>
-</div>
+    <?php if (@$post?->getPicture() != ""): ?>
+<!--                odreze vsetky znaky pred _ tak aby videl iba nazov suboru bez unikatneho id-->
+        <div class="text-muted mb-3">Pôvodný súbor: <?= htmlspecialchars(substr($post->getPicture(), strrpos($post->getPicture(), '_') + 1)) ?></div>
+
+    <?php endif; ?>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="<?= $link->url('post.index') ?>" class="btn btn-secondary">Späť</a>
+        <button type="submit" class="btn btn-primary">Uložiť</button>
+    </div>
+</form>
+

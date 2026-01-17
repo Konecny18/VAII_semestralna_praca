@@ -26,12 +26,15 @@ use Framework\Core\IAuthenticator;
 <!--            pouzivam album aby to vyzeralo tak isto ako v albume-->
             <div class="border album d-flex flex-column h-100">
                 <div>
-                    <a href="#" class="klikatelny-obrazok" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>">
-                        <img src="<?= $link->asset(Configuration::UPLOAD_URL . $post->getPicture()) ?>" class="obrazok-karta" alt="Post image">
+                    <a href="#" class="klikatelny-obrazok"
+                       data-bs-toggle="modal"
+                       data-bs-target="#imageModal"
+                       data-image="<?= htmlspecialchars($link->asset(Configuration::UPLOAD_URL . $post->getPicture()), ENT_QUOTES, 'UTF-8') ?>">
+                        <img src="<?= htmlspecialchars($link->asset(Configuration::UPLOAD_URL . $post->getPicture()), ENT_QUOTES, 'UTF-8') ?>" class="obrazok-karta" alt="Post image">
                     </a>
                 </div>
                 <?php if ($auth->isAdmin()): ?>
-                    <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
+                    <div class="m-2 d-flex gap-2 justify-content-end mt-2">
                         <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
 <!--                        <a href="--><?php //= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?><!--" class="btn btn-danger" onclick="return confirm('Naozaj zmazať príspevok?')">Zmazať</a>-->
                         <a href="<?= $link->url('post.delete', ['id' => $post->getId()]) ?>"
@@ -41,6 +44,14 @@ use Framework\Core\IAuthenticator;
                            data-message="Naozaj chceš vymazať túto fotku z albumu?">
                             <i class="bi bi-trash"></i> Zmazať
                         </a>
+
+<!--                        zaloha keby ajax zlyha, inak si ajax vytiahne csrf token sam-->
+                        <form id="delete-post-<?= $post->getId() ?>"
+                              method="post"
+                              action="<?= $link->url('post.delete', ['id' => $post->getId()]) ?>"
+                              style="display:none;">
+                            <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        </form>
                     </div>
                 <?php endif; ?>
             </div>

@@ -65,10 +65,16 @@ document.addEventListener('DOMContentLoaded', function () {
                         // URL z atributu href alebo ak existuje parent form, použijeme jeho action.
                         const url = linkUrl || (parentForm ? parentForm.action : '');
 
+                        // Získanie tokenu z meta tagu v head
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
                         // Send fetch POST request. Poznámka: ak potrebujete CSRF, pridajte ho do headers tu.
                         fetch(url, {
                             method: 'POST',
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': csrfToken // Pridanie tokenu do hlavičky
+                                }
                         })
                             .then(response => {
                                 // Pokúsime sa parsovať JSON; ak server nevráti JSON, prejdeme do catch

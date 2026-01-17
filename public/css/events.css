@@ -52,12 +52,6 @@
     min-height: 350px;
 }
 
-/* Jemne upravená farba popisu */
-.popis-eventu {
-    line-height: 1.6;
-    color: #4a4a4a;
-}
-
 .bg-soft-primary {
     background-color: rgba(13, 110, 253, 0.1);
 }
@@ -66,7 +60,10 @@
     line-height: 1.6;
     color: #4a4a4a;
     /* Tieto riadky opravia pretekanie: */
-    white-space: pre-wrap;      /* Zachová entery z textarea a zalomí riadky */
+    white-space: pre-line;
+    /* pre-line zachová nové riadky (entery),
+       ale zbalí viacnásobné medzery a čistí začiatky riadkov lepšie */
+    /*white-space: pre-wrap;      !* Zachová entery z textarea a zalomí riadky *!*/
     word-wrap: break-word;      /* Rozbije extrémne dlhé slová alebo linky */
     overflow-wrap: break-word;  /* Moderná verzia zalomenia slov */
 }

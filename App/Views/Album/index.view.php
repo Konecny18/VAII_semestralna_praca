@@ -33,19 +33,30 @@ use Framework\Core\IAuthenticator;
                         <?php endif; ?>
                     </div>
                     <div class="m-2">
-                        <strong><?= $album->getText() ?></strong>
+<!--                        ak by niekto obisiel strip_tags v controlleri tak by mohol utocnik vlozit <script>alert('xss')</script>-->
+                        <strong><?= htmlspecialchars($album->getText(), ENT_QUOTES, 'UTF-8') ?></strong>
                     </div>
                     <div class="m-2 d-flex gap-2 justify-content-end mt-auto">
                         <a href="<?= $link->url('post.index', ['albumId' => $album->getId()]) ?>" class="btn btn-primary">Zobraziť</a>
 
                         <?php if ($auth->isAdmin()): ?>
                             <a href="<?= $link->url('album.edit', ['id' => $album->getId()]) ?>" class="btn btn-warning">Upraviť</a>
+
                             <a href="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>"
                                class="btn btn-danger delete-btn"
                                data-ajax="true"
                                data-target-id="album-card-<?= $album->getId() ?>"
                                data-message="Odstrániť album a všetky jeho fotky?">
-                                Zmazať</a>
+                                Zmazať
+                            </a>
+
+<!--                            zaloha keby ajax zlyha, inak si ajax vytiahne csrf token sam-->
+                            <form id="delete-album-<?= $album->getId() ?>"
+                                  method="post"
+                                  action="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>"
+                                  style="display:none;">
+                                <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
+                            </form>
                         <?php endif; ?>
                     </div>
                 </div>

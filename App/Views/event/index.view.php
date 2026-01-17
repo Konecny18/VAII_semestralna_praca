@@ -1,10 +1,14 @@
 <?php
-/** @var \Framework\Support\LinkGenerator $link */
-/** @var \Framework\Auth\AppUser|null $user */
-/** @var \App\Models\Event[]|null $events */
+/** @var LinkGenerator $link */
+/** @var AppUser|null $user */
+/** @var Event[]|null $events */
+/** @var IAuthenticator $auth */
 
-// Pomocná premenná pre kontrolu admina
-$isAdmin = $user && $user->isLoggedIn() && ($user->getIdentity()?->getRole() === 'admin');
+
+use App\Models\Event;
+use Framework\Auth\AppUser;
+use Framework\Support\LinkGenerator;
+use Framework\Core\IAuthenticator;
 
 $link = $link ?? null;
 $asset = function(?string $path) use ($link) {
@@ -29,7 +33,7 @@ $url = function(string $route, array $params = []) use ($link) {
 <div class="d-flex justify-content-between align-items-center mb-5">
     <h1 class="display-5 fw-bold text-primary">Kalendár podujatí</h1>
 
-    <?php if ($isAdmin): ?>
+    <?php if ($auth->isAdmin()): ?>
         <a href="<?= $link->url('event.add') ?>" class="btn btn-success shadow-sm">
             <i class="bi bi-plus-lg"></i> Nové podujatie
         </a>
@@ -70,7 +74,7 @@ $url = function(string $route, array $params = []) use ($link) {
 
                     <div class="col-auto p-4 border-start bg-light">
                         <div class="d-flex align-items-center gap-2">
-                            <?php if ($isAdmin): ?>
+                            <?php if ($auth->isAdmin()): ?>
                                 <div class="dropdown">
                                     <button class="btn btn-white btn-sm rounded-circle shadow-sm border dropdown-bodky-eventu"
                                             type="button"
@@ -95,7 +99,10 @@ $url = function(string $route, array $params = []) use ($link) {
                                                data-message="Naozaj chceš zmazať toto podujatie?">
                                                 <i class="bi bi-trash me-2"></i> Zmazať
                                             </a>
-                                            <form id="delete-event-<?= $event->getId() ?>" method="post" action="<?= htmlspecialchars($url('event.delete', ['id' => $event->getId()])) ?>" style="display:none;"></form>
+                <!--                            zaloha keby ajax zlyha, inak si ajax vytiahne csrf token sam-->
+                                            <form id="delete-event-<?= $event->getId() ?>" method="post" action="<?= htmlspecialchars($url('event.delete', ['id' => $event->getId()])) ?>">
+                                                <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                            </form>
                                         </li>
                                     </ul>
                                 </div>

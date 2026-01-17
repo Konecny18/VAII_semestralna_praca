@@ -29,8 +29,20 @@ class EventController extends BaseController
      */
     public function index(Request $request): Response
     {
-        $events = Event::getAll(null, [], 'datum_podujatia DESC');
-        return $this->html(compact('events'));
+        // Získame autentifikátor z aplikácie
+        $auth = $this->app->getAuthenticator();
+
+        try {
+            $events = Event::getAll(null, [], 'datum_podujatia ASC');
+
+            // Posielame 'auth' do view, aby sme mohli v šablóne používať $auth->isAdmin()
+            return $this->html([
+                'events' => $events,
+                'auth' => $auth
+            ]);
+        } catch (Exception $e) {
+            throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -54,6 +66,7 @@ class EventController extends BaseController
     public function edit(Request $request): Response
     {
         $this->checkAdmin();
+
         $event = Event::getOne((int)$request->value('id'));
         if (!$event) {
             return $this->redirect($this->url('event.index'));
@@ -78,6 +91,8 @@ class EventController extends BaseController
         $event = $isEdit ? Event::getOne((int)$id) : new Event();
 
         if ($request->isPost()) {
+            // Kontrola tokenu je hneď na začiatku spracovania POST dát
+            $this->validateCsrf($request);
             // Zavoláme samostatnú validačnú metódu
             $errors = $this->formErrors($request, $isEdit);
 
@@ -103,7 +118,10 @@ class EventController extends BaseController
         }
 
         // Ak sú chyby, vrátime sa späť do formulára
-        return $this->html(['errors' => $errors ?? [], 'event' => $event], $isEdit ? 'edit' : 'add');
+        return $this->html([
+            'errors' => $errors ?? [],
+            'event' => $event],
+            $isEdit ? 'edit' : 'add');
     }
 
     /**
@@ -116,6 +134,8 @@ class EventController extends BaseController
     public function delete(Request $request): Response
     {
         $this->checkAdmin();
+        //Ochrana proti CSRF pre mazanie
+        $this->validateCsrf($request);
 
         try {
             $id = (int)$request->value('id');

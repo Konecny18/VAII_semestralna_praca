@@ -11,6 +11,7 @@ use Framework\Http\Responses\JsonResponse;
 use Framework\Http\Responses\RedirectResponse;
 use Framework\Http\Responses\Response;
 use Framework\Http\Responses\ViewResponse;
+//use Random\RandomException;
 
 /**
  * Class ControllerBase
@@ -100,6 +101,34 @@ abstract class BaseController
     {
         $this->app = $app;
         $this->user = $app->getAppUser(); // Initialize the user property
+
+        // Zabezpečíme, aby bol token vygenerovaný hneď pri inicializácii controllera
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+    }
+
+    /**
+     * Overí, či zaslaný CSRF token súhlasí s tým v session.
+     */
+    protected function validateCsrf(Request $request): void
+    {
+        // 1. Skúsime vytiahnuť token z POST dát (klasický formulár)
+        $postToken = $request->post('_token');
+
+        // 2. Skúsime vytiahnuť token z HTTP hlavičky (pre AJAX)
+        // Keďže váš Request nemá metódu header(), musíme ísť cez $_SERVER
+        $ajaxToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+
+        // Finálny token je buď z POST alebo z AJAXU
+        $token = $postToken ?? $ajaxToken;
+
+        if (!$token || $token !== ($_SESSION['csrf_token'] ?? '')) {
+            throw new HttpException(419, 'Bezpečnostný token vypršal alebo je neplatný (CSRF).');
+        }
     }
 
     /**
@@ -136,7 +165,7 @@ abstract class BaseController
      * @param string|null $viewName The name of the view to render, or null to infer from context.
      * @return ViewResponse The constructed ViewResponse object.
      */
-    protected function html(array $data = [], string $viewName = null): ViewResponse
+    protected function html(array $data = [], ?string $viewName = null): ViewResponse
     {
         if ($viewName == null) {
             $viewName = $this->app->getRouter()->getControllerName() . DIRECTORY_SEPARATOR .

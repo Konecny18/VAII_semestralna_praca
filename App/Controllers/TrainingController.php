@@ -85,6 +85,9 @@ class TrainingController extends BaseController
      */
     public function save(Request $request): Response
     {
+        // 1. CSRF
+        $this->validateCsrf($request);
+
         $this->checkAdmin();
 
         // --- 1. Získanie, Sanitizácia a Normalizácia Vstupu ---
@@ -177,6 +180,9 @@ class TrainingController extends BaseController
      */
     public function delete(Request $request): Response
     {
+        // 1. CSRF Ochrana
+        $this->validateCsrf($request);
+
         $this->checkAdmin();
 
         try {

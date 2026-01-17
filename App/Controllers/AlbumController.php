@@ -80,6 +80,7 @@ class AlbumController extends BaseController
      *
      * @param Request $request
      * @return Response
+     * @throws HttpException
      */
     public function save(Request $request): Response
     {
@@ -89,6 +90,9 @@ class AlbumController extends BaseController
         $errors = [];
 
         if ($request->isPost()) {
+            // overuje ci to chcel spravit pouzivatel zo svojej stranky
+            //overuje sa az pri post poziadavke od pouzivatela, cize ci chce ulozit album
+            $this->validateCsrf($request); // PRIDANÉ: Ochrana pre formulár
             // sanitize inputs
             //$text = trim((string)($request->post('text') ?? ''));
             // Zlepšená sanitizácia: Odstránenie HTML tagov z textu (prevencia XSS)
@@ -236,6 +240,7 @@ class AlbumController extends BaseController
     public function delete(Request $request): Response
     {
         $this->checkAdmin();
+        $this->validateCsrf($request); // PRIDANÉ: Ochrana pre AJAX/Odkaz
 
         try {
             $id = (int)$request->value('id');

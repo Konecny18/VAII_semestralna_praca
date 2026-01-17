@@ -64,6 +64,14 @@ $days = [
                                    data-message="Naozaj chceš zmazať tento tréning z rozvrhu?">
                                     <i class="bi bi-trash"></i> Zmazať
                                 </a>
+
+<!--                                poistka pre prípad, že by AJAX zlyhal-->
+                                <form id="delete-training-<?= $t->getId() ?>"
+                                      method="post"
+                                      action="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
+                                      style="display:none;">
+                                    <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                </form>
                             </td>
                         <?php endif; ?>
                     </tr>

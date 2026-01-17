@@ -10,6 +10,7 @@ namespace Framework\Http;
  * PHP variables, allowing for easier and more organized handling of incoming requests in web applications.
  *
  * @package App\Core\Http
+ * @method header(string $string)
  */
 class Request
 {

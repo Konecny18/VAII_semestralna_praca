@@ -1,15 +1,24 @@
 <?php
-
 /** @var Framework\Support\LinkGenerator $link */
+/** @var array|null $formErrors */
 ?>
 
-<div class="container">
+<?php if (!empty($formErrors)): ?>
     <div class="row justify-content-center">
-        <div class="col-6 d-flex gap-4  flex-column">
-            <h1>Úprava príspevku</h1>
-
-            <?php require 'form.view.php' ?>
-
+        <div class="col-6">
+            <?php foreach ($formErrors as $error): ?>
+                <div class="alert alert-danger" role="alert">
+                    <?= htmlspecialchars($error) ?>
+                </div>
+            <?php endforeach; ?>
         </div>
+    </div>
+<?php endif; ?>
+
+<div class="row justify-content-center">
+    <div class="col-6 d-flex gap-4 flex-column">
+        <h1>Úprava príspevku</h1>
+
+        <?php require 'form.view.php' ?>
     </div>
 </div>

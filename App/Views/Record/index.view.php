@@ -80,6 +80,14 @@ $owners = $owners ?? [];
                            data-message="Naozaj chceš vymazať tento športový záznam?">
                             <i class="bi bi-trash"></i> Zmazať
                         </a>
+
+                        <!-- zaloha keby ajax zlyha, inak si ajax vytiahne csrf token sam-->
+                        <form id="delete-record-<?= $rec->getId() ?>"
+                              method="post"
+                              action="<?= $link->url('record.delete', ['id' => $rec->getId()]) ?>"
+                              style="display:none;">
+                            <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
+                        </form>
                     <?php endif; ?>
                 </td>
             </tr>

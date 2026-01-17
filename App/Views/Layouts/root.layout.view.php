@@ -17,6 +17,7 @@ if (!isset($user)) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?>">
     <!-- Ensure responsive behavior on mobile devices and DevTools -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= App\Configuration::APP_NAME ?></title>
@@ -24,8 +25,8 @@ if (!isset($user)) {
     <link rel="apple-touch-icon" sizes="180x180" href="<?= $link->asset('images/tat_logo.png') ?>">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= $link->asset('images/tat_logo.png') ?>">
     <link rel="icon" type="image/png" sizes="16x16" href="<?= $link->asset('images/tat_logo.png') ?>">
-    <link rel="manifest" href="<?= $link->asset('images/site.webmanifest') ?>">
-    <link rel="shortcut icon" href="<?= $link->asset('images/favicon.ico') ?>">
+    <link rel="manifest" href="<?= $link->asset('favicons/site.webmanifest') ?>">
+    <link rel="shortcut icon" href="<?= $link->asset('images/tat_logo.png') ?>">
 
     <!-- Bootstrap (match index.html) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">

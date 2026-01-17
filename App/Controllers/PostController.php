@@ -98,6 +98,10 @@ class PostController extends BaseController
     public function save(Request $request): Response
     {
         $this->checkAdmin();
+
+        // CSRF ochrana - akcia sa vykoná len ak sedí token
+        $this->validateCsrf($request);
+
         // --- 1. Inicializácia ---
         // Získam ID príspevku. Ak chýba, viem, že vytváram nový (ADD), ak existuje, upravujem (EDIT).
         $idRaw = $request->post('id') ?? null;
@@ -244,6 +248,10 @@ class PostController extends BaseController
     public function delete(Request $request): Response
     {
         $this->checkAdmin();
+
+        // CSRF ochrana pre mazanie
+        $this->validateCsrf($request);
+
         try {
             $id = (int)$request->value('id');
             $post = Post::getOne($id);
