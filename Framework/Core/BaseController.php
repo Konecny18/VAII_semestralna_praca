@@ -217,8 +217,8 @@ abstract class BaseController
             exit;
         }
 
-        $identity = $this->user->getIdentity();
-        if (($identity?->getRole() ?? null) !== 'admin') {
+        $role = $this->user->getIdentity()?->getRole();
+        if ($role !== 'admin' && $role !== 'trener') {
             throw new HttpException(403, 'Nemáte oprávnenie na túto akciu.');
         }
     }

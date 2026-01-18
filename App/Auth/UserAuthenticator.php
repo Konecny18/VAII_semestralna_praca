@@ -110,4 +110,24 @@ class UserAuthenticator extends SessionAuthenticator
             return false;
         }
     }
+
+    public function isTrener(): bool
+    {
+        // 1. Skontrolujeme, či je používateľ vôbec prihlásený
+        if (!$this->getUser()->isLoggedIn()) {
+            return false;
+        }
+
+        // 2. Získame identitu prihláseného používateľa
+        //$identity = $this->getUser()->getIdentity();
+        $rola = $this->getUser()->getRole();
+
+        // 3. Ak identita existuje, skontrolujeme rolu (UserIdentity ju ukladá v konštruktore)
+        // Používame nullsafe operátor ?-> pre istotu
+        if ($rola === 'trener') {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

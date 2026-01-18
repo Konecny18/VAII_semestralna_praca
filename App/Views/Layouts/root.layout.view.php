@@ -33,6 +33,7 @@ if (!isset($user)) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="<?= $link->asset('js/delete-confirmation-ajax.js') ?>"></script>
+<!--    <script src="--><?php //= $link->asset('js/form-ajax.js') ?><!--" defer></script>-->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Existing app assets -->
@@ -77,6 +78,13 @@ if (!isset($user)) {
                 <?php if ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn()): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('record.index') ?>">Výkony</a>
+                </li>
+                <?php endif; ?>
+                <?php
+                $role = $user?->getIdentity()?->getRole() ?? null;
+                if ($role === 'admin'): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= $link->url('admin.users') ?>">Pouzivatelia</a>
                 </li>
                 <?php endif; ?>
 

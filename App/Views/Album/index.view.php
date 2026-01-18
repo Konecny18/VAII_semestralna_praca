@@ -64,5 +64,3 @@ use Framework\Core\IAuthenticator;
         <?php endforeach; ?>
     <?php endif; ?>
 </div>
-
-<!--<script src="--><?php //= $link->asset('js/delete-confirmation-ajax.js') ?><!--"></script>-->

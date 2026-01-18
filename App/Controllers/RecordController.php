@@ -45,7 +45,7 @@ class RecordController extends BaseController
 
             $role = method_exists($identity, 'getRole') ? $identity->getRole() : null;
 
-            if ($role === 'admin') {
+            if ($role === 'admin' || $role === 'trener') {
                 // Admin sees all records
                 $records = Record::getAll(null, [], 'id DESC');
             } else {

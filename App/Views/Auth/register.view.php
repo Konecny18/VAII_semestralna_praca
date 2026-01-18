@@ -66,7 +66,7 @@ $view->setLayout('auth');
                         // po zadani emailu do policka javascript vie kam ma data odniest na kontrolu
                         window.__CHECK_EMAIL_URL__ = '<?= $link->url('auth.checkEmail') ?>';
                     </script>
-                    <script src="<?= $link->asset('js/register-validate.js') ?>"></script>
+                    <script src="<?= $link->asset('js/register-validate-ajax.js') ?>"></script>
 
                     <div class="mt-3 text-center">
                         <a href="<?= $link->url('login') ?>">Máte účet? Prihlásiť sa</a>

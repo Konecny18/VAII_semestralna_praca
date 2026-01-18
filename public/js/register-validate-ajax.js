@@ -1,5 +1,5 @@
 /**
- * register-validate.js
+ * register-validate-ajax.js
  *
  * Klientská (frontend) validácia a asynchrónna kontrola dostupnosti emailu pri registrácii.
  * - Debounced AJAX volanie na endpoint /auth/checkEmail (alebo URL poskytnutú vo view cez window.__CHECK_EMAIL_URL__).

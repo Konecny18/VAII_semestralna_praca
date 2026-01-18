@@ -25,6 +25,7 @@ use Framework\Support\LinkGenerator;
  * features or modifications to existing behaviors.
  * *
  * @package App
+ * @method getAuth()
  */
 class App
 {

@@ -1,23 +1,17 @@
 <?php
 
-/** @var \Framework\Support\LinkGenerator $link */
-/** @var \Framework\Auth\AppUser|null $user */
-/** @var \App\Models\Record[]|null $records */
+/** @var LinkGenerator $link */
+/** @var AppUser|null $user */
+/** @var Record[]|null $records */
 /** @var array|null $owners */
 /** @var IAuthenticator $auth */
 
+use App\Models\Record;
+use Framework\Auth\AppUser;
 use Framework\Core\IAuthenticator;
+use Framework\Support\LinkGenerator;
 
 $owners = $owners ?? [];
-
-//// compute flags
-//$isLoggedIn = ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn());
-//$isAdmin = false;
-//if ($isLoggedIn && method_exists($user, 'getIdentity')) {
-//    $ident = $user->getIdentity();
-//    $isAdmin = ($ident?->getRole() ?? null) === 'admin';
-//}
-
 ?>
 
 <?php if ($auth->isLoggedIn()): ?>
@@ -27,13 +21,9 @@ $owners = $owners ?? [];
 <?php if (empty($records)): ?>
     <p>Žiadne záznamy.</p>
 <?php else: ?>
-    <!--bootstrap triedy-->
     <table class="table table-striped">
         <thead>
         <tr>
-            <?php if ($auth->isAdmin()): ?>
-                <th>ID</th>
-            <?php endif; ?>
             <th>Disciplína</th>
             <th>Vlastník</th>
             <th>Výkon</th>
@@ -45,13 +35,8 @@ $owners = $owners ?? [];
         <tbody>
         <?php foreach ($records as $rec): ?>
             <tr id="record-row-<?= $rec->getId() ?>">
-                <?php if ($auth->isAdmin()): ?>
-                    <td><?= htmlspecialchars((string)$rec->getId(), ENT_QUOTES, 'UTF-8') ?></td>
-                <?php endif; ?>
-
                 <td><?= htmlspecialchars($rec->getNazovDiscipliny(), ENT_QUOTES, 'UTF-8') ?></td>
 
-<!--                v poli owners zadam id pouzivatela a nasledne si vytiahne meno pomocou kodu v controlleri za ?? sa spravi iba ak sa nenajde uzivatel-->
                 <?php $ownerName = $owners[$rec->getUserId()] ?? ('Užívateľ #' . $rec->getUserId()); ?>
                 <td><?= htmlspecialchars((string)$ownerName, ENT_QUOTES, 'UTF-8') ?></td>
 
@@ -65,7 +50,7 @@ $owners = $owners ?? [];
                         $ident = $user->getIdentity();
                         $role = $ident?->getRole() ?? null;
                         $uid = $ident?->getId() ?? null;
-                        if ($role === 'admin' || $uid === $rec->getUserId()) {
+                        if (in_array($role, ['admin', 'trener'], true) || $uid === $rec->getUserId()) {
                             $showActions = true;
                         }
                     }
@@ -81,7 +66,6 @@ $owners = $owners ?? [];
                             <i class="bi bi-trash"></i> Zmazať
                         </a>
 
-                        <!-- zaloha keby ajax zlyha, inak si ajax vytiahne csrf token sam-->
                         <form id="delete-record-<?= $rec->getId() ?>"
                               method="post"
                               action="<?= $link->url('record.delete', ['id' => $rec->getId()]) ?>"

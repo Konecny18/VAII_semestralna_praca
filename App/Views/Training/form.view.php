@@ -64,5 +64,3 @@ $days = [
         <button type="submit" class="btn btn-primary">Uložiť tréning</button>
     </div>
 </form>
-
-<script src="<?= $link->asset('js/form-ajax.js') ?>" defer></script>
