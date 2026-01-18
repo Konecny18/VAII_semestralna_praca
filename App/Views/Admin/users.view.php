@@ -1,10 +1,9 @@
 <?php
 /** @var array $users */
 /** @var Framework\Support\LinkGenerator $link */
-/** @var \Framework\Auth\AppUser|null $user */
+/** @var AppUser|null $user */
 /** @var string|null $error */
 
-use Framework\Support\LinkGenerator;
 use Framework\Auth\AppUser;
 
 $users = $users ?? [];

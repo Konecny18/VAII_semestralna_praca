@@ -81,12 +81,15 @@ $url = function(string $route, array $params = []) use ($link) {
                                             data-bs-toggle="dropdown"
                                             data-bs-boundary="viewport"
                                             aria-expanded="false"
-                                            onclick="event.stopPropagation();">
+                                            onmousedown="window.event.stopPropagation();">
                                         <i class="bi bi-three-dots-vertical text-dark"></i>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 otvaracie-menu-eventu" onclick="event.stopPropagation();" onmousedown="event.stopPropagation();">
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 otvaracie-menu-eventu"
+                                        onmousedown="window.event.stopPropagation();">
                                         <li>
-                                            <a class="dropdown-item py-2" href="<?= htmlspecialchars($url('event.edit', ['id' => $event->getId()])) ?>" onclick="event.stopPropagation();">
+                                            <a class="dropdown-item py-2"
+                                               href="<?= htmlspecialchars($url('event.edit', ['id' => $event->getId()])) ?>"
+                                               onmousedown="window.event.stopPropagation();">
                                                 <i class="bi bi-pencil me-2 text-warning"></i> Upraviť
                                             </a>
                                         </li>

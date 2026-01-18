@@ -1,10 +1,12 @@
 <?php
 
-/** @var \App\Models\Training[] $trainings */
+/** @var Training[] $trainings */
 /** @var Framework\Support\LinkGenerator $link */
-/** @var \Framework\Auth\AppUser|null $user */
+/** @var AppUser|null $user */
 /** @var IAuthenticator $auth */
 
+use App\Models\Training;
+use Framework\Auth\AppUser;
 use Framework\Core\IAuthenticator;
 
 $trainings = $trainings ?? [];

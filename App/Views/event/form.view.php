@@ -2,7 +2,7 @@
 
 /** @var Framework\Support\LinkGenerator $link */
 /** @var array $errors */
-/** @var \App\Models\Event $event */
+/** @var Event $event */
 
 use App\Models\Event;
 

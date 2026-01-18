@@ -1,7 +1,6 @@
 <?php
 /** @var Framework\Support\LinkGenerator $link */
 /** @var array $formErrors */
-/** @var array $errors */
 
 $allErrors = array_merge($errors ?? [], $formErrors ?? []);
 ?>

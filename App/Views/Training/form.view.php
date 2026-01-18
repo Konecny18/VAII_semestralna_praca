@@ -1,9 +1,11 @@
 <?php
 /** @var Framework\Support\LinkGenerator $link */
 /** @var array $formErrors */
-/** @var \App\Models\Training|null $training */
+/** @var Training|null $training */
 
 // Inicializácia premenných pre formulár
+use App\Models\Training;
+
 $training = $training ?? null;
 $isEdit = !empty($training?->getId());
 $denValue = $training?->getDen() ?? '';

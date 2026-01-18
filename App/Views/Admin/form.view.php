@@ -1,6 +1,5 @@
 <?php
 /** @var Framework\Support\LinkGenerator $link */
-/** @var array $userData */
 
 // Zabezpečíme, aby sme pracovali s čistými dátami
 $uid = (int)($userData['id'] ?? 0);
