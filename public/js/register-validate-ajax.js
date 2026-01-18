@@ -8,7 +8,7 @@
             t = setTimeout(() => fn.apply(this, args), delay);
         };
     }
-
+    
     document.addEventListener('DOMContentLoaded', function(){
         // --- EMAIL VALIDÁCIA (pôvodná + AJAX) ---
         const emailInput = document.getElementById('email');
@@ -113,5 +113,6 @@
                 }
             });
         }
+
     });
 })();

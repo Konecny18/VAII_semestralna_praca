@@ -47,14 +47,25 @@ $view->setLayout('auth');
 
                         <div class="form-label-group mb-3">
                             <label for="password" class="form-label">Heslo</label>
-                            <input name="password" type="password" id="password" class="form-control"
-                                   placeholder="Heslo" required>
+                            <div class="input-group">
+                                <input name="password" type="password" id="password" class="form-control"
+                                       placeholder="Heslo" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Min. 8 znakov, veľké písmeno, číslo a znak.</small>
                         </div>
 
                         <div class="form-label-group mb-3">
                             <label for="password_confirm" class="form-label">Potvrďte heslo</label>
-                            <input name="password_confirm" type="password" id="password_confirm" class="form-control"
-                                   placeholder="Potvrďte heslo" required>
+                            <div class="input-group">
+                                <input name="password_confirm" type="password" id="password_confirm" class="form-control"
+                                       placeholder="Potvrďte heslo" required>
+                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="password_confirm">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="text-center">
@@ -67,6 +78,7 @@ $view->setLayout('auth');
                         window.__CHECK_EMAIL_URL__ = '<?= $link->url('auth.checkEmail') ?>';
                     </script>
                     <script src="<?= $link->asset('js/register-validate-ajax.js') ?>"></script>
+                    <script src="<?= $link->asset('js/show-password.js') ?>"></script>
 
                     <div class="mt-3 text-center">
                         <a href="<?= $link->url('login') ?>">Máte účet? Prihlásiť sa</a>
