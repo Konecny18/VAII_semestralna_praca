@@ -1,42 +1,52 @@
 <?php
 /** @var Framework\Support\LinkGenerator $link */
 /** @var array $userData */
-/** @var string|null $action */
 
-$uid = $userData['id'] ?? null;
-$rola = $userData['rola'] ?? 'atlet';
+// Zabezpečíme, aby sme pracovali s čistými dátami
+$uid = (int)($userData['id'] ?? 0);
 ?>
 
 <form method="post" action="<?= $link->url('admin.update') ?>" class="card shadow-sm p-4">
-    <input type="hidden" name="_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
-    <input type="hidden" name="id" value="<?= htmlspecialchars((string)($userData['id'] ?? '')) ?>">
+    <input type="hidden" name="_token" value="<?= htmlspecialchars((string)($_SESSION['csrf_token'] ?? '')) ?>">
+    <input type="hidden" name="id" value="<?= $uid ?>">
 
     <div class="mb-3">
         <label for="meno" class="form-label fw-bold">Meno</label>
-        <input id="meno" name="meno" class="form-control" value="<?= htmlspecialchars($userData['meno'] ?? '') ?>" required>
+        <input id="meno" name="meno" class="form-control"
+               value="<?= htmlspecialchars((string)($userData['meno'] ?? '')) ?>" required>
     </div>
 
     <div class="mb-3">
         <label for="priezvisko" class="form-label fw-bold">Priezvisko</label>
-        <input id="priezvisko" name="priezvisko" class="form-control" value="<?= htmlspecialchars($userData['priezvisko'] ?? '') ?>" required>
+        <input id="priezvisko" name="priezvisko" class="form-control"
+               value="<?= htmlspecialchars((string)($userData['priezvisko'] ?? '')) ?>" required>
     </div>
 
     <div class="mb-3">
         <label for="email" class="form-label fw-bold">Email</label>
-        <input id="email" name="email" type="email" class="form-control" value="<?= htmlspecialchars($userData['email'] ?? '') ?>" required>
+        <input id="email" name="email" type="email" class="form-control"
+               value="<?= htmlspecialchars((string)($userData['email'] ?? '')) ?>" required>
     </div>
 
     <div class="mb-3">
         <label for="role" class="form-label fw-bold">Rola</label>
         <select id="role" name="role" class="form-select">
-            <option value="atlet" <?= ($userData['rola'] ?? '') === 'atlet' ? 'selected' : '' ?>>Atlet</option>
-            <option value="trener" <?= ($userData['rola'] ?? '') === 'trener' ? 'selected' : '' ?>>Tréner</option>
-            <option value="admin" <?= ($userData['rola'] ?? '') === 'admin' ? 'selected' : '' ?>>Admin</option>
+            <?php
+            // V Controlleri sme v poli $userData použili kľúč 'rola'
+            $currentRole = $userData['rola'] ?? '';
+            ?>
+            <option value="atlet" <?= $currentRole === 'atlet' ? 'selected' : '' ?>>Atlet</option>
+            <option value="trener" <?= $currentRole === 'trener' ? 'selected' : '' ?>>Tréner</option>
+            <option value="admin" <?= $currentRole === 'admin' ? 'selected' : '' ?>>Admin</option>
         </select>
     </div>
 
-    <div class="d-flex justify-content-between">
-        <a href="<?= $link->url('admin.users') ?>" class="btn btn-secondary">Späť</a>
-        <button type="submit" class="btn btn-primary">Uložiť zmeny</button>
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <a href="<?= $link->url('admin.users') ?>" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Späť
+        </a>
+        <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-check-lg"></i> Uložiť zmeny
+        </button>
     </div>
 </form>

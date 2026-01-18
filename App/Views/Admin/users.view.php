@@ -16,7 +16,7 @@ $currentUserId = $user?->getIdentity()?->getId();
         <h3 class="mb-4">Správa používateľov</h3>
 
         <?php if (!empty($error)): ?>
-            <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+            <div class="alert alert-danger"><?= htmlspecialchars((string)$error) ?></div>
         <?php endif; ?>
 
         <div class="card shadow-sm">
@@ -37,20 +37,20 @@ $currentUserId = $user?->getIdentity()?->getId();
                     <?php else: ?>
                         <?php foreach ($users as $row): ?>
                             <?php
-                            $uid = $row['id'] ?? null;
+                            $uid = (int)($row['id'] ?? 0);
                             $meno = $row['meno'] ?? '';
                             $priezvisko = $row['priezvisko'] ?? '';
                             $email = $row['email'] ?? '';
                             $rola = $row['rola'] ?? 'atlet';
-                            $isSelf = ($currentUserId !== null && $uid !== null && (int)$currentUserId === (int)$uid);
+                            $isSelf = ($currentUserId !== null && $uid !== 0 && (int)$currentUserId === $uid);
                             ?>
                             <tr id="user-row-<?= $uid ?>">
-                                <td><?= htmlspecialchars($meno) ?></td>
-                                <td><?= htmlspecialchars($priezvisko) ?></td>
-                                <td><?= htmlspecialchars($email) ?></td>
+                                <td><?= htmlspecialchars((string)$meno) ?></td>
+                                <td><?= htmlspecialchars((string)$priezvisko) ?></td>
+                                <td><?= htmlspecialchars((string)$email) ?></td>
                                 <td>
                                     <span class="badge <?= $rola === 'admin' ? 'bg-danger' : ($rola === 'trener' ? 'bg-warning text-dark' : 'bg-primary') ?>">
-                                        <?= htmlspecialchars($rola) ?>
+                                        <?= htmlspecialchars((string)$rola) ?>
                                     </span>
                                 </td>
                                 <td class="text-end">
@@ -70,13 +70,13 @@ $currentUserId = $user?->getIdentity()?->getId();
 
                                             <form id="delete-user-form-<?= $uid ?>"
                                                   method="post"
-                                                  action="<?= $link->url('admin.delete', ['user_id' => $uid]) ?>"
+                                                  action="<?= $link->url('admin.delete') ?>"
                                                   style="display:none;">
                                                 <input type="hidden" name="user_id" value="<?= $uid ?>">
-                                                <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                                <input type="hidden" name="_token" value="<?= htmlspecialchars((string)($_SESSION['csrf_token'] ?? '')) ?>">
                                             </form>
                                         <?php else: ?>
-                                            <button class="btn btn-sm btn-danger disabled" title="Nemôžete zmazať sami seba">
+                                            <button class="btn btn-sm btn-outline-secondary disabled" title="Nemôžete zmazať sami seba">
                                                 <i class="bi bi-trash"></i> Vymazať
                                             </button>
                                         <?php endif; ?>

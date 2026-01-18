@@ -85,30 +85,49 @@ class AdminController extends BaseController
     {
         $this->validateCsrf($request);
         $id = (int)$request->post('id');
-        $currentId = (int)$this->app->getAppUser()->getIdentity()?->getId();
 
-        $newRole = $request->post('role');
+        // 1. PRIPRAVÍME SI DATA HNEĎ NA ZAČIATKU (aby boli dostupné všade)
+        $userData = [
+            'id' => $id,
+            'meno' => $request->post('meno'),
+            'priezvisko' => $request->post('priezvisko'),
+            'email' => $request->post('email'),
+            'rola' => $request->post('role')
+        ];
 
-        // Bezpečnostná poistka: Admin nemôže zmeniť rolu sám sebe (aby ostal aspoň jeden admin)
-        if ($id === $currentId && $newRole !== 'admin') {
-            // Tu by bolo ideálne vrátiť sa s chybou, pre jednoduchosť zatiaľ resetujeme rolu na admin
-            $newRole = 'admin';
+        // 2. Spustíme validáciu
+        $errors = $this->formErrors($request, $id);
+
+        if (!empty($errors)) {
+            // Ak sú chyby vo validácii, vrátime formulár s chybami
+            return $this->html(['userData' => $userData, 'errors' => $errors], 'edit');
         }
 
-        $data = [
-            ':id' => $id,
-            ':meno' => $request->post('meno'),
-            ':priezvisko' => $request->post('priezvisko'),
-            ':email' => $request->post('email'),
-            ':rola' => $newRole,
-        ];
+        // 3. Ak je všetko OK, pokračujeme v ukladaní (so sanitizáciou)
+        $meno = strip_tags(trim((string)$userData['meno']));
+        $priezvisko = strip_tags(trim((string)$userData['priezvisko']));
+        $email = filter_var(trim((string)$userData['email']), FILTER_SANITIZE_EMAIL);
+        $newRole = (string)$userData['rola'];
+
+        // Poistka pre admina (aby sa nezablokoval)
+        $currentId = (int)$this->app->getAppUser()->getIdentity()?->getId();
+        if ($id === $currentId && $newRole !== 'admin') {
+            $newRole = 'admin';
+        }
 
         try {
             $conn = Connection::getInstance();
             $sql = "UPDATE users SET meno = :meno, priezvisko = :priezvisko, email = :email, rola = :rola WHERE id = :id";
-            $conn->prepare($sql)->execute($data);
+            $conn->prepare($sql)->execute([
+                ':id' => $id,
+                ':meno' => $meno,
+                ':priezvisko' => $priezvisko,
+                ':email' => $email,
+                ':rola' => $newRole,
+            ]);
         } catch (PDOException $e) {
-            // Možná duplicita emailu alebo chyba DB
+            // TERAZ UŽ $userData EXISTUJE, takže catch prebehne v poriadku
+            return $this->html(['userData' => $userData, 'errors' => ['Chyba pri zápise do databázy (možný duplicitný email).']], 'edit');
         }
 
         return $this->redirect($this->url('admin.users'));
@@ -160,5 +179,41 @@ class AdminController extends BaseController
         }
 
         return $this->redirect($this->url('admin.users'));
+    }
+
+    private function formErrors(Request $request, int $id = 0): array
+    {
+        $errors = [];
+        $meno = trim((string)$request->post('meno'));
+        $priezvisko = trim((string)$request->post('priezvisko'));
+        $email = trim((string)$request->post('email'));
+
+        if (strlen($meno) < 2) {
+            $errors[] = "Meno musí mať aspoň 2 znaky.";
+        }
+
+        if (strlen($priezvisko) < 2) {
+            $errors[] = "Priezvisko musí mať aspoň 2 znaky.";
+        }
+
+        // Validácia formátu emailu
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Zadaný email nemá správny formát.";
+        } else {
+            // Kontrola unikátnosti emailu v DB
+            try {
+                $conn = Connection::getInstance();
+                // Hľadáme email, ktorý patrí inému ID (preto id != :id)
+                $stmt = $conn->prepare("SELECT id FROM users WHERE email = :email AND id != :id LIMIT 1");
+                $stmt->execute([':email' => $email, ':id' => $id]);
+                if ($stmt->fetch()) {
+                    $errors[] = "Tento email už používa iný používateľ.";
+                }
+            } catch (PDOException $e) {
+                $errors[] = "Chyba pri kontrole emailu v databáze.";
+            }
+        }
+
+        return $errors;
     }
 }
