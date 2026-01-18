@@ -53,6 +53,8 @@ if (!isset($user)) {
     <!-- Include record stylesheet -->
     <link rel="stylesheet" href="<?= $link->asset('css/record.css') ?>?v=1">
 
+    <link rel="stylesheet" href="<?= $link->asset('css/trainings.css') ?>?v=1">
+
 </head>
 <body class="d-flex flex-column min-vh-100">
 

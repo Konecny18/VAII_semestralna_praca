@@ -1,5 +1,4 @@
 <?php
-
 /** @var Training[] $trainings */
 /** @var Framework\Support\LinkGenerator $link */
 /** @var AppUser|null $user */
@@ -19,68 +18,77 @@ $days = [
         'Sob' => 'Sobota',
         'Ned' => 'Nedeľa'
 ];
-
 ?>
 
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4 sekcia-hlavicka">
+            <h3 class="mb-0">Rozvrh tréningov</h3>
+            <?php if ($auth->isAdmin()): ?>
+                <a href="<?= $link->url('training.add') ?>" class="btn btn-success shadow-sm">
+                    <i class="bi bi-plus-lg"></i> Pridať tréning
+                </a>
+            <?php endif; ?>
+        </div>
 
-<div class="row mb-3">
-    <div class="col-12 d-flex justify-content-between align-items-center">
-        <h3>Rozvrh tréningov</h3>
-        <?php if ($auth->isAdmin()): ?>
-            <a href="<?php echo $link->url('training.add') ?>" class="btn btn-success">Pridať tréning</a>
-        <?php endif; ?>
-    </div>
-</div>
-
-<?php if (empty($trainings)): ?>
-    <div class="row">
-        <div class="col-12 text-center my-4">Žiadne tréningy.</div>
-    </div>
-<?php else: ?>
-    <div class="row">
-        <div class="col-12">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Deň</th>
-                    <th>Čas</th>
-                    <th>Popis</th>
-                    <?php if ($auth->isAdmin()): ?>
-                        <th class="text-end">Akcie</th>
-                    <?php endif; ?>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($trainings as $t): ?>
-                    <tr id="training-row-<?= $t->getId() ?>">
-                        <td><?php echo $days[$t->getDen()] ?? htmlspecialchars($t->getDen()) ?></td>
-                        <td><?php echo htmlspecialchars(substr((string)$t->getCasZaciatku(), 0, 5)) ?> - <?php echo htmlspecialchars(substr((string)$t->getCasKonca(), 0, 5)) ?></td>
-                        <td><?php echo htmlspecialchars($t->getPopis()) ?></td>
+        <div class="card shadow-sm">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 vlastna-tabulka">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="col-den">Deň</th>
+                        <th class="col-cas">Čas</th>
+                        <th class="col-popis">Popis</th>
                         <?php if ($auth->isAdmin()): ?>
-                            <td class="text-end">
-                                <a href="<?php echo $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">Upraviť</a>
-                                <a href="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
-                                   class="btn btn-sm btn-danger delete-btn"
-                                   data-ajax="true"
-                                   data-target-id="training-row-<?= $t->getId() ?>"
-                                   data-message="Naozaj chceš zmazať tento tréning z rozvrhu?">
-                                    <i class="bi bi-trash"></i> Zmazať
-                                </a>
-
-<!--                                poistka pre prípad, že by AJAX zlyhal-->
-                                <form id="delete-training-<?= $t->getId() ?>"
-                                      method="post"
-                                      action="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
-                                      style="display:none;">
-                                    <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                </form>
-                            </td>
+                            <th class="text-end col-akcie">Akcie</th>
                         <?php endif; ?>
                     </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    <?php if (empty($trainings)): ?>
+                        <tr>
+                            <td colspan="<?= $auth->isAdmin() ? 4 : 3 ?>" class="text-center p-4 text-muted">
+                                Aktuálne nie sú naplánované žiadne tréningy.
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($trainings as $t): ?>
+                            <tr id="training-row-<?= $t->getId() ?>">
+                                <td>
+                                    <span class="den-znacka">
+                                        <i class="bi bi-calendar-event me-2"></i><?= $days[$t->getDen()] ?? htmlspecialchars($t->getDen()) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="cis-znacka">
+                                        <i class="bi bi-clock me-1"></i>
+                                        <?= htmlspecialchars(substr((string)$t->getCasZaciatku(), 0, 5)) ?> - <?= htmlspecialchars(substr((string)$t->getCasKonca(), 0, 5)) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="td-popis"><?= htmlspecialchars($t->getPopis()) ?></span>
+                                </td>
+                                <?php if ($auth->isAdmin()): ?>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <a href="<?= $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a href="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
+                                               class="btn btn-sm btn-danger delete-btn"
+                                               data-ajax="true"
+                                               data-target-id="training-row-<?= $t->getId() ?>">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-<?php endif; ?>
-
+</div>
