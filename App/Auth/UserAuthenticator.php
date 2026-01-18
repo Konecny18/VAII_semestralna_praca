@@ -31,12 +31,14 @@ class UserAuthenticator extends SessionAuthenticator
      */
     protected function authenticate(string $username, string $password): ?IIdentity
     {
+        //ocisti email od medzier a preved na lowercase
         $email = mb_strtolower(trim($username));
         if ($email === '' || $password === '') {
             return null;
         }
 
         try {
+            //ochrana proti SQL injection pomocou pripravenych dotazov
             $conn = Connection::getInstance();
             // select both possible password columns to be compatible with different DDLs
             $sql = 'SELECT id, meno, priezvisko, email, password, rola FROM users WHERE email = :email LIMIT 1';
@@ -52,12 +54,16 @@ class UserAuthenticator extends SessionAuthenticator
                 // no password column/value present, fail authentication
                 return null;
             }
+
+            // overenie hesla pomocou password_verify
             $hash = $row['password'];
 
             if (!password_verify($password, $hash)) {
                 return null;
             }
 
+            //tu si ma appka ulozi do session identitu pouzivatela
+            //zlozime cele meno alebo pouzijeme email ako meno
             $fullName = trim((string)($row['meno'] ?? '') . ' ' . (string)($row['priezvisko'] ?? ''));
             $name = $fullName !== '' ? $fullName : $row['email'];
 

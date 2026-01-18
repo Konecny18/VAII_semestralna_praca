@@ -15,6 +15,7 @@ class AdminController extends BaseController
      */
     public function authorize(Request $request, string $action): bool
     {
+        // Skontrolujeme, či je používateľ prihlásený a či je admin
         $appUser = $this->app->getAppUser();
         if (!$appUser->isLoggedIn()) {
             return false;
@@ -33,12 +34,15 @@ class AdminController extends BaseController
      */
     public function users(Request $request): Response
     {
+        // Načítame všetkých používateľov z DB
         $users = [];
         $error = null;
 
         try {
+            //pouzivam query lebo viem co chcem zobrazit
             $conn = Connection::getInstance();
             $stmt = $conn->query('SELECT id, meno, priezvisko, email, rola FROM users');
+            //fetch_assoc vrati data ako ciste pole (vhodne pre view)
             $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             $error = 'Chyba pri načítaní používateľov: ' . $e->getMessage();
@@ -56,24 +60,32 @@ class AdminController extends BaseController
      */
     public function edit(Request $request): Response
     {
+        //pretypovanie na int
+        //keby utocnik poslal string, tak by to pretypovalo na 0
         $id = (int)$request->value('id');
-
+        //tu to skonci, ak je id nevalidne
         if ($id <= 0) {
             return $this->redirect($this->url('admin.users'));
         }
 
         try {
             $conn = Connection::getInstance();
+            //data sa nikdy nepovazuju za kod
+            //prepare posle sablonu prikazu, id je placeholder tu nieco bude ale este neviem co
             $stmt = $conn->prepare('SELECT id, meno, priezvisko, email, rola FROM users WHERE id = :id LIMIT 1');
+            //az tu sa to naplni konkretnou hodnotou
             $stmt->execute([':id' => $id]);
             $userData = $stmt->fetch(\PDO::FETCH_ASSOC);
 
+            //keby niekdo zada id co neexistuje tak sa vratina spat na zoznam
             if (!$userData) {
                 return $this->redirect($this->url('admin.users'));
             }
 
+            //ked vsetko prebehne ok, zobrazime formular s datami
             return $this->html(['userData' => $userData], 'edit');
         } catch (PDOException $e) {
+            //ak napr vypne DB spojenie, vratime sa na zoznam
             return $this->redirect($this->url('admin.users'));
         }
     }
@@ -83,7 +95,11 @@ class AdminController extends BaseController
      */
     public function update(Request $request): Response
     {
+        // Overenie CSRF tokenu
         $this->validateCsrf($request);
+        // Získame ID používateľa z POST dát
+        //post hlada v tele requestu (v odoslanom formulary)
+        //pri ukladani citlivych dat je lepsie pouzit post
         $id = (int)$request->post('id');
 
         // 1. PRIPRAVÍME SI DATA HNEĎ NA ZAČIATKU (aby boli dostupné všade)
@@ -95,7 +111,7 @@ class AdminController extends BaseController
             'rola' => $request->post('role')
         ];
 
-        // 2. Spustíme validáciu
+        // 2. Spustíme validáciu skontroluje napr dlzku emailu...
         $errors = $this->formErrors($request, $id);
 
         if (!empty($errors)) {
@@ -104,12 +120,15 @@ class AdminController extends BaseController
         }
 
         // 3. Ak je všetko OK, pokračujeme v ukladaní (so sanitizáciou)
+        //odstranime html tagy a nepotrebne medzery
         $meno = strip_tags(trim((string)$userData['meno']));
         $priezvisko = strip_tags(trim((string)$userData['priezvisko']));
+        //odstranime nepotrebne znaky z emailu
         $email = filter_var(trim((string)$userData['email']), FILTER_SANITIZE_EMAIL);
         $newRole = (string)$userData['rola'];
 
         // Poistka pre admina (aby sa nezablokoval)
+        // Ak admin mení svoj vlastný účet, nemôže si zmeniť rolu na inú než 'admin'
         $currentId = (int)$this->app->getAppUser()->getIdentity()?->getId();
         if ($id === $currentId && $newRole !== 'admin') {
             $newRole = 'admin';
@@ -117,6 +136,8 @@ class AdminController extends BaseController
 
         try {
             $conn = Connection::getInstance();
+            // Aktualizácia používateľa v DB
+            //chranime sa proti sql injection
             $sql = "UPDATE users SET meno = :meno, priezvisko = :priezvisko, email = :email, rola = :rola WHERE id = :id";
             $conn->prepare($sql)->execute([
                 ':id' => $id,
@@ -127,6 +148,7 @@ class AdminController extends BaseController
             ]);
         } catch (PDOException $e) {
             // TERAZ UŽ $userData EXISTUJE, takže catch prebehne v poriadku
+            //ak by som zmenil email na duplicitny, tak to hodi chybu
             return $this->html(['userData' => $userData, 'errors' => ['Chyba pri zápise do databázy (možný duplicitný email).']], 'edit');
         }
 
@@ -140,7 +162,10 @@ class AdminController extends BaseController
     {
         // Pri AJAX-e framework zvyčajne overuje CSRF cez headery, ale pre istotu:
         $this->validateCsrf($request);
-
+        //pretypovanie na int
+        //value pozrie sa aj do url a aj do formulara
+        //value ja flexibilne, niekedy id sa posiela cez GET a niekedy v skrytom poli formulara
+        //cize to spracuje v oboch pripadoch
         $id = (int)$request->value('user_id');
         $currentId = (int)$this->app->getAppUser()->getIdentity()?->getId();
 
@@ -155,7 +180,8 @@ class AdminController extends BaseController
         try {
             $conn = Connection::getInstance();
 
-            // Kontrola existencie
+            // Kontrola existencie ci je este v dtb
+            //chranime sa proti sql injection pomocou prepare
             $check = $conn->prepare('SELECT id FROM users WHERE id = :id');
             $check->execute([':id' => $id]);
             if (!$check->fetch()) {
@@ -169,6 +195,8 @@ class AdminController extends BaseController
             $stmt = $conn->prepare('DELETE FROM users WHERE id = :id');
             $stmt->execute([':id' => $id]);
 
+            // Ak je to AJAX požiadavka, vrátime JSON odpoveď
+            // ked je true tak zmazanie prebehlo uspesne bez reloadu
             if ($request->isAjax()) {
                 return $this->json(['success' => true]);
             }
@@ -188,6 +216,7 @@ class AdminController extends BaseController
         $priezvisko = trim((string)$request->post('priezvisko'));
         $email = trim((string)$request->post('email'));
 
+        // Validácia dĺžky mena a priezviska
         if (strlen($meno) < 2) {
             $errors[] = "Meno musí mať aspoň 2 znaky.";
         }
@@ -204,6 +233,7 @@ class AdminController extends BaseController
             try {
                 $conn = Connection::getInstance();
                 // Hľadáme email, ktorý patrí inému ID (preto id != :id)
+                //ochrana proti sql injection
                 $stmt = $conn->prepare("SELECT id FROM users WHERE email = :email AND id != :id LIMIT 1");
                 $stmt->execute([':email' => $email, ':id' => $id]);
                 if ($stmt->fetch()) {
