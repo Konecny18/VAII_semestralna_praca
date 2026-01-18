@@ -11,12 +11,13 @@ use Framework\Core\IAuthenticator;
 use Framework\Support\LinkGenerator;
 
 $owners = $owners ?? [];
-$currentUserId = $user?->getIdentity()?->getId();
+// Získame identitu prihláseného používateľa raz na začiatku
+$identity = $auth->isLoggedIn() ? $user?->getIdentity() : null;
 ?>
 
-<div class="row">
+<div class="row mb-5">
     <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 sekcia-hlavicka">
             <h3 class="mb-0">Športové záznamy</h3>
             <?php if ($auth->isLoggedIn()): ?>
                 <a href="<?php echo $link->url('record.add') ?>" class="btn btn-success shadow-sm">
@@ -27,15 +28,15 @@ $currentUserId = $user?->getIdentity()?->getId();
 
         <div class="card shadow-sm">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 vlastna-tabulka">
                     <thead class="table-light">
                     <tr>
-                        <th>Disciplína</th>
-                        <th>Vlastník</th>
-                        <th>Výkon</th>
-                        <th>Dátum</th>
-                        <th>Poznámka</th>
-                        <th class="text-end">Akcie</th>
+                        <th class="col-disciplina">Disciplína</th>
+                        <th class="col-vlastnik">Vlastník</th>
+                        <th class="col-vykon">Výkon</th>
+                        <th class="col-datum">Dátum</th>
+                        <th class="col-poznamka">Poznámka</th>
+                        <th class="text-end col-akcie">Akcie</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -43,8 +44,20 @@ $currentUserId = $user?->getIdentity()?->getId();
                         <tr><td colspan="6" class="text-center p-4 text-muted">Žiadne záznamy neboli nájdené.</td></tr>
                     <?php else: ?>
                         <?php foreach ($records as $rec): ?>
+                            <?php
+                            // LOGIKA PRE SHOW ACTIONS:
+                            $showActions = false;
+                            if ($identity) {
+                                $role = $identity->getRole();
+                                $uid = $identity->getId();
+                                // Zobraziť akcie ak je admin/trener ALEBO ak je to jeho vlastný záznam
+                                if (in_array($role, ['admin', 'trener'], true) || $uid === $rec->getUserId()) {
+                                    $showActions = true;
+                                }
+                            }
+                            ?>
                             <tr id="record-row-<?= $rec->getId() ?>">
-                                <td class="fw-bold text-primary">
+                                <td class="fw-bold text-primary disciplina-text">
                                     <?= htmlspecialchars($rec->getNazovDiscipliny(), ENT_QUOTES, 'UTF-8') ?>
                                 </td>
 
@@ -56,7 +69,7 @@ $currentUserId = $user?->getIdentity()?->getId();
                                 </td>
 
                                 <td>
-                                    <span class="badge bg-light text-dark border">
+                                    <span class="vykon-znacka">
                                         <?= htmlspecialchars((string)($rec->getDosiahnutyVykon() ?? ''), ENT_QUOTES, 'UTF-8') ?>
                                     </span>
                                 </td>
@@ -66,24 +79,12 @@ $currentUserId = $user?->getIdentity()?->getId();
                                 </td>
 
                                 <td>
-                                    <small class="text-truncate d-inline-block" style="max-width: 150px;">
+                                    <small class="text-truncate d-inline-block poznamka-text" style="max-width: 150px;">
                                         <?= htmlspecialchars((string)($rec->getPoznamka() ?? ''), ENT_QUOTES, 'UTF-8') ?>
                                     </small>
                                 </td>
 
                                 <td class="text-end">
-                                    <?php
-                                    $showActions = false;
-                                    if ($auth->isLoggedIn() && method_exists($user, 'getIdentity')) {
-                                        $ident = $user->getIdentity();
-                                        $role = $ident?->getRole() ?? null;
-                                        $uid = $ident?->getId() ?? null;
-                                        if (in_array($role, ['admin', 'trener'], true) || $uid === $rec->getUserId()) {
-                                            $showActions = true;
-                                        }
-                                    }
-                                    ?>
-
                                     <?php if ($showActions): ?>
                                         <div class="d-flex justify-content-end gap-2">
                                             <a class="btn btn-sm btn-warning" href="<?php echo $link->url('record.edit', ['id' => $rec->getId()]) ?>">
@@ -92,17 +93,9 @@ $currentUserId = $user?->getIdentity()?->getId();
                                             <a href="<?= $link->url('record.delete', ['id' => $rec->getId()]) ?>"
                                                class="btn btn-sm btn-danger delete-btn"
                                                data-ajax="true"
-                                               data-target-id="record-row-<?= $rec->getId() ?>"
-                                               data-message="Naozaj chceš vymazať tento športový záznam?">
+                                               data-target-id="record-row-<?= $rec->getId() ?>">
                                                 <i class="bi bi-trash"></i>
                                             </a>
-
-                                            <form id="delete-record-<?= $rec->getId() ?>"
-                                                  method="post"
-                                                  action="<?= $link->url('record.delete', ['id' => $rec->getId()]) ?>"
-                                                  style="display:none;">
-                                                <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
-                                            </form>
                                         </div>
                                     <?php endif; ?>
                                 </td>

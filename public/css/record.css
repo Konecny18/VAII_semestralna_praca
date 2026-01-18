@@ -1,6 +1,49 @@
-/* Styles specific to the records listing (Record views) */
-.record-action-form {
-    display: inline-block;
-    margin-left: 6px;
+/* --- SPOLOČNÉ PRE VŠETKY TABUĽKY --- */
+.vlastna-tabulka {
+    width: 100%;
 }
 
+.vlastna-tabulka th, .vlastna-tabulka td {
+    padding: 1.2rem 1rem;
+}
+
+/* --- RESPONZÍVNE ZVÄČŠENIE (Desktop) --- */
+@media (min-width: 992px) {
+    .vlastna-tabulka th, .vlastna-tabulka td {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+
+    .vlastna-tabulka {
+        font-size: 1.15rem; /* Väčšie písmo pre celú tabuľku */
+    }
+
+    /* Špecifické šírky pre stĺpce v rekordoch */
+    .col-disciplina { width: 20%; }
+    .col-vlastnik { width: 15%; }
+    .col-vykon { width: 15%; }
+    .col-datum { width: 15%; }
+    .col-poznamka { width: auto; } /* Poznamka vyplní zvyšok */
+
+    .disciplina-text {
+        font-size: 1.25rem; /* Názov disciplíny bude dominantnejší */
+    }
+}
+
+/* Štýl pre výkon (podobný cis-znacke z tréningov) */
+.vykon-znacka {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-block;
+}
+
+@media (min-width: 1400px) {
+    .vlastna-tabulka th, .vlastna-tabulka td {
+        padding-top: 1.8rem;
+        padding-bottom: 1.8rem;
+    }
+}
