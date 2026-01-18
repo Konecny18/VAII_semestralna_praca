@@ -2,9 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Configuration;
 use App\Models\Album;
-use App\Models\Post;
 use Framework\Core\BaseController;
 use Framework\Http\HttpException;
 use Framework\Http\Request;
