@@ -1,26 +1,6 @@
-/**
- * register-validate-ajax.js
- *
- * Klientská (frontend) validácia a asynchrónna kontrola dostupnosti emailu pri registrácii.
- * - Debounced AJAX volanie na endpoint /auth/checkEmail (alebo URL poskytnutú vo view cez window.__CHECK_EMAIL_URL__).
- * - Pridáva vizuálnu spätnú väzbu (Bootstrap triedy is-valid / is-invalid a element .invalid-feedback).
- *
- * Použitie:
- * - Umiestnite tento skript na stránku s formulárom registrácie, kde input pre email má id="email".
- * - Voliteľne definujte global `window.__CHECK_EMAIL_URL__` s vlastnou URL.
- *
- * Bezpečnosť a UX:
- * - Skript najprv validuje formát emailu na klientovi a len potom osloví server.
- * - Volania sú debounced (pauza 400 ms), aby sa znížil počet požiadaviek pri písaní.
- */
-
-// Client-side email availability check for registration form
-// - Debounced AJAX call to /auth/checkEmail (or url generated in the view)
 (function(){
     'use strict';
 
-    /*posiela poziadavku na kontrolu email az po istom case ked pouzivatel uz nepise
-    * keby tu nieje tak po kazdom tuknuti do klavestnice by sa posielala poziadavka na kontrolu*/
     function debounce(fn, delay) {
         let t;
         return function(...args) {
@@ -29,80 +9,107 @@
         };
     }
 
-    /*pocka kym sa nacita cela struktura HTML a potom spusti kod*/
     document.addEventListener('DOMContentLoaded', function(){
-        /*najde policko s emailom a vytvori div do ktoreho bude vypisovat chyby*/
+        // --- EMAIL VALIDÁCIA (pôvodná + AJAX) ---
         const emailInput = document.getElementById('email');
-        if (!emailInput) return;
-        const feedback = document.createElement('div');
-        //nastavuje bootstrap triedu pre div
-        feedback.className = 'invalid-feedback';
-        //vlozenie spravy do HTML struktury
-        emailInput.parentNode.appendChild(feedback);
+        if (emailInput) {
+            const emailFeedback = document.createElement('div');
+            emailFeedback.className = 'invalid-feedback';
+            emailInput.parentNode.appendChild(emailFeedback);
 
-        const checkUrl = window.__CHECK_EMAIL_URL__ || '/auth/checkEmail';
+            const checkUrl = window.__CHECK_EMAIL_URL__ || '/auth/checkEmail';
 
-        /*pomocne funkcie pre vizual*/
-        const setInvalid = (msg) => {
-            emailInput.classList.add('is-invalid');
-            emailInput.classList.remove('is-valid');
-            feedback.textContent = msg;
-        };
-        const setValid = (msg) => {
-            emailInput.classList.remove('is-invalid');
-            emailInput.classList.add('is-valid');
-            feedback.textContent = msg || '';
-        };
+            const doCheckEmail = debounce(function(){
+                const val = emailInput.value.trim();
+                if (val === '') {
+                    emailInput.classList.remove('is-invalid','is-valid');
+                    return;
+                }
+                const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+                if (!re.test(val)) {
+                    emailInput.classList.add('is-invalid');
+                    emailFeedback.textContent = 'Zadajte platný email.';
+                    return;
+                }
 
-        const doCheck = debounce(function(){
-            //upravi email napr pokial su tam medzy na zaciatku
-            const val = emailInput.value.trim();
-            //pokial pouzivatel vymaze vsetko z policka tak toto vrati do povodneho stavu bez errorov a potvrdenia
-            if (val === '') {
-                emailInput.classList.remove('is-invalid','is-valid');
-                feedback.textContent = '';
-                return;
-            }
-            // kontorluje ci email obsahuje @ a . ak nie tak napise rovno chybu a neotravuje server
-            const re = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-            if (!re.test(val)) {
-                setInvalid('Zadajte platný email.');
-                return;
-            }
+                const separator = checkUrl.includes('?') ? '&' : '?';
+                fetch(checkUrl + separator + 'email=' + encodeURIComponent(val))
+                    .then(r => r.json())
+                    .then(json => {
+                        if (json.exists) {
+                            emailInput.classList.add('is-invalid');
+                            emailFeedback.textContent = 'Email je už registrovaný.';
+                        } else {
+                            emailInput.classList.remove('is-invalid');
+                            emailInput.classList.add('is-valid');
+                        }
+                    });
+            }, 400);
 
-            /*keby tu nieje tak v adrese su dva otazniky a web nevie co s tym tak keby zadam taky isty email co je zaregistrovany tak ma to hodi do catch
-            * ale vdaka tomu separatoru tak mi to vycisti adresu tak ze adresa splna standarty tak server to vie precitat*/
-            const separator = checkUrl.includes('?') ? '&' : '?';
-            fetch(checkUrl + separator + 'email=' + encodeURIComponent(val), { credentials: 'same-origin' })
-                .then(r => r.json())
-                .then(json => {
-                    if (!json.success) {
-                        setInvalid(json.message || 'Chyba pri overovaní emailu.');
-                        return;
-                    }
-                    if (json.exists) {
-                        setInvalid('Email je už registrovaný.');
-                    } else {
-                        setValid('Email je voľný.');
-                    }
-                }).catch(() => {
-                    setInvalid('Chyba pri overovaní emailu.');
-                });
-        }, 400);
+            emailInput.addEventListener('input', doCheckEmail);
+        }
 
-        //spusta sa po pauze debounce
-        emailInput.addEventListener('input', doCheck);
-        //spusta sa ked pouzivatel klikne na dalsie policko
-        emailInput.addEventListener('blur', doCheck);
+        // --- VALIDÁCIA HESLA
+        const passInput = document.getElementById('password');
+        const passConfirmInput = document.getElementById('password_confirm');
 
-        // nedovoli odoslat formular ked je email neplatny
-        const form = emailInput.closest('form');
+        if (passInput) {
+            const passFeedback = document.createElement('div');
+            passFeedback.className = 'invalid-feedback';
+            passInput.parentNode.appendChild(passFeedback);
+
+            const validatePassword = () => {
+                const val = passInput.value;
+                // RegEx: Aspoň 8 znakov, veľké, malé písmeno, číslo a špeciálny znak
+                const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/;
+
+                if (val === '') {
+                    passInput.classList.remove('is-invalid', 'is-valid');
+                } else if (!strongRegex.test(val)) {
+                    passInput.classList.add('is-invalid');
+                    passInput.classList.remove('is-valid');
+                    passFeedback.textContent = 'Heslo musí mať aspoň 8 znakov, veľké a malé písmeno, číslo a špeciálny znak (@$!%*?&.).';
+                } else {
+                    passInput.classList.remove('is-invalid');
+                    passInput.classList.add('is-valid');
+                }
+                // Vždy skontrolovať zhodu, keď sa zmení hlavné heslo
+                if (passConfirmInput) validateConfirm();
+            };
+
+            passInput.addEventListener('input', debounce(validatePassword, 400));
+        }
+
+        // --- KONTROLA ZHODY HESIEL ---
+        if (passConfirmInput) {
+            const confirmFeedback = document.createElement('div');
+            confirmFeedback.className = 'invalid-feedback';
+            passConfirmInput.parentNode.appendChild(confirmFeedback);
+
+            const validateConfirm = () => {
+                if (passConfirmInput.value === '') {
+                    passConfirmInput.classList.remove('is-invalid', 'is-valid');
+                } else if (passConfirmInput.value !== passInput.value) {
+                    passConfirmInput.classList.add('is-invalid');
+                    passConfirmInput.classList.remove('is-valid');
+                    confirmFeedback.textContent = 'Heslá sa nezhodujú!';
+                } else {
+                    passConfirmInput.classList.remove('is-invalid');
+                    passConfirmInput.classList.add('is-valid');
+                }
+            };
+
+            passConfirmInput.addEventListener('input', validateConfirm);
+        }
+
+        // --- OCHRANA PRED ODOSLANÍM ---
+        const form = document.querySelector('form');
         if (form) {
             form.addEventListener('submit', function(e){
-                if (emailInput.classList.contains('is-invalid')) {
+                const invalids = form.querySelectorAll('.is-invalid');
+                if (invalids.length > 0) {
                     e.preventDefault();
-                    e.stopPropagation();
-                    emailInput.focus();
+                    invalids[0].focus();
                 }
             });
         }

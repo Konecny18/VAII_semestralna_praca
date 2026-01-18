@@ -141,6 +141,22 @@ class AuthController extends BaseController
             if (strlen($password) < 6) {
                 $errors[] = 'Heslo musí mať aspoň 6 znakov.';
             }
+//            if (strlen($password) < 8) {
+//                $errors[] = 'Heslo musí mať aspoň 8 znakov.';
+//            }
+            // 1. Dĺžka (aspoň 8 znakov)
+            if (strlen($password) < 8) {
+                $errors[] = 'Heslo musí mať aspoň 8 znakov.';
+            }
+            // 2. Komplexnosť (RegEx)
+            else {
+                // Musí obsahovať: veľké písmeno, malé písmeno, číslo a špeciálny znak
+                $pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/';
+
+                if (!preg_match($pattern, $password)) {
+                    $errors[] = 'Heslo je príliš slabé. Musí obsahovať veľké písmeno, malé písmeno, číslo a špeciálny znak (@$!%*?&.).';
+                }
+            }
             if ($password !== $passwordConfirm) {
                 $errors[] = 'Heslá sa nezhodujú.';
             }
