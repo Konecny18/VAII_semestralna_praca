@@ -130,11 +130,11 @@ class AlbumController extends BaseController
                     if ($uploaded instanceof UploadedFile && $uploaded->isOk() && $uploaded->getName() !== "") {
 
                         // Určenie cesty: dirname(__DIR__, 2) ma hodí do rootu projektu, potom idem do public/images
-                        $imagesDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images';
+                        $uploadsDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads';
 
                         //ak priecinok images neexistuje, vytvorim ho
-                        if (!is_dir($imagesDir)) {
-                            if (!@mkdir($imagesDir, 0755, true) && !is_dir($imagesDir)) {
+                        if (!is_dir($uploadsDir)) {
+                            if (!@mkdir($uploadsDir, 0755, true) && !is_dir($uploadsDir)) {
                                 throw new HttpException(500, 'Nepodarilo sa vytvoriť adresár pre ukladanie obrázkov. Skontrolujte práva k adresáru.');
                             }
                         }
@@ -146,16 +146,16 @@ class AlbumController extends BaseController
                         //cas + nahodny kod + meno
                         $finalMenoSuboru = time() . '_' . bin2hex(random_bytes(4)) . '_' . $bezpecneMenoSuboru;
                         //cielova cela cesta
-                        $celaCesta = $imagesDir . DIRECTORY_SEPARATOR . $finalMenoSuboru;
+                        $celaCesta = $uploadsDir . DIRECTORY_SEPARATOR . $finalMenoSuboru;
 
                         if ($uploaded->store($celaCesta)) {
                             // cesta pre DTB
-                            $picture = 'images/' . $finalMenoSuboru;
+                            $picture = 'uploads/' . $finalMenoSuboru;
                             $formValues['picture'] = $picture;
                             // ak editujem a nahravam novy obrazok musim si zapamatat cestu k staremu, aby som ho potom zmazal
                             if ($isEdit && $existing && $existing->getPicture() != '') {
 
-                                $oldFilePath = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $existing->getPicture());
+                                $oldFilePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $existing->getPicture());
                             }
                             // Cesta k novému súboru (keby sme ho museli zmazať pri chybe)
                             $newFileFullPath = $celaCesta;
