@@ -18,6 +18,7 @@ use PDOException;
  * debugging purposes, and access the underlying PDO object for executing raw database operations.
  *
  * @package App\Core\DB
+ * @method query(string $string)
  */
 class Connection
 {

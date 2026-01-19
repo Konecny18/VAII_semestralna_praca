@@ -13,6 +13,7 @@ use PDOStatement as PDOStatementAlias;
  *
  * @package App\Core
  * @method fetch()
+ * @method fetchAll(int $FETCH_ASSOC)
  */
 class DebugStatement
 {

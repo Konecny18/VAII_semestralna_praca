@@ -148,7 +148,7 @@ class AuthController extends BaseController
                 $errors[] = 'Priezvisko je povinné.';
             }
 
-            // filter_var: overí, či má email správny formát (napr. či obsahuje @ a doménu)
+            // Filter_var: overí, či má email správny formát (napr. či obsahuje @ a doménu)
             if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $errors[] = 'Platný email je povinný.';
             }

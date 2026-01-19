@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Models\Training;
 use Exception;
-use App\Configuration;
 use Framework\Core\BaseController;
 use Framework\Http\HttpException;
 use Framework\Http\Request;
@@ -25,6 +24,7 @@ class TrainingController extends BaseController
      *
      * @param Request $request HTTP request objekt (na získanie kontextu/užívateľa)
      * @return Response Vráti HTML odpoveď s vykresleným zoznamom tréningov.
+     * @throws HttpException
      */
     public function index(Request $request): Response
     {
@@ -43,14 +43,13 @@ class TrainingController extends BaseController
     /**
      * Zobrazí formulár pre vytvorenie nového tréningu (dostupné len pre admina).
      *
-     * @param Request $request
      * @return Response HTML stránka s formulárom pre pridanie tréningu.
      * @throws HttpException Ak používateľ nie je autorizovaný.
      */
-    public function add(Request $request): Response
+    public function add(): Response
     {
         $this->checkAdmin();
-        return $this->html([]);
+        return $this->html();
     }
 
     /**
@@ -59,6 +58,7 @@ class TrainingController extends BaseController
      * @param Request $request
      * @return Response HTML s formulárom na úpravu tréningu.
      * @throws HttpException Ak tréning neexistuje alebo používateľ nie je autorizovaný.
+     * @throws Exception
      */
     public function edit(Request $request): Response
     {
@@ -82,6 +82,7 @@ class TrainingController extends BaseController
      * @param Request $request HTTP request obsahujúci POST údaje
      * @return Response Redirect alebo JSON pri AJAX požiadavke
      * @throws HttpException pri nedostatočnej autorizácii alebo iných závažných chybách
+     * @throws Exception
      */
     public function save(Request $request): Response
     {
@@ -192,7 +193,7 @@ class TrainingController extends BaseController
             if (is_null($training)) {
                 //pre AJAX vratim chybu v JSON formate
                 if ($request->isAjax()) {
-                    return $this->json(['success' => false, 'message' => 'Training nebol nájdený.'], 404);
+                    return $this->json(['success' => false, 'message' => 'Training nebol nájdený.']);
                 }
                 throw new HttpException(404);
             }
@@ -207,7 +208,7 @@ class TrainingController extends BaseController
         } catch (Exception $e) {
             //vratenie AJAX chyby
             if ($request->isAjax()) {
-                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()], 500);
+                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()]);
             }
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Configuration;
+use App\Models\Album;
 use App\Models\Post;
 use Exception;
 use Framework\Core\BaseController;
@@ -10,6 +11,7 @@ use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 use Framework\Http\UploadedFile;
+use Throwable;
 
 /**
  * Class PostController
@@ -74,6 +76,7 @@ class PostController extends BaseController
      * @param Request $request
      * @return Response
      * @throws HttpException ak príspevok neexistuje
+     * @throws Exception
      */
     public function edit(Request $request): Response
     {
@@ -94,6 +97,7 @@ class PostController extends BaseController
      * @param Request $request
      * @return Response Presmerovanie po úspechu alebo zobrazenie formulára s chybami
      * @throws HttpException pri závažných chybách (IO/DB)
+     * @throws Exception
      */
     public function save(Request $request): Response
     {
@@ -146,7 +150,7 @@ class PostController extends BaseController
             if ($isEdit) {
                 $post = Post::getOne($id);
                 if (is_null($post)) {
-                    throw new \Exception("Príspevok neexistuje.");
+                    throw new Exception("Príspevok neexistuje.");
                 }
 
                 $oldPicturePath = $post->getPicture(); // Odložíme si názov starého obrázka
@@ -224,7 +228,7 @@ class PostController extends BaseController
             // Po úspešnom nahraní všetkých fotiek presmerujem späť do albumu
             return $this->redirect($this->url('post.index', ['albumId' => $albumId]));
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // --- ROLLBACK (Záchranná brzda) ---
             // Ak sa niečo pokazilo (napr. DB chyba), zmažem všetky súbory, ktoré som v tomto kroku stihol nahrať
             foreach ($createdFiles as $p) {
@@ -260,7 +264,7 @@ class PostController extends BaseController
             if (is_null($post)) {
                 //pre AJAX vrati chybu v JSON formate
                 if ($request->isAjax()) {
-                    return $this->json(['success' => false, 'message' => 'Obrazok nebol nájdený.'], 404);
+                    return $this->json(['success' => false, 'message' => 'Obrazok nebol nájdený.']);
                 }
                 throw new HttpException(404);
             }
@@ -285,9 +289,9 @@ class PostController extends BaseController
             }
 
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($request->isAjax()) {
-                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()], 500);
+                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()]);
             }
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }
@@ -302,6 +306,9 @@ class PostController extends BaseController
 
     // Updated formErrors to validate multiple uploaded files
 
+    /**
+     * @throws Exception
+     */
     private function formErrors(Request $request, bool $isEdit = false): array
     {
         $errors = [];
@@ -317,7 +324,7 @@ class PostController extends BaseController
         $maxFileSize = 5242880; // 5 MB
 
         // --- 1. Validácia albumId ---
-        if ($albumId <= 0 || is_null(\App\Models\Album::getOne($albumId))) {
+        if ($albumId <= 0 || is_null(Album::getOne($albumId))) {
             $errors[] = "Album, ku ktorému sa snažíte príspevok pridať, neexistuje.";
         }
 

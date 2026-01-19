@@ -50,7 +50,7 @@ class HomeController extends BaseController
      *
      * @return Response The response object containing the rendered HTML for the contact page.
      */
-    public function contact(Request $request): Response
+    public function contact(): Response
     {
         return $this->html();
     }
@@ -58,10 +58,9 @@ class HomeController extends BaseController
     /**
      * Zobrazí stránku s informáciami o klube.
      *
-     * @param Request $request
      * @return Response
      */
-    public function klub(Request $request): Response
+    public function klub(): Response
     {
         return $this->html();
     }
@@ -69,10 +68,9 @@ class HomeController extends BaseController
     /**
      * Zobrazí stránku s partnermi / sponzormi.
      *
-     * @param Request $request
      * @return Response
      */
-    public function sponzor(Request $request): Response
+    public function sponzor(): Response
     {
         return$this->html();
     }

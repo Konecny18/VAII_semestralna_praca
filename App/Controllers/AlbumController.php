@@ -9,6 +9,7 @@ use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\UploadedFile;
 use Framework\Http\Responses\Response;
+use Throwable;
 
 /**
  * Class AlbumController
@@ -47,10 +48,9 @@ class AlbumController extends BaseController
     /**
      * Zobrazí formulár na vytvorenie nového albumu.
      *
-     * @param Request $request
      * @return Response
      */
-    public function add(Request $request): Response
+    public function add(): Response
     {
         //kontrola iba admin moze robit CRUD operacie
         $this->checkAdmin();
@@ -63,6 +63,7 @@ class AlbumController extends BaseController
      * @param Request $request
      * @return Response
      * @throws HttpException ak album neexistuje
+     * @throws Exception
      */
     public function edit(Request $request): Response
     {
@@ -86,6 +87,7 @@ class AlbumController extends BaseController
      * @param Request $request
      * @return Response
      * @throws HttpException
+     * @throws Exception
      */
     public function save(Request $request): Response
     {
@@ -170,7 +172,7 @@ class AlbumController extends BaseController
                             }
                         }
                     }
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $errors[] = 'Chyba pri nahrávaní súboru: ' . $e->getMessage();
                 }
             }
@@ -208,7 +210,7 @@ class AlbumController extends BaseController
 
                     // success -> redirect to view
                     return $this->redirect($this->url('album.index'));
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     // Ak DB zlyhala, ale ja som už obrázok nahral na disk, musím ho zmazať,
                     // aby na serveri nezostávali súbory, ktoré v DB neexistujú (tzv. siroty).
                     if ($newFileFullPath !== null && file_exists($newFileFullPath)) {
@@ -276,7 +278,7 @@ class AlbumController extends BaseController
             if (is_null($album)) {
                 //pre AJAX vratim chybu v JSON formate
                 if ($request->isAjax()) {
-                    return $this->json(['success' => false, 'message' => 'Album nebol nájdený.'], 404);
+                    return $this->json(['success' => false, 'message' => 'Album nebol nájdený.']);
                 }
                 throw new HttpException(404);
             }
@@ -302,7 +304,7 @@ class AlbumController extends BaseController
 
         } catch (Exception $e) {
             if ($request->isAjax()) {
-                return $this->json(['success' => false, 'message' => 'DB Chyba: ' . $e->getMessage()], 500);
+                return $this->json(['success' => false, 'message' => 'DB Chyba: ' . $e->getMessage()]);
             }
             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
         }
@@ -320,7 +322,7 @@ class AlbumController extends BaseController
     private function formErrors(Request $request, bool $isEdit = false): array
     {
         $errors = [];
-        //odstranenie medzie z textu aby niekdo nespravil to ze ta 5 medzier ako nazov
+        //odstranenie medzie z textu aby niekdo nespravil to, ze ta 5 medzier, ako nazov
         $text = trim((string)$request->value('text') ?? '');
         $file = $request->file('picture');
 

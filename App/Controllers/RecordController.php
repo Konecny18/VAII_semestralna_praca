@@ -4,11 +4,14 @@ namespace App\Controllers;
 
 use App\Configuration;
 use App\Models\Record;
+use Exception;
 use Framework\Core\BaseController;
 use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
 use Framework\DB\Connection;
+use PDO;
+use Throwable;
 
 /**
  * Class RecordController
@@ -25,6 +28,7 @@ class RecordController extends BaseController
      *
      * @param Request $request
      * @return Response
+     * @throws HttpException
      */
     public function index(Request $request): Response
     {
@@ -76,12 +80,12 @@ class RecordController extends BaseController
                     //poslu sa skutocne id namiesto tych otaznikov
                     $stmt->execute(array_values($userIds));
                     //stiahne vsetky vysledky z tabulky users
-                    $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     foreach ($rows as $row) {
                         // Keďže sú meno a priezvisko povinné, len ich spojím
                         $owners[(int)$row['id']] = $row['meno'] . ' ' . $row['priezvisko'];
                     }
-                } catch (\Throwable $e) {
+                } catch (Throwable) {
                     // on DB error, leave owners empty — view will fallback to user id
                     $owners = [];
                 }
@@ -92,7 +96,7 @@ class RecordController extends BaseController
                 'owners' => $owners,
                 'auth' => $auth
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }
     }
@@ -100,10 +104,9 @@ class RecordController extends BaseController
     /**
      * Zobrazí formulár pre pridanie nového záznamu. Vyžaduje prihlásenie.
      *
-     * @param Request $request
      * @return Response
      */
-    public function add(Request $request): Response
+    public function add(): Response
     {
         // Require login to add a new record - redirect to login if not logged in
         if (!$this->user->isLoggedIn()) {
@@ -118,6 +121,7 @@ class RecordController extends BaseController
      * @param Request $request
      * @return Response
      * @throws HttpException ak záznam neexistuje alebo nie je oprávnenie
+     * @throws Exception
      */
     public function edit(Request $request): Response
     {
@@ -143,6 +147,7 @@ class RecordController extends BaseController
      * @param Request $request
      * @return Response
      * @throws HttpException
+     * @throws Exception
      */
 
     public function save(Request $request): Response
@@ -199,7 +204,7 @@ class RecordController extends BaseController
             if ($isEdit) {
                 $record = Record::getOne($id);
                 if (is_null($record)) {
-                    throw new \Exception('Záznam neexistuje.');
+                    throw new Exception('Záznam neexistuje.');
                 }
 
                 if ($role !== 'admin' && $userId !== $record->getUserId()) {
@@ -212,7 +217,7 @@ class RecordController extends BaseController
                 $record->setPoznamka($poznamka ?: null);
             } else {
                 if ($userId === 0) {
-                    throw new \Exception('Prihlásený používateľ nemá platné ID.');
+                    throw new Exception('Prihlásený používateľ nemá platné ID.');
                 }
                 $record = new Record(null, (int)$userId, $nazov, $vykon ?: null, $datumRaw ?: null, $poznamka ?: null);
             }
@@ -221,7 +226,7 @@ class RecordController extends BaseController
             return $this->redirect($this->url('record.index'));
         } catch (HttpException $e) {
             throw $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $errors[] = 'Nepodarilo sa uložiť záznam: ' . $e->getMessage();
 
             // Ensure record exists for repopulation
@@ -243,6 +248,7 @@ class RecordController extends BaseController
      * @param Request $request
      * @return Response
      * @throws HttpException
+     * @throws Exception
      */
     public function delete(Request $request): Response
     {
@@ -256,7 +262,7 @@ class RecordController extends BaseController
             if (is_null($record)) {
                 //pre AJAX vratim chybu v JSON formate
                 if ($request->isAjax()) {
-                    return $this->json(['success' => false, 'message' => 'Record nebol nájdený.'], 404);
+                    return $this->json(['success' => false, 'message' => 'Record nebol nájdený.']);
                 }
                 throw new HttpException(404);
             }
@@ -268,7 +274,7 @@ class RecordController extends BaseController
 
             if ($role !== 'admin' && $userId !== $record->getUserId()) {
                 if ($request->isAjax()) {
-                    return $this->json(['success' => false, 'message' => 'Nemáte oprávnenie zmazať tento záznam.'], 403);
+                    return $this->json(['success' => false, 'message' => 'Nemáte oprávnenie zmazať tento záznam.']);
                 }
                 throw new HttpException(403, 'Nemáte oprávnenie zmazať tento záznam.');
             }
@@ -280,9 +286,9 @@ class RecordController extends BaseController
                 return $this->json(['success' => true]);
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($request->isAjax()) {
-                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()], 500);
+                return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()]);
             }
             throw new HttpException(500, 'DB Chyba: ' . $e->getMessage());
         }
@@ -291,7 +297,7 @@ class RecordController extends BaseController
         return $this->redirect($this->url('record.index'));
     }
 
-    private function formErrors(string $nazov, string $vykon, string $datumRaw, string $poznamka, bool $isEdit): array
+    private function formErrors(string $nazov, string $vykon, string $datumRaw, string $poznamka): array
     {
         $errors = [];
         $maxTextLength = 255;

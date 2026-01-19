@@ -2,10 +2,13 @@
 
 namespace App\Controllers;
 
+use Exception;
 use Framework\Core\BaseController;
 use Framework\DB\Connection;
+use Framework\Http\HttpException;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
+use PDO;
 use PDOException;
 
 class AdminController extends BaseController
@@ -24,6 +27,9 @@ class AdminController extends BaseController
         return $role === 'admin';
     }
 
+    /**
+     * @throws Exception
+     */
     public function index(Request $request): Response
     {
         return $this->redirect($this->url('admin.users'));
@@ -31,6 +37,7 @@ class AdminController extends BaseController
 
     /**
      * Zoznam všetkých používateľov.
+     * @throws Exception
      */
     public function users(Request $request): Response
     {
@@ -43,7 +50,7 @@ class AdminController extends BaseController
             $conn = Connection::getInstance();
             $stmt = $conn->query('SELECT id, meno, priezvisko, email, rola FROM users');
             //fetch_assoc vrati data ako ciste pole (vhodne pre view)
-            $users = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             $error = 'Chyba pri načítaní používateľov: ' . $e->getMessage();
         }
@@ -57,6 +64,7 @@ class AdminController extends BaseController
 
     /**
      * Formulár pre úpravu používateľa.
+     * @throws Exception
      */
     public function edit(Request $request): Response
     {
@@ -75,7 +83,7 @@ class AdminController extends BaseController
             $stmt = $conn->prepare('SELECT id, meno, priezvisko, email, rola FROM users WHERE id = :id LIMIT 1');
             //az tu sa to naplni konkretnou hodnotou
             $stmt->execute([':id' => $id]);
-            $userData = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $userData = $stmt->fetch();
 
             //keby niekdo zada id co neexistuje tak sa vratina spat na zoznam
             if (!$userData) {
@@ -84,7 +92,7 @@ class AdminController extends BaseController
 
             //ked vsetko prebehne ok, zobrazime formular s datami
             return $this->html(['userData' => $userData], 'edit');
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             //ak napr vypne DB spojenie, vratime sa na zoznam
             return $this->redirect($this->url('admin.users'));
         }
@@ -92,6 +100,8 @@ class AdminController extends BaseController
 
     /**
      * Spracovanie úpravy používateľa.
+     * @throws HttpException
+     * @throws Exception
      */
     public function update(Request $request): Response
     {
@@ -146,7 +156,7 @@ class AdminController extends BaseController
                 ':email' => $email,
                 ':rola' => $newRole,
             ]);
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             // TERAZ UŽ $userData EXISTUJE, takže catch prebehne v poriadku
             //ak by som zmenil email na duplicitny, tak to hodi chybu
             return $this->html(['userData' => $userData, 'errors' => ['Chyba pri zápise do databázy (možný duplicitný email).']], 'edit');
@@ -157,6 +167,8 @@ class AdminController extends BaseController
 
     /**
      * Odstránenie používateľa (AJAX-ready).
+     * @throws HttpException
+     * @throws Exception
      */
     public function delete(Request $request): Response
     {
@@ -172,7 +184,7 @@ class AdminController extends BaseController
         // Ochrana: Admin nemôže zmazať sám seba
         if ($currentId === $id) {
             if ($request->isAjax()) {
-                return $this->json(['success' => false, 'message' => 'Nemôžete zmazať vlastný účet!'], 403);
+                return $this->json(['success' => false, 'message' => 'Nemôžete zmazať vlastný účet!']);
             }
             return $this->redirect($this->url('admin.users'));
         }
@@ -186,7 +198,7 @@ class AdminController extends BaseController
             $check->execute([':id' => $id]);
             if (!$check->fetch()) {
                 if ($request->isAjax()) {
-                    return $this->json(['success' => false, 'message' => 'Používateľ nebol nájdený.'], 404);
+                    return $this->json(['success' => false, 'message' => 'Používateľ nebol nájdený.']);
                 }
                 return $this->redirect($this->url('admin.users'));
             }
@@ -202,13 +214,16 @@ class AdminController extends BaseController
             }
         } catch (PDOException $e) {
             if ($request->isAjax()) {
-                return $this->json(['success' => false, 'message' => 'DB Chyba: ' . $e->getMessage()], 500);
+                return $this->json(['success' => false, 'message' => 'DB Chyba: ' . $e->getMessage()]);
             }
         }
 
         return $this->redirect($this->url('admin.users'));
     }
 
+    /**
+     * @throws Exception
+     */
     private function formErrors(Request $request, int $id = 0): array
     {
         $errors = [];
@@ -239,7 +254,7 @@ class AdminController extends BaseController
                 if ($stmt->fetch()) {
                     $errors[] = "Tento email už používa iný používateľ.";
                 }
-            } catch (PDOException $e) {
+            } catch (PDOException) {
                 $errors[] = "Chyba pri kontrole emailu v databáze.";
             }
         }
