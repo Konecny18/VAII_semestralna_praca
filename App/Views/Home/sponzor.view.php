@@ -18,7 +18,7 @@ use Framework\Support\LinkGenerator;
             <div class="col-md-6 col-lg-5">
                 <div class="card h-100 border-0 text-center p-4">
                     <div class="obal-pre-loga-generalnych d-flex align-items-center justify-content-center mb-3">
-                        <img src="<?= $link->asset('images/viagrande_logo.jpg') ?>" class="img-fluid" alt="Generálny sponzor">
+                        <img src="<?= $link->asset('images/sponzory/viagrande_logo.jpg') ?>" class="img-fluid" alt="Generálny sponzor">
                     </div>
                     <div class="card-body">
                         <h4 class="card-title fw-bold">Via Grande</h4>
@@ -36,7 +36,7 @@ use Framework\Support\LinkGenerator;
             <div class="col-md-4 col-sm-6">
                 <div class="card h-100 border-0 text-center p-3">
                     <div class="obal-ostatnych-log d-flex align-items-center justify-content-center">
-                        <img src="<?= $link->asset('images/fatraski_logo.jpg') ?>" class="img-fluid" alt="Logo 2">
+                        <img src="<?= $link->asset('images/sponzory/fatraski_logo.jpg') ?>" class="img-fluid" alt="Logo 2">
                     </div>
                     <div class="card-body">
                         <h5 class="fw-bold">Firma ABC</h5>
@@ -48,7 +48,7 @@ use Framework\Support\LinkGenerator;
             <div class="col-md-4 col-sm-6">
                 <div class="card h-100 border-0 text-center p-3">
                     <div class="obal-ostatnych-log d-flex align-items-center justify-content-center">
-                        <img src="<?= $link->asset('images/ecco_logo.png') ?>" class="img-fluid" alt="Logo 3">
+                        <img src="<?= $link->asset('images/sponzory/ecco_logo.png') ?>" class="img-fluid" alt="Logo 3">
                     </div>
                     <div class="card-body">
                         <h5 class="fw-bold">Mesto / Obec</h5>
@@ -60,7 +60,7 @@ use Framework\Support\LinkGenerator;
             <div class="col-md-4 col-sm-6">
                 <div class="card h-100 border-0 text-center p-3">
                     <div class="obal-ostatnych-log d-flex align-items-center justify-content-center">
-                        <img src="<?= $link->asset('images/aluprint_logo.jpg') ?>" class="img-fluid" alt="Logo 4">
+                        <img src="<?= $link->asset('images/sponzory/aluprint_logo.jpg') ?>" class="img-fluid" alt="Logo 4">
                     </div>
                     <div class="card-body">
                         <h5 class="fw-bold">Lokálna Pekáreň</h5>

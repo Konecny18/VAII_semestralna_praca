@@ -14,7 +14,7 @@ use Framework\Support\LinkGenerator;
         <div class="carousel-inner">
             <div class="carousel-item active" data-bs-interval="5000">
                 <div class="overlay-cez-carousel"></div>
-                <img src="<?= $link->asset('images/team.jpg') ?>" class="d-block w-100 fotka-carousel" alt="Tím">
+                <img src="<?= $link->asset('images/slideShow/team.jpg') ?>" class="d-block w-100 fotka-carousel" alt="Tím">
                 <div class="carousel-caption text-carousel">
                     <h1 class="display-5 fw-bold text-uppercase">Spoločne za víťazstvom</h1>
 <!--                    lead mierne zvacsi pismo a odlahci jeho hrubku, fs (font size) velkost pisma-->
@@ -25,7 +25,7 @@ use Framework\Support\LinkGenerator;
 
             <div class="carousel-item" data-bs-interval="5000">
                 <div class="overlay-cez-carousel"></div>
-                <img src="<?= $link->asset('images/galavecer.jpg') ?>" class="d-block w-100 fotka-carousel" alt="Logo">
+                <img src="<?= $link->asset('images/slideShow/galavecer.jpg') ?>" class="d-block w-100 fotka-carousel" alt="Logo">
                 <div class="carousel-caption text-carousel">
                     <h1 class="display-5 fw-bold text-uppercase">Naša Tradícia</h1>
                     <p class="lead fs-4 mb-4">Budujeme meno klubu už od roku 2000.</p>
@@ -34,7 +34,7 @@ use Framework\Support\LinkGenerator;
 
             <div class="carousel-item" data-bs-interval="5000">
                 <div class="overlay-cez-carousel"></div>
-                <img src="<?= $link->asset('images/vsetci.jpg') ?>" class="d-block w-100 fotka-carousel" alt="Všetci">
+                <img src="<?= $link->asset('images/slideShow/vsetci.jpg') ?>" class="d-block w-100 fotka-carousel" alt="Všetci">
                 <div class="carousel-caption text-carousel">
                     <h1 class="display-5 fw-bold text-uppercase">Pridaj sa k nám</h1>
                     <p class="lead fs-4 mb-4">Hľadáme nové talenty. Tvoja cesta začína tu.</p>

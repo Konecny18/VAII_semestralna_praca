@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Album;
+use Exception;
 use Framework\Core\BaseController;
 use Framework\Http\HttpException;
 use Framework\Http\Request;
@@ -29,6 +30,7 @@ class AlbumController extends BaseController
      */
     public function index(Request $request): Response
     {
+        //vytiahne vsetky albumy z DTB, zoradene od najnovsieho
         $auth = $this->app->getAuthenticator();
         try {
             return $this->html(
@@ -37,7 +39,7 @@ class AlbumController extends BaseController
                     'auth' => $auth
                 ]
             );
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             throw new HttpException(500, "DB chyba: " . $exception->getMessage());
         }
     }
@@ -64,11 +66,16 @@ class AlbumController extends BaseController
      */
     public function edit(Request $request): Response
     {
+        $this->checkAdmin();
+        //ziskanie id a pretipovanie na int
+        //kvoli tomu aby niekdo tam nedal string a nevznikla chyba
         $id = (int)$request->value('id');
+        //nacitanie albumu z DTB
         $album = Album::getOne($id);
         if (is_null($album)) {
             throw new HttpException(404);
         }
+        //vrati upravny formular s datami albumu
         return $this->html(compact('album'), 'edit');
     }
 
@@ -82,20 +89,19 @@ class AlbumController extends BaseController
      */
     public function save(Request $request): Response
     {
+        //kontrola iba admin moze robit CRUD operacie
         $this->checkAdmin();
+        //kontrola ci bol odoslany z mojho webu
+        $this->validateCsrf($request);
         // prepare default values for form re-population
         $formValues = ['text' => '', 'picture' => '', 'id' => null];
         $errors = [];
 
         if ($request->isPost()) {
-            // overuje ci to chcel spravit pouzivatel zo svojej stranky
-            //overuje sa az pri post poziadavke od pouzivatela, cize ci chce ulozit album
-            $this->validateCsrf($request); // PRIDANÉ: Ochrana pre formulár
-            // sanitize inputs
-            //$text = trim((string)($request->post('text') ?? ''));
-            // Zlepšená sanitizácia: Odstránenie HTML tagov z textu (prevencia XSS)
+            //odstranenie html tagov z textu a trim
             $text = strip_tags(trim((string)($request->post('text') ?? '')));
-            // normalize id: treat empty string as null, otherwise cast to int
+
+            //ak mam id tak ide o edit inak pridanie
             $idRaw = $request->post('id') ?? null;
             $id = ($idRaw === '' || $idRaw === null) ? null : (int)$idRaw;
             $isEdit = !empty($id);
@@ -107,46 +113,55 @@ class AlbumController extends BaseController
             $errors = $this->formErrors($request, $isEdit);
 
             // handle uploaded file if present and no validation errors so far
-            $picture = '';
             $newFileFullPath = null;
             $oldFilePath = null;
             if (empty($errors)) {
                 try {
+                    //vytiahne subor z poziadavky
                     $uploaded = $request->file('picture');
-                    // if editing, load existing album so we can keep or remove its picture
                     $existing = null;
+                    //ak editujem, nacitam aktualny album
                     if ($isEdit) {
                         $existing = Album::getOne((int)$id);
                     }
+                    //bol subor naozaj nahrany a je v poriadky, kontrola
                     if ($uploaded instanceof UploadedFile && $uploaded->isOk() && $uploaded->getName() !== "") {
-                        // build absolute path to public/images (two levels up from App/Controllers -> project root)
+
+                        // Určenie cesty: dirname(__DIR__, 2) ma hodí do rootu projektu, potom idem do public/images
                         $imagesDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'images';
+
+                        //ak priecinok images neexistuje, vytvorim ho
                         if (!is_dir($imagesDir)) {
-                            // attempt to create directory and throw a clear error if it fails (permission issues etc.)
                             if (!@mkdir($imagesDir, 0755, true) && !is_dir($imagesDir)) {
                                 throw new HttpException(500, 'Nepodarilo sa vytvoriť adresár pre ukladanie obrázkov. Skontrolujte práva k adresáru.');
                             }
                         }
-                        // sanitize original name
-                        $orig = $uploaded->getName();
-                        $safe = preg_replace('/[^A-Za-z0-9._-]/', '_', $orig);
-                        $filename = time() . '_' . bin2hex(random_bytes(4)) . '_' . $safe;
-                        $destFull = $imagesDir . DIRECTORY_SEPARATOR . $filename;
-                        if ($uploaded->store($destFull)) {
-                            // store relative path for DB and views
-                            $picture = 'images/' . $filename;
+
+                        //generovanie unikatneho nazvu suboru
+                        $menoSuboru = $uploaded->getName();
+                        //vycistenie nazvu suboru od nebezpecnych znakov
+                        $bezpecneMenoSuboru = preg_replace('/[^A-Za-z0-9._-]/', '_', $menoSuboru);
+                        //cas + nahodny kod + meno
+                        $finalMenoSuboru = time() . '_' . bin2hex(random_bytes(4)) . '_' . $bezpecneMenoSuboru;
+                        //cielova cela cesta
+                        $celaCesta = $imagesDir . DIRECTORY_SEPARATOR . $finalMenoSuboru;
+
+                        if ($uploaded->store($celaCesta)) {
+                            // cesta pre DTB
+                            $picture = 'images/' . $finalMenoSuboru;
                             $formValues['picture'] = $picture;
-                            // record old and new file paths; deletion of old file will happen after DB save
+                            // ak editujem a nahravam novy obrazok musim si zapamatat cestu k staremu, aby som ho potom zmazal
                             if ($isEdit && $existing && $existing->getPicture() != '') {
-                                //$oldFilePath = Configuration::UPLOAD_DIR . str_replace('images/', '', $existing->getPicture());
+
                                 $oldFilePath = dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $existing->getPicture());
                             }
-                            $newFileFullPath = $destFull;
+                            // Cesta k novému súboru (keby sme ho museli zmazať pri chybe)
+                            $newFileFullPath = $celaCesta;
                         } else {
                             $errors[] = 'Nepodarilo sa uložiť nahraný súbor.';
                         }
                     } else {
-                        // no new uploaded file — if editing, keep existing picture
+                        // Ak používateľ nenahral nič nové a editujeme, ponecháme starý obrázok
                         if ($isEdit) {
                             $existing = $existing ?? Album::getOne((int)$id);
                             if ($existing) {
@@ -169,17 +184,24 @@ class AlbumController extends BaseController
                 try {
                     // If editing, load the existing album and update its fields; otherwise create new
                     if ($isEdit) {
+                        //nacita existujuci objekt
                         $album = Album::getOne((int)$id);
                         if (is_null($album)) {
-                            throw new \Exception('Album neexistuje.');
+                            throw new Exception('Album neexistuje.');
                         }
+                        //nacita nove meno
                         $album->setText($formValues['text']);
+                        //nastavime cestu k obrazku
                         $album->setPicture($formValues['picture']);
                     } else {
+                        // Vytvoríme úplne nový objekt Albumu
                         $album = new Album(null, $formValues['text'], $formValues['picture']);
                     }
+                    // Model sám vie, či má urobiť INSERT alebo UPDATE
                     $album->save();
-                    // if save succeeded and we had a previous image, remove old file now
+
+                    // Ak zápis do DB prebehol v poriadku a nahradil som starý obrázok novým,
+                    // až TERAZ môžem ten starý súbor definitívne zmazať z disku.
                     if ($newFileFullPath !== null && $oldFilePath !== null && file_exists($oldFilePath)) {
                         @unlink($oldFilePath);
                     }
@@ -187,8 +209,8 @@ class AlbumController extends BaseController
                     // success -> redirect to view
                     return $this->redirect($this->url('album.index'));
                 } catch (\Throwable $e) {
-                    // don't echo or print; pass the message to the view
-                    // if save failed and we uploaded a new file, remove the new file to avoid orphan files
+                    // Ak DB zlyhala, ale ja som už obrázok nahral na disk, musím ho zmazať,
+                    // aby na serveri nezostávali súbory, ktoré v DB neexistujú (tzv. siroty).
                     if ($newFileFullPath !== null && file_exists($newFileFullPath)) {
                         @unlink($newFileFullPath);
                     }
@@ -199,16 +221,16 @@ class AlbumController extends BaseController
 
 
 
-        // show form (on GET or validation/save error)
-        // pass errors and previous values to view
-        // If we are editing, and an existing album was loaded earlier, use it so the form shows current data.
+        // Tento blok sa spustí buď pri GET požiadavke (keď len otváram stránku)
+        // alebo keď hore vo validácii vznikla nejaká chyba.
         $album = null;
         if (!empty($formValues['id'])) {
             $existingForForm = Album::getOne((int)$formValues['id']);
             if ($existingForForm !== null) {
                 // Use DB-loaded model (it will have correct internal state)
                 $album = $existingForForm;
-                // But if there were form values (text/picture) from a failed submit, prefer those for display
+                // Ak používateľ odoslal formulár s chybou, prepíšeme dáta v objekte tým, čo napísal,
+                // aby to vo formulári zostalo vyplnené (lepšie UX).
                 if (isset($formValues['text'])) {
                     $album->setText($formValues['text']);
                 }
@@ -217,6 +239,8 @@ class AlbumController extends BaseController
                 }
             }
         }
+
+        // Ak album stále nemám (lebo robím ADD), vytvorím prázdny model pre formulár.
         if ($album === null) {
             // When preparing a fresh model for the form, do not set an id — using a non-null id
             // on a newly constructed model could lead to duplicate PK inserts later.
@@ -233,17 +257,22 @@ class AlbumController extends BaseController
      * @param Request $request
      * @return Response
      * @throws HttpException
-     * @throws \Exception
+     * @throws Exception
      */
     public function delete(Request $request): Response
     {
+        //kontrola iba admin moze robit CRUD operacie
         $this->checkAdmin();
-        $this->validateCsrf($request); // PRIDANÉ: Ochrana pre AJAX/Odkaz
+        //kontrola ci bol odoslany z mojho webu
+        $this->validateCsrf($request);
 
         try {
+            //ziskanie id a pretipovanie na int
             $id = (int)$request->value('id');
             $album = Album::getOne($id);
 
+            //overenie ci album existuje
+            //ak nie vratim chybu 404
             if (is_null($album)) {
                 //pre AJAX vratim chybu v JSON formate
                 if ($request->isAjax()) {
@@ -254,11 +283,10 @@ class AlbumController extends BaseController
 
             //zmazanie fyzickeho subora obrazka
             if ($album->getPicture()) {
-//                $cesta = str_replace('images/', '', $album->getPicture());
-//                $filePath = 'images' . DIRECTORY_SEPARATOR . $cesta;
-                //$filePath = Configuration::UPLOAD_DIR . str_replace('images/', '', $album->getPicture());
+                //cesta k suboru
                 $filePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $album->getPicture());
                 if ($filePath && file_exists($filePath)) {
+                    //vymazanie obrazkov z priecinka images aby nevznikli siroty
                     @unlink($filePath);
                 }
             }
@@ -266,12 +294,13 @@ class AlbumController extends BaseController
             //zmazanie z DTB
             $album->delete();
 
-            //ZMENA PRE AJAX
+            //po zmazani AJAX vratim uspesnu odpoved v JSON formate
+            //tym padom sa to vymaze bez nutnosti reloadu stranky
             if ($request->isAjax()) {
                 return $this->json(['success' => true]);
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($request->isAjax()) {
                 return $this->json(['success' => false, 'message' => 'DB Chyba: ' . $e->getMessage()], 500);
             }
@@ -282,28 +311,37 @@ class AlbumController extends BaseController
         return $this->redirect($this->url("album.index"));
     }
 
+    /**
+     * Server side kontrola chyb vo formulari pre pridanie/úpravu albumu.
+     * @param Request $request
+     * @param bool $isEdit
+     * @return array
+     */
     private function formErrors(Request $request, bool $isEdit = false): array
     {
         $errors = [];
+        //odstranenie medzie z textu aby niekdo nespravil to ze ta 5 medzier ako nazov
         $text = trim((string)$request->value('text') ?? '');
         $file = $request->file('picture');
 
         // Definovanie limitov na serverovej strane
+        // (musia zodpovedať nastaveniam v DB a požiadavkám)
+        // zachyti sa tu aby dtb nepadla
         $maxTextLength = 255;
         $maxFileSize = 5242880; // 5 MB
 
         // --- Validácia Názvu albumu (text) ---
         if ($text === "") {
             $errors[] = "Názov albumu musí byť vyplnený!";
-        } elseif (strlen($text) < 5) {
-            $errors[] = "Názov albumu musí mať aspoň 5 znakov!";
+        } elseif (strlen($text) < 3) {
+            $errors[] = "Názov albumu musí mať aspoň 3 znakov!";
         } elseif (strlen($text) > $maxTextLength) {
             // Kontrola, aby dĺžka neprekročila limit DB stĺpca VARCHAR(255)
             $errors[] = "Názov albumu nesmie presiahnuť " . $maxTextLength . " znakov!";
         }
-        // POZNÁMKA: Kontrola unikátnosti tu chýba, ak je názov albumu jedinečný (odporúčam pridať).
 
         // --- Validácia Súboru obrázka (picture) ---
+        //zistuje ci pouzivatel vybral nejaky subor
         $isNewUpload = ($file instanceof UploadedFile) && $file->getName() !== "";
 
         // Povinnosť súboru pri vytváraní nového albumu
@@ -313,6 +351,8 @@ class AlbumController extends BaseController
 
         if ($isNewUpload) {
             // Kontrola MIME typu (skutočný typ súboru)
+            //nekontrolujem len koncovku suboru lebo sa da prepisat
+            // ale konretny typ suboru
             if (!in_array($file->getType(), ['image/jpeg', 'image/png'])) {
                 $errors[] = "Obrázok musí byť typu JPG alebo PNG!";
             }

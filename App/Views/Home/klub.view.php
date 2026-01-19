@@ -59,7 +59,7 @@ use Framework\Support\LinkGenerator;
                 <div class="otocenie-karty-vnutro">
                     <div class="otacacia-karta-predok">
                         <h5 class="card-title">Hlavný tréner</h5>
-                        <img src="<?= $link->asset('images/daniel.png') ?>"
+                        <img src="<?= $link->asset('images/trenery/daniel.png') ?>"
                              class="card-img-top"
                              alt="Daniel Konečný">
                     </div>
@@ -82,7 +82,7 @@ use Framework\Support\LinkGenerator;
                 <div class="otocenie-karty-vnutro">
                     <div class="otacacia-karta-predok">
                         <h5 class="card-title">Plavecký tréner</h5>
-                        <img src="<?= $link->asset('images/gustav.png') ?>"
+                        <img src="<?= $link->asset('images/trenery/gustav.png') ?>"
                              class="card-img-top"
                              alt="Gustav Konečný">
                     </div>
@@ -105,7 +105,7 @@ use Framework\Support\LinkGenerator;
                 <div class="otocenie-karty-vnutro">
                     <div class="otacacia-karta-predok">
                         <h5 class="card-title">Pomocný tréner</h5>
-                        <img src="<?= $link->asset('images/damianTrener.jpg') ?>"
+                        <img src="<?= $link->asset('images/trenery/damianTrener.jpg') ?>"
                              class="card-img-top"
                              alt="Damián Konečný">
                     </div>
@@ -128,7 +128,7 @@ use Framework\Support\LinkGenerator;
                 <div class="otocenie-karty-vnutro">
                     <div class="otacacia-karta-predok">
                         <h5 class="card-title">Pomocný tréner</h5>
-                        <img src="<?= $link->asset('images/kristofTrener.jpg') ?>"
+                        <img src="<?= $link->asset('images/trenery/kristofTrener.jpg') ?>"
                              class="card-img-top"
                              alt="Krištof Konečný">
                     </div>
