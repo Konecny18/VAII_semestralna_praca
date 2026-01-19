@@ -114,46 +114,57 @@ class AuthController extends BaseController
      */
     public function register(Request $request): Response
     {
+        //pole na ukladanie chybovych hlások
         $errors = [];
+        //pole na uchovanie starých hodnôt formulára pre prípad chyby
         $old = [
             'meno' => '',
             'priezvisko' => '',
             'email' => ''
         ];
 
+        // vykona sa iba vtedy ak bol formular odoslany metodou POST
         if ($request->isPost()) {
-            //strip_tags pre ochranu XSS aby tam niekto nemohol dat <script>alert(1)</script>.
+            // OSETRENIE VSTUPOV (BEZPECNOST)
+
+            // strip_tags: odstráni HTML značky (ochrana proti XSS útokom)
+            // trim: odstráni medzery na začiatku a konci (prevencia preklepov)
             $meno = strip_tags(trim((string)$request->post('meno') ?? ''));
             $priezvisko = strip_tags(trim((string)$request->post('priezvisko') ?? ''));
-            // normalize email to lowercase for consistent storage and lookup
+
+            // mb_strtolower: premení email na malé písmená (v DB chceme mať konzistenciu)
             $email = mb_strtolower(trim((string)$request->post('email') ?? ''));
             $password = (string)($request->post('password') ?? '');
             $passwordConfirm = (string)($request->post('password_confirm') ?? '');
 
+            // Uložíme vyčistené dáta späť, aby sme ich mohli vrátiť do formulára pri chybe
             $old = ['meno' => $meno, 'priezvisko' => $priezvisko, 'email' => $email];
 
-            // Validation
+            /* --- 2. VALIDÁCIA ÚDAJOV --- */
             if ($meno === '') {
                 $errors[] = 'Meno je povinné.';
             }
             if ($priezvisko === '') {
                 $errors[] = 'Priezvisko je povinné.';
             }
+
+            // filter_var: overí, či má email správny formát (napr. či obsahuje @ a doménu)
             if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $errors[] = 'Platný email je povinný.';
             }
             if (strlen($password) < 6) {
                 $errors[] = 'Heslo musí mať aspoň 6 znakov.';
             }
-//            if (strlen($password) < 8) {
-//                $errors[] = 'Heslo musí mať aspoň 8 znakov.';
-//            }
+
+            /* --- 3. KONTROLA SILY HESLA --- */
+
             // 1. Dĺžka (aspoň 8 znakov)
             if (strlen($password) < 8) {
                 $errors[] = 'Heslo musí mať aspoň 8 znakov.';
             }
             // 2. Komplexnosť (RegEx)
             else {
+                // Regulárny výraz (RegEx) na kontrolu komplexnosti hesla:
                 // Musí obsahovať: veľké písmeno, malé písmeno, číslo a špeciálny znak
                 $pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/';
 
@@ -165,10 +176,11 @@ class AuthController extends BaseController
                 $errors[] = 'Heslá sa nezhodujú.';
             }
 
-            // check email uniqueness
+            /* --- 4. KONTROLA UNIKÁTNOSTI EMAILU (Databáza) --- */
             if (empty($errors)) {
                 try {
                     $conn = Connection::getInstance();
+                    // SQL injekcia: Používame prepare/execute na bezpečné vkladanie premenných
                     $stmt = $conn->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
                     $stmt->execute([':email' => $email]);
                     $exists = $stmt->fetch();
@@ -180,15 +192,16 @@ class AuthController extends BaseController
                 }
             }
 
+            /* --- 5. FINÁLNE ULOŽENIE REGISTRÁCIE --- */
             if (empty($errors)) {
-                // determine role
+                // Logika priradenia roly: Ak sa registrujem, tak som Admin, ostatní sú Atleti
                 $isAdmin = (
                     $meno === 'Damián' && $priezvisko === 'Konečný' &&
                     mb_strtolower($email) === mb_strtolower('damkokonecny@gmail.com')
                 );
                 $rola = $isAdmin ? 'admin' : 'atlet';
 
-                // hash password
+                // password_hash: Nikdy neukladáme čisté heslo! Používame silný hashovací algoritmus.
                 $hash = password_hash($password, PASSWORD_DEFAULT);
 
                 try {
@@ -202,7 +215,7 @@ class AuthController extends BaseController
                         ':rola' => $rola
                     ]);
 
-                    // redirect to login page on success
+                    // Po úspešnej registrácii presmerujeme používateľa na prihlásenie
                     return $this->redirect(Configuration::LOGIN_URL);
                 } catch (PDOException $e) {
                     $errors[] = 'Chyba pri registrácii: ' . $e->getMessage();
@@ -210,6 +223,7 @@ class AuthController extends BaseController
             }
         }
 
+        // Ak formulár nebol odoslaný alebo nastali chyby, vrátime zobrazenie formulára (view) s chybami a pôvodnými dátami
         return $this->html(compact('errors', 'old'));
     }
 
@@ -223,18 +237,33 @@ class AuthController extends BaseController
      */
     public function checkEmail(Request $request): Response
     {
+        /* --- 1. PRÍPRAVA A OČISTENIE VSTUPU --- */
+        // Získame email z GET/POST parametrov, orežeme medzery a zmeníme na malé písmená
         $email = mb_strtolower(trim((string)$request->value('email') ?? ''));
+
+        // Základná validácia formátu emailu priamo v PHP predtým, než pôjdeme do DB
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            // Ak je email zlý, vrátime JSON odpoveď s chybou
             return $this->json(['success' => false, 'message' => 'Neplatný email.']);
         }
 
+        /* --- 2. DOTAZ DO DATABÁZY --- */
         try {
             $conn = Connection::getInstance();
+
+            // Hľadáme ID používateľa, ktorý má tento email (LIMIT 1 stačí na overenie existencie)
             $stmt = $conn->prepare('SELECT id FROM users WHERE email = :email LIMIT 1');
             $stmt->execute([':email' => $email]);
+
+            // fetch() vráti riadok ak existuje, alebo false ak neexistuje
+            // Pretypujeme výsledok na (bool), takže dostaneme true (obsadený) alebo false (voľný)
             $exists = (bool)$stmt->fetch();
+
+            /* --- 3. ODOSLANIE ODPOVEDE PRE JAVASCRIPT --- */
+            // Vraciame úspešný stav a informáciu o tom, či email v DB existuje
             return $this->json(['success' => true, 'exists' => $exists]);
         } catch (PDOException) {
+            // V prípade výpadku DB alebo chyby v SQL vrátime false, aby JS vedel, že nastala technická chyba
             return $this->json(['success' => false, 'message' => 'Chyba pri dotaze do DB.']);
         }
     }
