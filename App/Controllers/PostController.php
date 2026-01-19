@@ -34,23 +34,37 @@ class PostController extends BaseController
      */
     public function index(Request $request): Response
     {
+        // 1. ZÍSKANIE AUTENTIFIKÁTORA
+        // Potrebujeme ho vo View, aby sme vedeli, či zobraziť tlačidlá na pridanie/mazanie príspevkov.
         $auth = $this->app->getAuthenticator();
         try {
+            /* --- 2. FILTROVANIE PODĽA ALBUMU --- */
+            // Získame albumId z URL (napr. posts?albumId=5)
             $albumId = (int)$request->value('albumId');
+
+            // Ak je albumId zadané (väčšie ako 0), vytiahneme len príspevky z daného albumu.
             if ($albumId > 0) {
+                // Používame podmienku WHERE `albumId` = ?
+                // Parametre posielame v poli [$albumId], aby sme predišli SQL injection.
                 $posts = Post::getAll('`albumId` = ?', [$albumId], 'id DESC');
             } else {
-                $posts = Post::getAll(null, [], 'id DESC');
+                // Ak nie je albumId, nepustíme ho ďalej
+                throw new HttpException(404, "Album nebol špecifikovaný.");
             }
 
+            /* --- 3. ODOSLANIE DÁT DO VIEW --- */
             return $this->html(
                 [
+                    // Zoznam príspevkov (všetky alebo filtrované)
                     'posts' => $posts,
+                    // ID aktuálneho albumu (aby sme vedeli, kam pridať nový príspevok)
                     'albumId' => $albumId,
+                    // Informácie o prihlásenom používateľovi
                     'auth' => $auth
                 ]
             );
         } catch (Exception $e) {
+            // V prípade chyby s databázou vyhodíme systémovú chybu 500
             throw new HttpException(500, "DB Chyba: " . $e->getMessage());
         }
     }
@@ -66,7 +80,15 @@ class PostController extends BaseController
     {
         //iba admin moze robit CRUD
         $this->checkAdmin();
+        // 2. IDENTIFIKÁCIA CIEĽOVÉHO ALBUMU
+        // Z požiadavky (Request) vytiahneme ID albumu, do ktorého chceme pridávať.
+        // Pretypujeme ho na (int), aby sme zaistili bezpečnosť a správny dátový typ.
         $albumId = (int)$request->value('albumId');
+
+        // 3. ZOBRAZENIE FORMULÁRA
+        // Metóda html() vykreslí šablónu
+        // Posielame do nej pole s 'albumId', aby formulár vedel,
+        // ku ktorému albumu má tento nový príspevok priradiť.
         return $this->html(['albumId' => $albumId]);
     }
 
@@ -80,13 +102,28 @@ class PostController extends BaseController
      */
     public function edit(Request $request): Response
     {
+        //iba admin moze robit CRUD
         $this->checkAdmin();
+
+        // 2. NAČÍTANIE PRÍSPEVKU
+        // Získame ID príspevku z URL a pokúsime sa ho nájsť v databáze.
         $id = (int)$request->value('id');
         $post = Post::getOne($id);
+
+        // 3. OŠETRENIE NEEXISTUJÚCEHO ZÁZNAMU
+        // Ak príspevok s daným ID neexistuje, vrátime chybu 404 (Nenájdené).
+        // Je to dôležité, aby aplikácia nepokračovala s prázdnymi dátami.
         if (is_null($post)) {
             throw new HttpException(404);
         }
+
+        // 4. KONTEXT ALBUMU
+        // Získame albumId, aby sme sa po úprave vedeli vrátiť do správneho albumu.
         $albumId = (int)$request->value('albumId');
+
+        // 5. ODOSLANIE DÁT DO ŠABLÓNY
+        // Používame array_merge, aby sme do view poslali objekt '$post' aj premennú '$albumId'.
+        // Šablóna tak bude mať predvyplnené pôvodné dáta príspevku.
         return $this->html(array_merge(compact('post'), ['albumId' => $albumId]));
     }
 
@@ -101,6 +138,7 @@ class PostController extends BaseController
      */
     public function save(Request $request): Response
     {
+        //iba admin moze robit CRUD
         $this->checkAdmin();
 
         // CSRF ochrana - akcia sa vykoná len ak sedí token
@@ -121,6 +159,7 @@ class PostController extends BaseController
 
         if (count($formErrors) > 0) {
             // Ak sa našli chyby, vrátim používateľa späť na formulár a zobrazím mu ich
+            // Pri chybe vrátime používateľa do formulára s vyplnenými dátami (UX)
             $post = ($isEdit) ? Post::getOne($id) : new Post();
             if ($post) {
 
@@ -168,7 +207,7 @@ class PostController extends BaseController
 
                     // Vygenerujem unikátne meno, kvoli tomu keby nahravam obrazok z takym istym menom znova tak by sa mi prepisal
                     // robim tam nahodny retazec kvoli tomu skupinovemu nahravaniu bin2hex(random_bytes(4))
-                    //nahradi divne znaky preg_replace('/[^A-Za-z0-9._-]/'
+                    // nahradi divne znaky preg_replace('/[^A-Za-z0-9._-]/'
                     $uniqueName = time() . '_' . bin2hex(random_bytes(4)) . '_' . preg_replace('/[^A-Za-z0-9._-]/', '_', $newFile->getName());
                     $targetPath = Configuration::UPLOAD_DIR . $uniqueName;
 
@@ -229,8 +268,9 @@ class PostController extends BaseController
             return $this->redirect($this->url('post.index', ['albumId' => $albumId]));
 
         } catch (Throwable $e) {
-            // --- ROLLBACK (Záchranná brzda) ---
-            // Ak sa niečo pokazilo (napr. DB chyba), zmažem všetky súbory, ktoré som v tomto kroku stihol nahrať
+            /* --- ROLLBACK MECHANIZMUS --- */
+            // Ak počas cyklu padne DB (napr. pri 5. fotke z desiatich),
+            // zmažeme tých 4, ktoré sme už stihli nahrať na disk.
             foreach ($createdFiles as $p) {
                 if (file_exists($p)) {
                     @unlink($p);
@@ -251,6 +291,7 @@ class PostController extends BaseController
      */
     public function delete(Request $request): Response
     {
+        //iba admin moze robit CRUD
         $this->checkAdmin();
 
         // CSRF ochrana pre mazanie
@@ -260,9 +301,9 @@ class PostController extends BaseController
             $id = (int)$request->value('id');
             $post = Post::getOne($id);
 
-
+            // 2. KONTROLA EXISTENCIE
             if (is_null($post)) {
-                //pre AJAX vrati chybu v JSON formate
+                // Ak ide o AJAX (asynchrónna požiadavka z JS), vrátime chybu v JSON formáte
                 if ($request->isAjax()) {
                     return $this->json(['success' => false, 'message' => 'Obrazok nebol nájdený.']);
                 }
@@ -272,30 +313,35 @@ class PostController extends BaseController
             //zmazanie subora z disku
             if ($post->getPicture()) {
                 // Ak Configuration::UPLOAD_URL je "/uploads/",
-                // ltrim odstráni začiatočné lomko, aby vznikla cesta "uploads/meno.jpg"
+                // ltrim odstráni začiatočné lomitko, aby vznikla cesta "uploads/meno.jpg"
                 $relativeUrl = ltrim(Configuration::UPLOAD_URL, '/');
                 $filePath = $relativeUrl . $post->getPicture();
-                //$filePath = Configuration::UPLOAD_DIR . $post->getPicture();
-//                $filePath = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . Configuration::UPLOAD_URL . str_replace('/', DIRECTORY_SEPARATOR, $post->getPicture());
+
                 if (file_exists($filePath)) {
+                    // Zmaže súbor z disku
                     @unlink($filePath);
                 }
             }
+            // 4. ZMAZANIE Z DATABÁZY
             $post->delete();
 
-            //Ak je AJAX vratim uspech a ukoncim metodu
+            // 5. ODPOVEĎ PRE AJAX
+            // Ak sa maže cez JS (bez reloadu), frontend očakáva JSON odpoveď { "success": true }
             if ($request->isAjax()) {
                 return $this->json(['success' => true]);
             }
 
 
         } catch (Exception $e) {
+            // Ošetrenie chýb pri mazaní (napr. chyba DB)
             if ($request->isAjax()) {
                 return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()]);
             }
             throw new HttpException(500, 'DB chyba: ' . $e->getMessage());
         }
-        // keep album context when redirecting
+
+        // 6. REDIRECT (Pre klasické tlačidlo bez AJAXu)
+        // Pokúsime sa vrátiť do pôvodného albumu, aby admin zostal v kontexte galérie
         if (!empty($albumId)) {
             return $this->redirect($this->url('post.index', ['albumId' => $albumId]));
         }
@@ -303,8 +349,6 @@ class PostController extends BaseController
         //klasicky redirect pre pripad AJAXu
         return $this->redirect($this->url('post.index'));
     }
-
-    // Updated formErrors to validate multiple uploaded files
 
     /**
      * @throws Exception
@@ -314,37 +358,45 @@ class PostController extends BaseController
         $errors = [];
         $albumId = (int)$request->value('albumId');
 
-        // Accept files from 'pictures' input (multiple) - normalize from $_FILES here
+        // 1. ZÍSKANIE A NORMALIZÁCIA SÚBOROV
+        // Keďže používame 'pictures[]' v HTML, $_FILES má komplikovanú štruktúru.
+        // normalizeUploadedFiles nám ich premení na pole objektov, ktoré vieme prejsť cyklom.
         $files = $this->normalizeUploadedFiles('pictures');
         if (!is_array($files)) {
             $files = [];
         }
 
-        // Limity
-        $maxFileSize = 5242880; // 5 MB
+        // Nastavenie limitu na 5 MB
+        $maxFileSize = 5242880;
 
-        // --- 1. Validácia albumId ---
+        /* --- 2. VALIDÁCIA ALBUMU (Cudzieho kľúča) --- */
+        // Kontrolujeme, či albumId nie je nula a či daný album v databáze naozaj existuje.
+        // Zabraňuje to vzniku "sirototvorných" príspevkov, ktoré by nepatrili nikam.
         if ($albumId <= 0 || is_null(Album::getOne($albumId))) {
             $errors[] = "Album, ku ktorému sa snažíte príspevok pridať, neexistuje.";
         }
 
-        // --- 3. Validácia Obrázkov ---
+        /* --- 3. VALIDÁCIA CELÉHO POĽA OBRÁZKOV --- */
         $hasUpload = false;
         foreach ($files as $file) {
+            // Kontrolujeme len reálne nahrané súbory
             if ($file && $file->getName() !== "") {
                 $hasUpload = true;
                 // Kontrola MIME typu a Max. veľkosti
                 $type = $file->getType();
                 if (!in_array($type, ['image/jpeg', 'image/png'])) {
+                    // Do chyby pridáme aj meno súboru, aby admin vedel, ktorý obrázok má opraviť
                     $errors[] = "Obrázok musí byť typu JPG alebo PNG! (súbor: " . $file->getName() . ")";
                 }
+                // Kontrola veľkosti
                 if ($file->getSize() > $maxFileSize) {
                     $errors[] = "Veľkosť obrázka nesmie presiahnuť 5 MB! (súbor: " . $file->getName() . ")";
                 }
             }
         }
 
-        // Pri vytváraní (nie editácii) je aspoň jeden súbor povinný.
+        /* --- 4. KONTROLA POVINNOSTI --- */
+        // Ak ide o nový príspevok (nie editáciu), admin MUSÍ vybrať aspoň jednu fotku.
         if (!$isEdit && !$hasUpload) {
             $errors[] = "Súbor obrázka je povinný pre vytvorenie príspevku!";
         }

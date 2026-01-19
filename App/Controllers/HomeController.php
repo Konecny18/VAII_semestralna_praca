@@ -27,6 +27,8 @@ class HomeController extends BaseController
      */
     public function authorize(Request $request, string $action): bool
     {
+        // Tu vraciame vždy 'true', pretože domovská stránka, kontakt aj info o klube
+        // sú verejne dostupné pre každého návštevníka (hostia aj prihlásení).
         return true;
     }
 
@@ -39,6 +41,7 @@ class HomeController extends BaseController
      */
     public function index(Request $request): Response
     {
+        // Metóda html() automaticky hľadá súbor home/index.view.php
         return $this->html();
     }
 
@@ -52,6 +55,7 @@ class HomeController extends BaseController
      */
     public function contact(): Response
     {
+        // Hľadá súbor home/contact.view.php
         return $this->html();
     }
 

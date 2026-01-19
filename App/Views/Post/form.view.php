@@ -11,6 +11,9 @@ use App\Models\Post;
 $post = $post ?? null;
 $isEdit = !empty(@$post?->getId());
 
+// zistieme albumId z parametrov alebo z modelu (ak ide o edit)
+$currentAlbumId = isset($albumId) ? (int)$albumId : (@$post?->getAlbumId() ?? null);
+
 ?>
 
 <form method="post" action="<?= $link->url('post.save') ?>" enctype="multipart/form-data">
@@ -19,7 +22,7 @@ $isEdit = !empty(@$post?->getId());
 
     <input type="hidden" name="id" value="<?= @$post?->getId() ?>">
 
-    <input type="hidden" name="albumId" value="<?= isset($albumId) ? (int)$albumId : (@$post?->getAlbumId() ?? '') ?>">
+    <input type="hidden" name="albumId" value="<?= $currentAlbumId !== null ? (int)$currentAlbumId : '' ?>">
 
     <label for="picture" class="form-label fw-bold">Súbor obrázka</label>
     <div class="input-group mb-3 has-validation">
@@ -33,7 +36,11 @@ $isEdit = !empty(@$post?->getId());
 
     <?php endif; ?>
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="<?= $link->url('post.index') ?>" class="btn btn-secondary">Späť</a>
+        <?php if (!empty($currentAlbumId)): ?>
+            <a href="<?= $link->url('post.index', ['albumId' => $currentAlbumId]) ?>" class="btn btn-secondary">Späť</a>
+        <?php else: ?>
+            <a href="<?= $link->url('album.index') ?>" class="btn btn-secondary">Späť</a>
+        <?php endif; ?>
         <button type="submit" class="btn btn-primary">Uložiť</button>
     </div>
 </form>
