@@ -12,6 +12,7 @@ use PDOStatement as PDOStatementAlias;
  * invaluable for debugging and monitoring database interactions.
  *
  * @package App\Core
+ * @method fetch()
  */
 class DebugStatement
 {

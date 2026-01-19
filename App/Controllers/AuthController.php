@@ -7,7 +7,7 @@ use Exception;
 use Framework\Core\BaseController;
 use Framework\Http\Request;
 use Framework\Http\Responses\Response;
-use Framework\Http\Responses\ViewResponse;
+
 use Framework\DB\Connection;
 use PDOException;
 
@@ -47,14 +47,14 @@ class AuthController extends BaseController
 
         if ($request->hasValue('submit')) {
             // Use email as the credential field (not username)
+            // email na je malé písmená pre konzistentné ukladanie a vyhľadávanie
             $email = mb_strtolower(trim((string)$request->value('email')));
             $password = (string)$request->value('password');
 
             if ($email === '' || $password === '') {
                 $message = 'Zadajte email a heslo.';
             } else {
-                // Try to authenticate via configured authenticator (DbAuthenticator)
-                // DbAuthenticator treats the first parameter as email
+                //ak su udaje spravne tak vytvori session a presmeruje na home page
                 $logged = $this->app->getAuthenticator()->login($email, $password);
                 if ($logged) {
                     return $this->redirect($this->url("home.index"));
@@ -63,10 +63,11 @@ class AuthController extends BaseController
                 // If authentication failed, probe the database to give more specific feedback.
                 try {
                     $conn = Connection::getInstance();
-                    // Probe DB for the user and available password columns to give a better error message
+                    // prejdem databazu a skusim najst usera s danym emailom
                     $stmt = $conn->prepare('SELECT password FROM users WHERE email = :email LIMIT 1');
                     $stmt->execute([':email' => $email]);
                     $row = $stmt->fetch();
+                    // ak sa nenasiel ziadny user s tymto emailom
                     if (!$row) {
                         $message = 'Používateľ s týmto emailom neexistuje.';
                     } else {
@@ -80,7 +81,7 @@ class AuthController extends BaseController
                             $message = 'Nesprávne prihlasovacie údaje.';
                         }
                     }
-                } catch (PDOException $e) {
+                } catch (PDOException) {
                     // Do not expose DB internals; show a user-friendly message
                     $message = 'Chyba pri prístupe do databázy. Skúste to neskôr.';
                 }
@@ -98,6 +99,8 @@ class AuthController extends BaseController
      */
     public function logout(Request $request): Response
     {
+        // odhlási používateľa
+        // zavola autenticator ktory zmaze session a udaje o prihlasenom userovi
         $this->app->getAuthenticator()->logout();
         return $this->html();
     }
@@ -107,6 +110,7 @@ class AuthController extends BaseController
      *
      * @param Request $request
      * @return Response
+     * @throws Exception
      */
     public function register(Request $request): Response
     {
@@ -215,6 +219,7 @@ class AuthController extends BaseController
      *
      * @param Request $request
      * @return Response
+     * @throws Exception
      */
     public function checkEmail(Request $request): Response
     {
@@ -229,7 +234,7 @@ class AuthController extends BaseController
             $stmt->execute([':email' => $email]);
             $exists = (bool)$stmt->fetch();
             return $this->json(['success' => true, 'exists' => $exists]);
-        } catch (PDOException $e) {
+        } catch (PDOException) {
             return $this->json(['success' => false, 'message' => 'Chyba pri dotaze do DB.']);
         }
     }

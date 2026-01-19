@@ -1,0 +1,65 @@
+.odhlasenie-obal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10vh 0;
+}
+/* Karta - reťazenie tried zvyšuje prioritu bez !important */
+.odhlasenie-karta.alert {
+    border-radius: 25px;
+    background-color: #00ffab;
+    max-width: 550px;
+    width: 100%;
+    margin: 0 auto;
+    border: none;
+}
+
+/* Ikona a kruh - výrazne zväčšené */
+.odhlasenie-karta .ikona-kruh {
+    width: 130px;
+    height: 130px;
+    background-color: #f8f9fa; /* Jemne šedý podklad kruhu */
+    margin-bottom: 2rem;
+}
+
+/* Samotná fajka (ikona) */
+.odhlasenie-karta .ikona-kruh i.bi-check-lg {
+    font-size: 4.5rem; /* Masívna fajka */
+    line-height: 1;
+    display: block;
+}
+
+/* Nadpis */
+.odhlasenie-karta h3.alert-heading {
+    font-size: 2.2rem;
+    margin-bottom: 1rem;
+}
+
+/* Čiara */
+.odhlasenie-karta hr.oddelovac-ciara {
+    margin: 2.5rem 0;
+    border-top: 2px solid rgba(0,0,0,0.05);
+}
+
+/* Responzivita pre menšie obrazovky */
+@media (max-width: 768px) {
+    .odhlasenie-obal.vh-100 {
+        padding-top: 5vh;
+    }
+
+    div.odhlasenie-karta.alert {
+        padding: 3rem 1.5rem;
+        max-width: 90%;
+    }
+
+    .odhlasenie-karta .ikona-kruh {
+        width: 100px;
+        height: 100px;
+    }
+
+    .odhlasenie-karta .ikona-kruh i.bi-check-lg {
+        font-size: 3.5rem;
+    }
+}
+
+
