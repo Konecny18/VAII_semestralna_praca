@@ -11,10 +11,24 @@ use Framework\Http\Responses\Response;
 use PDO;
 use PDOException;
 
+/**
+ * Class AdminController
+ *
+ * Administrátorské rozhranie pre správu používateľov. Obsahuje zobrazenie zoznamu používateľov,
+ * úpravu (edit) a mazanie používateľov. Prístup majú len administrátori (autorizačná metóda).
+ *
+ * Poznámka: kontrolér používa priame SQL dotazy cez Connection pre jednoduchú administráciu.
+ *
+ * @package App\Controllers
+ */
 class AdminController extends BaseController
 {
     /**
      * Autorizácia: Iba prihlásený admin má prístup k týmto akciám.
+     *
+     * @param Request $request HTTP request (kontext volania)
+     * @param string $action Názov akcie, ktorú chceme autorizovať
+     * @return bool True ak je prístup povolený, inak false
      */
     public function authorize(Request $request, string $action): bool
     {
@@ -28,6 +42,10 @@ class AdminController extends BaseController
     }
 
     /**
+     * Presmerovanie na stránku so zoznamom používateľov.
+     *
+     * @param Request $request
+     * @return Response
      * @throws Exception
      */
     public function index(Request $request): Response
@@ -36,8 +54,11 @@ class AdminController extends BaseController
     }
 
     /**
-     * Zoznam všetkých používateľov.
-     * @throws Exception
+     * Zobrazí zoznam všetkých používateľov (len pre admina).
+     *
+     * @param Request $request
+     * @return Response HTML view so zoznamom používateľov
+     * @throws Exception pri chybe prístupu k DB
      */
     public function users(Request $request): Response
     {
@@ -63,7 +84,10 @@ class AdminController extends BaseController
     }
 
     /**
-     * Formulár pre úpravu používateľa.
+     * Zobrazí formulár pre úpravu používateľa.
+     *
+     * @param Request $request
+     * @return Response
      * @throws Exception
      */
     public function edit(Request $request): Response
@@ -99,7 +123,10 @@ class AdminController extends BaseController
     }
 
     /**
-     * Spracovanie úpravy používateľa.
+     * Spracovanie úpravy používateľa. Overí CSRF, validuje vstup a aktualizuje DB.
+     *
+     * @param Request $request
+     * @return Response
      * @throws HttpException
      * @throws Exception
      */
@@ -167,6 +194,9 @@ class AdminController extends BaseController
 
     /**
      * Odstránenie používateľa (AJAX-ready).
+     *
+     * @param Request $request
+     * @return Response
      * @throws HttpException
      * @throws Exception
      */
@@ -222,6 +252,11 @@ class AdminController extends BaseController
     }
 
     /**
+     * Validácia vstupov pri úprave používateľa.
+     *
+     * @param Request $request
+     * @param int $id Aktuálne editované ID (0 = vytvorenie nového)
+     * @return array Pole chýb (prázdne ak bez chýb)
      * @throws Exception
      */
     private function formErrors(Request $request, int $id = 0): array

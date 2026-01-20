@@ -224,7 +224,15 @@ class EventController extends BaseController
         return $this->redirect($this->url('event.index'));
     }
 
-
+    /**
+     * Uloží nahratý súbor z Requestu do priečinka public/uploads a vráti relatívnu cestu pre DB.
+     * Ak sa nahrávanie nepodarí alebo žiadny súbor nepríde, vráti pôvodnú hodnotu $oldFile.
+     *
+     * @param Request $request HTTP požiadavka obsahujúca súbor
+     * @param string $inputName Názov inputu vo formulári (napr. 'plagat')
+     * @param string|null $oldFile Pôvodná cesta uložená v DB (na prípadné ponechanie alebo mazanie)
+     * @return string Relatívna cesta (napr. 'uploads/123_name.jpg') alebo prázdny string
+     */
     private function uploadFile(Request $request, string $inputName, ?string $oldFile): string
     {
         // Získam súbor z požiadavky podľa názvu inputu (napr. 'plagat')
@@ -257,6 +265,12 @@ class EventController extends BaseController
         return $oldFile ?? '';
     }
 
+    /**
+     * Odstráni fyzický súbor z disku, ak existuje. Nepíše chyby, len potláča varovania.
+     *
+     * @param string|null $path Relatívna cesta uložená v DB (napr. 'uploads/abc.jpg')
+     * @return void
+     */
     private function deleteFile(?string $path): void
     {
         // 1. KONTROLA EXISTENCIE CESTY
@@ -276,6 +290,14 @@ class EventController extends BaseController
         }
     }
 
+    /**
+     * Server-side validácia formulára pre Event (kontroluje názov, dátum, plagát a dokument).
+     * Vráti pole textových chýb, ktoré sa majú zobraziť používateľovi.
+     *
+     * @param Request $request
+     * @param bool $isEdit True ak ide o úpravu existujúceho záznamu, false ak ide o nové podujatie
+     * @return array Pole chybových správ (prázdne = validné)
+     */
     private function formErrors(Request $request, bool $isEdit): array
     {
         $errors = [];
