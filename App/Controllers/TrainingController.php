@@ -37,7 +37,13 @@ class TrainingController extends BaseController
             // Zoradenie je kľúčové:
             // Najprv podľa dňa (pondelok -> nedeľa)
             // a následne podľa času začiatku (skoršie tréningy budú vyššie).
-            $trainings = Training::getAll(null, [], 'den ASC, cas_zaciatku ASC');
+            // Non-admin users should see only active trainings (is_active = 1 in DB)
+            if ($auth->isAdmin()) {
+                $trainings = Training::getAll(null, [], 'den ASC, cas_zaciatku ASC');
+            } else {
+                // Database column is named `active` in your schema
+                $trainings = Training::getAll('active = ?', [1], 'den ASC, cas_zaciatku ASC');
+            }
 
             // 3. ODOSLANIE DÁT DO ŠABLÓNY
             return $this->html([
@@ -255,6 +261,66 @@ class TrainingController extends BaseController
         // 8. REDIRECT (Fallback)
         // Ak sa nepoužil AJAX, presmerujeme používateľa späť na zoznam tréningov
         return $this->redirect($this->url('training.index'));
+    }
+
+    /**
+     * Prepnúť aktiváciu tréningu (AJAX akcia).
+     *
+     * @param Request $request
+     * @return Response JSON odpoveď s úspechom alebo chybou
+     * @throws HttpException pri nedostatočnej autorizácii alebo iných chybách
+     */
+    public function toggleActive(Request $request): Response
+    {
+        // CSRF + admin
+        $this->validateCsrf($request);
+        $this->checkAdmin();
+
+        try {
+            // Parse input (support JSON or POST)
+            $id = null;
+            $active = null;
+            // read JSON body if possible
+            try {
+                $body = $request->json();
+            } catch (\Throwable $e) {
+                $body = null;
+            }
+            if ($body !== null && !is_array($body) && is_object($body)) {
+                $body = json_decode(json_encode($body), true);
+            }
+            if (is_array($body)) {
+                $id = isset($body['id']) ? (int)$body['id'] : null;
+                $active = isset($body['active']) ? (int)$body['active'] : null;
+            } else {
+                $post = $request->post();
+                if (isset($post['id'])) $id = (int)$post['id'];
+                if (isset($post['active'])) $active = (int)$post['active'];
+            }
+
+            if (empty($id) || !is_int($id)) {
+                return $this->json(['success' => false, 'message' => 'Neplatné ID.']);
+            }
+            $training = Training::getOne($id);
+            if (!$training) {
+                return $this->json(['success' => false, 'message' => 'Tréning nenájdený.']);
+            }
+
+            // If active is null, toggle current
+            if ($active === null) {
+                $active = $training->getActive() ? 0 : 1;
+            }
+
+            $training->setActive($active);
+            $training->save();
+
+            // reload authoritative record and return its active value
+            $training = Training::getOne($training->getId());
+            return $this->json(['success' => true, 'active' => $training->getActive()]);
+
+        } catch (\Throwable $e) {
+            return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()]);
+        }
     }
 
     private function formErrors(Request $request): array

@@ -4,7 +4,12 @@ CREATE TABLE `trainings` (
                              `cas_zaciatku` TIME NOT NULL,
                              `cas_konca` TIME NOT NULL,
                              `popis` VARCHAR(100) NOT NULL,
+                             `active` TINYINT(1) NOT NULL DEFAULT 1,
                              PRIMARY KEY (`id`)
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `trainings`
+    ADD COLUMN `active` TINYINT(1) NOT NULL DEFAULT 1;
+

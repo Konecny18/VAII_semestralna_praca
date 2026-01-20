@@ -40,6 +40,7 @@ $days = [
                         <th class="col-cas">Čas</th>
                         <th class="col-popis">Popis</th>
                         <?php if ($auth->isAdmin()): ?>
+                            <th class="text-center col-skryt">Skryť</th>
                             <th class="text-end col-akcie">Akcie</th>
                         <?php endif; ?>
                     </tr>
@@ -47,12 +48,14 @@ $days = [
                     <tbody>
                     <?php if (empty($trainings)): ?>
                         <tr>
-                            <td colspan="<?= $auth->isAdmin() ? 4 : 3 ?>" class="text-center p-4 text-muted">
+                            <td colspan="<?= $auth->isAdmin() ? 5 : 3 ?>" class="text-center p-4 text-muted">
                                 Aktuálne nie sú naplánované žiadne tréningy.
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($trainings as $t): ?>
+                            <?php // safety: ensure non-admin users don't see inactive trainings even if controller returned them ?>
+                            <?php if (!$auth->isAdmin() && !$t->getActive()) continue; ?>
                             <tr id="training-row-<?= $t->getId() ?>">
                                 <td>
                                     <span class="den-znacka">
@@ -69,17 +72,36 @@ $days = [
                                     <span class="td-popis"><?= htmlspecialchars($t->getPopis()) ?></span>
                                 </td>
                                 <?php if ($auth->isAdmin()): ?>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center">
+                                            <div class="form-check form-switch mb-0 ps-0">
+                                                <input class="form-check-input training-active-toggle m-0"
+                                                       type="checkbox"
+                                                       role="switch"
+                                                       id="training-active-<?= $t->getId() ?>"
+                                                       data-id="<?= $t->getId() ?>"
+                                                       data-url="<?= $link->url('training.toggleActive') ?>"
+                                                       data-csrf="<?= $_SESSION['csrf_token'] ?>"
+                                                        <?= $t->getActive() ? 'checked' : '' ?>
+                                                       style="cursor: pointer; float: none;"> <label class="visually-hidden" for="training-active-<?= $t->getId() ?>">
+                                                    Toggle viditeľnosti tréningu <?= $t->getId() ?>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td class="text-end">
-                                        <div class="d-flex justify-content-end gap-2">
-                                            <a href="<?= $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
-                                            <a href="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
-                                               class="btn btn-sm btn-danger delete-btn"
-                                               data-ajax="true"
-                                               data-target-id="training-row-<?= $t->getId() ?>">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
+                                        <div class="d-flex justify-content-end gap-2 align-items-center">
+                                            <div class="d-flex justify-content-end gap-2">
+                                                <a href="<?= $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <a href="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
+                                                   class="btn btn-sm btn-danger delete-btn"
+                                                   data-ajax="true"
+                                                   data-target-id="training-row-<?= $t->getId() ?>">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
                                         </div>
                                     </td>
                                 <?php endif; ?>
@@ -91,4 +113,4 @@ $days = [
             </div>
         </div>
     </div>
-</div>
+<script src="<?= $link->asset('js/training-active-toggle.js') ?>"></script>

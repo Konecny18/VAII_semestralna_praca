@@ -8,6 +8,7 @@ use Framework\Core\Model;
  * Model tréningu (training) reprezentujúci plán tréningov.
  *
  * @package App\Models
+ * @property int $active 1 = visible/active, 0 = hidden/inactive
  * @property int|null $id
  * @property string $den Deň (napr. "Pondelok")
  * @property string|null $cas_zaciatku Čas začiatku
@@ -23,9 +24,11 @@ class Training extends Model
         protected string $den = '',
         protected ?string $cas_zaciatku = null,
         protected ?string $cas_konca = null,
-        protected ?string $popis = null
+        protected ?string $popis = null,
+        protected int $active = 1
     ) {
-
+        // initialize active flag
+        $this->active = $active;
     }
 
     /** Vracia ID tréningu. */
@@ -86,5 +89,18 @@ class Training extends Model
     public function setPopis(?string $popis): void
     {
         $this->popis = $popis;
+    }
+
+    /** Vracia active flag (1 = visible, 0 = hidden). */
+    public function getActive(): int
+    {
+        return $this->active ?? 1;
+    }
+
+    /** Nastaví active flag (1 = visible, 0 = hidden). */
+    public function setActive(int $active): void
+    {
+        $val = $active ? 1 : 0;
+        $this->active = $val;
     }
 }

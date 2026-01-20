@@ -9,8 +9,17 @@ use Framework\Core\IAuthenticator;
 
 ?>
 
-
+<!--
+row – Bootstrap grid riadok (flex kontajner)
+mb-4 – margin-bottom, odsadenie spodnej časti
+-->
 <div class="row mb-4">
+    <!--
+   col – jeden stĺpec v gride (automatická šírka)
+   d-flex – zapne flexbox pre vnútorné prvky
+   align-items-center – vertikálne zarovnanie na stred
+   justify-content-between – prvky sú rozložené na opačné strany
+   -->
     <div class="col d-flex align-items-center justify-content-between">
 
 <!--        zistuje do ktoreho albumu sme vstupili-->
@@ -21,7 +30,11 @@ use Framework\Core\IAuthenticator;
             <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>"
                class="btn btn-success me-2">Pridať príspevok</a>
 
-            <!-- tlacidla na vybranie vsetkych posts cez checkbox -->
+            <!--
+            d-flex – zapne flexbox layout
+            align-items-center – vertikálne zarovnanie prvkov na stred
+            gap-3 – medzera medzi prvkami (Bootstrap spacing scale)
+            -->
             <div class="d-flex align-items-center gap-3">
                 <button id="btn-bulk-delete-posts"
                         class="btn btn-danger"
@@ -30,7 +43,12 @@ use Framework\Core\IAuthenticator;
                     Vymazať vybrané (<span id="selected-count">0</span>)
                 </button>
 
+                <!--
+                form-check – Bootstrap wrapper pre checkbox/radio
+                m-0 – margin zo všetkých strán
+                -->
                 <div class="form-check mb-0">
+                    <!--form-check-input – štýlovaný Bootstrap checkbox-->
                     <input class="form-check-input" type="checkbox" id="select-all-posts">
                     <label class="form-check-label btn btn-secondary" for="select-all-posts">
                         Vybrať všetko
@@ -43,6 +61,7 @@ use Framework\Core\IAuthenticator;
 
 <div class="row g-4 justify-content-center" id="posts-container" data-bulk-url="<?= $link->url('post.bulkDelete') ?>" data-csrf="<?= $_SESSION['csrf_token'] ?>">
     <?php foreach ($posts as $post): ?>
+        <!--position-relative – referenčný bod pre absolute prvky -->
         <div class="col-auto position-relative" id="post-card-<?= $post->getId() ?>">
             <?php if ($auth->isAdmin()): ?>
                 <div class="form-check position-absolute m-2" style="z-index:10;">
@@ -50,6 +69,12 @@ use Framework\Core\IAuthenticator;
                     <label class="visually-hidden" for="select-post-<?= $post->getId() ?>">Vybrať príspevok <?= $post->getId() ?></label>
                 </div>
             <?php endif; ?>
+            <!--
+            border – tenký Bootstrap okraj
+            d-flex – flexbox layout
+            flex-column – prvky pod sebou (vertikálne)
+            h-100 – výška 100 % rodiča
+            -->
 <!--            pouzivam album aby to vyzeralo tak isto ako v albume-->
             <div class="border album d-flex flex-column h-100">
                 <div>
@@ -61,9 +86,13 @@ use Framework\Core\IAuthenticator;
                     </a>
                 </div>
                 <?php if ($auth->isAdmin()): ?>
+                    <!--
+                    justify-content-end – zarovnanie prvkov doprava
+                    gap-2 – medzera medzi tlačidlami
+                    mt-2 – margin-top
+                    -->
                     <div class="m-2 d-flex gap-2 justify-content-end mt-2">
                         <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
-<!--                        <a href="--><?php //= $link->url('post.delete', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?><!--" class="btn btn-danger" onclick="return confirm('Naozaj zmazať príspevok?')">Zmazať</a>-->
                         <a href="<?= $link->url('post.delete', ['id' => $post->getId()]) ?>"
                            class="btn btn-sm btn-danger delete-btn"
                            data-ajax="true"
@@ -86,9 +115,21 @@ use Framework\Core\IAuthenticator;
     <?php endforeach; ?>
 </div>
 
-
+<!--
+modal fade – Bootstrap modal s animáciou
+tabindex -1 – modal nie je focusovateľný bežne
+-->
 <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <!--
+    modal-dialog-centered – vertikálne vycentrovanie modalu
+    modal-xl – extra veľký modal
+    -->
     <div class="modal-dialog modal-dialog-centered modal-xl">
+        <!--
+        modal-content – obsah modalu
+        bg-transparent – priehľadné pozadie
+        border-0 – bez okraja
+        -->
         <div class="modal-content border-0 bg-transparent">
             <div class="modal-body text-center p-0 position-relative">
                 <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
