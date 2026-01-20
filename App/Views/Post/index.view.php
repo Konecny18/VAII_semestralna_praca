@@ -7,22 +7,49 @@ use App\Configuration;
 use App\Models\Post;
 use Framework\Core\IAuthenticator;
 
-
 ?>
 
 
 <div class="row mb-4">
-    <div class="col">
+    <div class="col d-flex align-items-center justify-content-between">
+
+<!--        zistuje do ktoreho albumu sme vstupili-->
         <?php $currentAlbumId = isset($albumId) ? (int)$albumId : 0; ?>
+
         <?php if ($auth->isAdmin()): ?>
-            <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>" class="btn btn-success">Pridať príspevok</a>
+<!--            ma tag a lebo to sa pouziva ked chcem poslat niekam pouzivatela a button sa pouziva na vykonanie akcie-->
+            <a href="<?= $link->url('post.add', ['albumId' => $currentAlbumId]) ?>"
+               class="btn btn-success me-2">Pridať príspevok</a>
+
+            <!-- tlacidla na vybranie vsetkych posts cez checkbox -->
+            <div class="d-flex align-items-center gap-3">
+                <button id="btn-bulk-delete-posts"
+                        class="btn btn-danger"
+                        data-url="<?= $link->url('post.bulkDelete') ?>"
+                        data-csrf="<?= $_SESSION['csrf_token'] ?>">
+                    Vymazať vybrané (<span id="selected-count">0</span>)
+                </button>
+
+                <div class="form-check mb-0">
+                    <input class="form-check-input" type="checkbox" id="select-all-posts">
+                    <label class="form-check-label btn btn-secondary" for="select-all-posts">
+                        Vybrať všetko
+                    </label>
+                </div>
+            </div>
         <?php endif; ?>
     </div>
 </div>
 
-<div class="row g-4 justify-content-center">
+<div class="row g-4 justify-content-center" id="posts-container" data-bulk-url="<?= $link->url('post.bulkDelete') ?>" data-csrf="<?= $_SESSION['csrf_token'] ?>">
     <?php foreach ($posts as $post): ?>
-        <div class="col-auto" id="post-card-<?= $post->getId() ?>">
+        <div class="col-auto position-relative" id="post-card-<?= $post->getId() ?>">
+            <?php if ($auth->isAdmin()): ?>
+                <div class="form-check position-absolute m-2" style="z-index:10;">
+                    <input class="form-check-input post-checkbox" type="checkbox" value="<?= $post->getId() ?>" id="select-post-<?= $post->getId() ?>">
+                    <label class="visually-hidden" for="select-post-<?= $post->getId() ?>">Vybrať príspevok <?= $post->getId() ?></label>
+                </div>
+            <?php endif; ?>
 <!--            pouzivam album aby to vyzeralo tak isto ako v albume-->
             <div class="border album d-flex flex-column h-100">
                 <div>
@@ -83,3 +110,5 @@ use Framework\Core\IAuthenticator;
 
 <!-- Load external JS that manages the post image modal -->
 <script src="<?= $link->asset('js/show-move-posts.js') ?>"></script>
+<!-- Bulk delete script -->
+<script src="<?= $link->asset('js/posts-bulk-delete-ajax.js') ?>"></script>

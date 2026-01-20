@@ -351,6 +351,102 @@ class PostController extends BaseController
     }
 
     /**
+     * Hromadné mazanie príspevkov (bulk delete) cez AJAX.
+     * Očakáva JSON telo: { "ids": [1,2,3] }
+     *
+     * @param Request $request
+     * @return Response JSON s výsledkom operácie
+     * @throws HttpException
+     */
+    /**
+     * Hromadné mazanie príspevkov cez AJAX.
+     * @throws HttpException
+     */
+    public function bulkDelete(Request $request): Response
+    {
+        $this->checkAdmin();
+        // CSRF ochrana
+        $this->validateCsrf($request);
+
+        try {
+            // Získame dáta z JSON požiadavky alebo z POST poľa
+            $ids = [];
+
+            // 1) Pokúsime sa bezpečne načítať JSON telo (niektoré servery môžu mať CONTENT_TYPE s charset)
+            try {
+                $body = $request->json();
+            } catch (\Throwable $e) {
+                $body = null;
+            }
+
+            // Ak je $body objekt (stdClass), prevedieme ho na asociatívne pole
+            if ($body !== null && !is_array($body)) {
+                if (is_object($body)) {
+                    $body = json_decode(json_encode($body), true);
+                }
+            }
+
+            if (is_array($body) && isset($body['ids']) && is_array($body['ids'])) {
+                $ids = $body['ids'];
+            } else {
+                // 2) Fallback: načítame POST (napr. klasický form submit alebo AJAX s form-encoded)
+                $post = $request->post();
+                if (isset($post['ids']) && is_array($post['ids'])) {
+                    $ids = $post['ids'];
+                } elseif (isset($post['ids']) && is_string($post['ids'])) {
+                    // ak prišiel csv string, rozparsujeme ho
+                    $ids = array_filter(array_map('trim', explode(',', $post['ids'])));
+                }
+            }
+
+            // Normalizácia a očistenie ID (len kladné celé čísla)
+            $cleanIds = [];
+            foreach ($ids as $rid) {
+                $id = (int)$rid;
+                if ($id > 0) $cleanIds[] = $id;
+            }
+
+            if (empty($cleanIds)) {
+                return $this->json(['success' => false, 'message' => 'Žiadne ID neboli zaslané.']);
+            }
+
+            $deletedCount = 0;
+            $errors = [];
+            foreach ($cleanIds as $id) {
+                try {
+                    $post = Post::getOne($id);
+                    if (!$post) {
+                        $errors[] = "Post s ID $id neexistuje.";
+                        continue;
+                    }
+
+                    // zmazanie suboru z disku
+                    if ($post->getPicture()) {
+                        $relativeUrl = ltrim(Configuration::UPLOAD_URL, '/');
+                        $filePath = $relativeUrl . $post->getPicture();
+                        if (file_exists($filePath)) @unlink($filePath);
+                    }
+
+                    $post->delete();
+                    $deletedCount++;
+                } catch (\Throwable $e) {
+                    $errors[] = "Chyba pri mazaní ID $id: " . $e->getMessage();
+                }
+            }
+
+            return $this->json([
+                'success' => true,
+                'deleted' => $deletedCount,
+                'errors' => $errors,
+                'message' => "Úspešne zmazaných $deletedCount príspevkov."
+            ]);
+
+        } catch (Exception $e) {
+            return $this->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * @throws Exception
      */
     private function formErrors(Request $request, bool $isEdit = false): array

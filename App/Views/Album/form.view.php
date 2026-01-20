@@ -29,7 +29,7 @@ use App\Models\Album;
     <label for="text" class="form-label fw-bold">Názov albumu</label>
     <div class="input-group has-validation mb-3 ">
         <textarea class="form-control" aria-label="With textarea" name="text" id="text"
-                  required minlength="5" maxlength="255"><?= htmlspecialchars(@$album?->getText() ?? '') ?></textarea>
+                  required minlength="3" maxlength="255"><?= htmlspecialchars(@$album?->getText() ?? '') ?></textarea>
     </div>
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="<?= $link->url('album.index') ?>" class="btn btn-secondary">Späť</a>

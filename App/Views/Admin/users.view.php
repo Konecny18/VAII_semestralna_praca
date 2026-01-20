@@ -6,7 +6,9 @@
 
 use Framework\Auth\AppUser;
 
+// Inicializácia: Ak $users neexistuje, nastavím prázdne pole, aby foreach nezlyhal
 $users = $users ?? [];
+// Získanie ID aktuálne prihláseného používateľa pre neskoršiu kontrolu (zamedzenie zmazania seba samého)
 $currentUserId = $user?->getIdentity()?->getId();
 ?>
 
@@ -36,11 +38,14 @@ $currentUserId = $user?->getIdentity()?->getId();
                     <?php else: ?>
                         <?php foreach ($users as $row): ?>
                             <?php
+                            // Príprava dát z aktuálneho riadku
                             $uid = (int)($row['id'] ?? 0);
                             $meno = $row['meno'] ?? '';
                             $priezvisko = $row['priezvisko'] ?? '';
                             $email = $row['email'] ?? '';
                             $rola = $row['rola'] ?? 'atlet';
+
+                            // Logická kontrola: Ak je ID riadku rovnaké ako ID prihláseného, ide o mňa
                             $isSelf = ($currentUserId !== null && $uid !== 0 && (int)$currentUserId === $uid);
                             ?>
                             <tr id="user-row-<?= $uid ?>">
@@ -60,7 +65,7 @@ $currentUserId = $user?->getIdentity()?->getId();
 
                                         <?php if (!$isSelf): ?>
                                             <a href="<?= $link->url('admin.delete', ['user_id' => $uid]) ?>"
-                                               class="btn btn-sm btn-danger delete-btn"
+                                               class="btn btn-sm btn-danger tlacidlo-vymazat"
                                                data-ajax="true"
                                                data-target-id="user-row-<?= $uid ?>"
                                                data-message="Naozaj zmazať tento účet a všetky jeho výkony?">
