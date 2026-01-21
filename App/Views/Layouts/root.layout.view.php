@@ -9,6 +9,7 @@
 use Framework\Auth\AppUser;
 use Framework\Support\LinkGenerator;
 
+// Ak controller nepreniesol $user, necháme null
 if (!isset($user)) {
     $user = null;
 }
@@ -17,8 +18,9 @@ if (!isset($user)) {
 <html lang="sk">
 <head>
     <meta charset="UTF-8">
+    <!-- CSRF token pre JS/AJAX bezpečnosť -->
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?>">
-    <!-- Ensure responsive behavior on mobile devices and DevTools -->
+    <!-- Pre responzívne správanie na mobilech -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= App\Configuration::APP_NAME ?></title>
     <!-- Favicons -->
@@ -28,59 +30,72 @@ if (!isset($user)) {
     <link rel="manifest" href="<?= $link->asset('favicons/site.webmanifest') ?>">
     <link rel="shortcut icon" href="<?= $link->asset('images/tat_logo.png') ?>">
 
-    <!-- Bootstrap (match index.html) -->
+    <!-- Bootstrap CSS a JS + ikony -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="<?= $link->asset('js/delete-confirmation-ajax.js') ?>"></script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Existing app assets -->
+    <!-- SweetAlert2 pre alerty -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Moje JS -->
+    <script src="<?= $link->asset('js/delete-confirmation-ajax.js') ?>"></script>
+
+    <!-- moje CSS -->
     <link rel="stylesheet" href="<?= $link->asset('css/home.css') ?>?v=3">
     <link rel="stylesheet" href="<?= $link->asset('css/rootStyle.css') ?>?v=3">
-    <!-- Add gallery specific CSS (card-img) -->
     <link rel="stylesheet" href="<?= $link->asset('css/galeria.css') ?>?v=1">
-    <!-- Contact page specific CSS -->
     <link rel="stylesheet" href="<?= $link->asset('css/contact.css') ?>?v=1">
-    <!-- Klub (flip card) styles -->
     <link rel="stylesheet" href="<?= $link->asset('css/klub.css') ?>?v=1">
-    <!-- Include events stylesheet -->
     <link rel="stylesheet" href="<?= $link->asset('css/events.css') ?>">
-    <!-- Include sponzor stylesheet -->
     <link rel="stylesheet" href="<?= $link->asset('css/sponzor.css') ?>">
-
-    <!-- Include record stylesheet -->
     <link rel="stylesheet" href="<?= $link->asset('css/record.css') ?>?v=1">
-
     <link rel="stylesheet" href="<?= $link->asset('css/trainings.css') ?>?v=1">
 
 </head>
+
 <body class="d-flex flex-column min-vh-100">
 
+<!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container-fluid">
+
+        <!-- Logo -->
         <a class="navbar-brand" href="<?= $link->url('home.index') ?>">
             <img class="logo" src="<?= $link->asset('images/tat_logo.png') ?>" title="<?= App\Configuration::APP_NAME ?> " alt="logo">
         </a>
+
+        <!-- Hamburger menu pre mobil -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
+        <!-- Navbar obsah -->
         <div class="collapse navbar-collapse" id="navbarNavDropdown">
             <ul class="navbar-nav me-auto">
+
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="<?= $link->url('home.index') ?>">Úvod</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('album.index') ?>">Galéria</a>
                 </li>
+
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('home.klub') ?>">Klub TAT</a>
                 </li>
+
+                <!-- Viditeľné len pre prihlásených -->
                 <?php if ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn()): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= $link->url('record.index') ?>">Výkony</a>
                 </li>
+
                 <?php endif; ?>
+
+                <!-- Admin menu -->
                 <?php
                 $role = $user?->getIdentity()?->getRole() ?? null;
                 if ($role === 'admin'): ?>
@@ -89,6 +104,7 @@ if (!isset($user)) {
                 </li>
                 <?php endif; ?>
 
+                <!-- Dropdown Informácie -->
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Informácie
@@ -102,8 +118,8 @@ if (!isset($user)) {
                 </li>
             </ul>
 
+            <!-- Prihlásený / neprihlásený -->
             <?php if ($user && method_exists($user, 'isLoggedIn') && $user->isLoggedIn()) { ?>
-                <span class="navbar-text">Logged in user: <b><?= $user->getName() ?></b></span>
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="<?= $link->url('auth.logout') ?>">Log out</a>
@@ -127,7 +143,7 @@ if (!isset($user)) {
     </div>
 </nav>
 
-
+<!-- Hlavný obsah -->
 <main class="content-stranky-kontakt">
 <!--    ked dam iba container bez fluid tak vsetky stranky budu odsadene od krajov-->
     <div class="container mt-3">
@@ -137,6 +153,7 @@ if (!isset($user)) {
     </div>
 </main>
 
+<!-- Footer -->
 <footer class="site-footer bg-dark py-4 mt-auto"> <div class="container">
         <div class="row align-items-center">
 
