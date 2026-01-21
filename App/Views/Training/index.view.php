@@ -24,6 +24,7 @@ $days = [
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4 sekcia-hlavicka">
             <h3 class="mb-0">Rozvrh tréningov</h3>
+<!--            rozvrh-treningov vie pridat, upravit a mazat len admin-->
             <?php if ($auth->isAdmin()): ?>
                 <a href="<?= $link->url('training.add') ?>" class="btn btn-success shadow-sm">
                     <i class="bi bi-plus-lg"></i> Pridať tréning
@@ -36,9 +37,11 @@ $days = [
                 <table class="table table-hover align-middle mb-0 vlastna-tabulka">
                     <thead class="table-light">
                     <tr>
+<!--                        hlavicka tabulky-->
                         <th class="col-den">Deň</th>
                         <th class="col-cas">Čas</th>
                         <th class="col-popis">Popis</th>
+<!--                        vidi iba admin-->
                         <?php if ($auth->isAdmin()): ?>
                             <th class="text-center col-skryt">Skryť</th>
                             <th class="text-end col-akcie">Akcie</th>
@@ -48,11 +51,13 @@ $days = [
                     <tbody>
                     <?php if (empty($trainings)): ?>
                         <tr>
+<!--                            adminovy sa zobrazi 5 stlpcov, neadminovy 3 stlpce-->
                             <td colspan="<?= $auth->isAdmin() ? 5 : 3 ?>" class="text-center p-4 text-muted">
                                 Aktuálne nie sú naplánované žiadne tréningy.
                             </td>
                         </tr>
                     <?php else: ?>
+<!--                        foreach na vypisovanie treningov-->
                         <?php foreach ($trainings as $t): ?>
                             <?php // safety: ensure non-admin users don't see inactive trainings even if controller returned them ?>
                             <?php if (!$auth->isAdmin() && !$t->getActive()) continue; ?>
@@ -65,12 +70,14 @@ $days = [
                                 <td>
                                     <span class="cis-znacka">
                                         <i class="bi bi-clock me-1"></i>
+<!--                                        vypise cas v tvare HH:MM - HH:MM-->
                                         <?= htmlspecialchars(substr((string)$t->getCasZaciatku(), 0, 5)) ?> - <?= htmlspecialchars(substr((string)$t->getCasKonca(), 0, 5)) ?>
                                     </span>
                                 </td>
                                 <td>
                                     <span class="td-popis"><?= htmlspecialchars($t->getPopis()) ?></span>
                                 </td>
+<!--                                admin vie skryt trening, upravit a vymazat-->
                                 <?php if ($auth->isAdmin()): ?>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center">
@@ -95,6 +102,7 @@ $days = [
                                                 <a href="<?= $link->url('training.edit', ['id' => $t->getId()]) ?>" class="btn btn-sm btn-warning">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
+<!--                                                vymazanie cez AJAX-->
                                                 <a href="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
                                                    class="btn btn-sm btn-danger tlacidlo-vymazat"
                                                    data-ajax="true"

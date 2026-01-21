@@ -7,7 +7,9 @@
     <div class="row justify-content-center">
         <div class="col-6">
             <?php foreach ($formErrors as $error): ?>
-                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <div class="alert alert-danger">
+                    <?= htmlspecialchars($error) ?>
+                </div>
             <?php endforeach; ?>
         </div>
     </div>

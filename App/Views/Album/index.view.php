@@ -120,8 +120,7 @@ justify-content-center – vycentrovanie albumov
                                 -->
                             <form id="delete-album-<?= $album->getId() ?>"
                                   method="post"
-                                  action="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>"
-                                  style="display:none;">
+                                  action="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>">
                                 <input type="hidden" name="_token" value="<?= $_SESSION['csrf_token'] ?>">
                             </form>
                         <?php endif; ?>

@@ -3,14 +3,18 @@
 use Framework\Support\LinkGenerator;
 ?>
 
+<!--uvodna stranka -->
+
 <div class="px-0 obal-carousel">
     <div id="carouselHome" class="carousel slide carousel-fade" data-bs-ride="carousel">
         <div class="carousel-indicators">
+<!--            tlacidlá na prepinanie karuselu-->
             <button type="button" data-bs-target="#carouselHome" data-bs-slide-to="0" class="active" aria-current="true"></button>
             <button type="button" data-bs-target="#carouselHome" data-bs-slide-to="1"></button>
             <button type="button" data-bs-target="#carouselHome" data-bs-slide-to="2"></button>
         </div>
 
+<!--        fotky v karusele-->
         <div class="carousel-inner">
             <div class="carousel-item active" data-bs-interval="5000">
                 <div class="overlay-cez-carousel"></div>
@@ -45,6 +49,7 @@ use Framework\Support\LinkGenerator;
 
         <button class="carousel-control-prev" type="button" data-bs-target="#carouselHome" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+<!--            Pre čítačky obrazovky je tu textový popis akcie., pre zrakovo postihnutych-->
             <span class="visually-hidden">Predchádzajúci</span>
         </button>
         <button class="carousel-control-next" type="button" data-bs-target="#carouselHome" data-bs-slide="next">
@@ -60,7 +65,7 @@ use Framework\Support\LinkGenerator;
         <div class="col-md-4">
             <div class="card shadow-lg p-4 karta-info">
                 <h2 class="fw-bold text-primary">60+</h2>
-                <p class="text-muted mb-0">Aktívnych hráčov</p>
+                <p class="text-muted mb-0">Aktívnych atlétov</p>
             </div>
         </div>
         <div class="col-md-4">
@@ -72,7 +77,7 @@ use Framework\Support\LinkGenerator;
         <div class="col-md-4">
             <div class="card shadow-lg p-4 karta-info">
                 <h2 class="fw-bold text-primary">4</h2>
-                <p class="text-muted mb-0">Profi tréneri</p>
+                <p class="text-muted mb-0">Tréneri</p>
             </div>
         </div>
     </div>

@@ -3,11 +3,12 @@
 use Framework\Support\LinkGenerator;
 ?>
 
+
+<!--Staticka stranka klubu T.A.T. Martin rozdelena do sekcii.-->
 <!-- HERO SEKCIa -->
 <section class="hlavna-sekcia text-white text-center">
-
-<!--        <img src="--><?php //= $link->asset('images/tat_logo.png') ?><!--" class="pozadie" alt="logo">-->
         <h1 class="display-4 fw-bold">T.A.T. Martin</h1>
+<!--        lead sluzi na zvyraznenie -->
         <p class="lead mt-3">
             Všeobecná športová príprava pre všetkých, zameranie na triatlon
         </p>
@@ -27,6 +28,7 @@ use Framework\Support\LinkGenerator;
                 Naši členovia sú profesionáli aj amatéri, ktorí sa učia nové techniky
                 a zlepšujú kondíciu.
             </p>
+<!--            odstrani body odstavca-->
             <ul class="list-unstyled mt-3">
                 <li>🏃 Atletické tréningy</li>
                 <li>🏊 Plavecké tréningy</li>

@@ -19,6 +19,7 @@ $identity = $auth->isLoggedIn() ? $user?->getIdentity() : null;
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4 sekcia-hlavicka">
             <h3 class="mb-0">Športové záznamy</h3>
+<!--            iba prihlaseny vidi pridat zaznam-->
             <?php if ($auth->isLoggedIn()): ?>
                 <a href="<?php echo $link->url('record.add') ?>" class="btn btn-success shadow-sm">
                     <i class="bi bi-plus-lg"></i> Pridať záznam
@@ -26,6 +27,7 @@ $identity = $auth->isLoggedIn() ? $user?->getIdentity() : null;
             <?php endif; ?>
         </div>
 
+<!--        hlavicka tabulky-->
         <div class="card shadow-sm">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 vlastna-tabulka">
@@ -43,6 +45,7 @@ $identity = $auth->isLoggedIn() ? $user?->getIdentity() : null;
                     <?php if (empty($records)): ?>
                         <tr><td colspan="6" class="text-center p-4 text-muted">Žiadne záznamy neboli nájdené.</td></tr>
                     <?php else: ?>
+<!--                    vykresli vsetky zaznamy pokial si trener a admin, inak vykresli iba svoje zaznamy-->
                         <?php foreach ($records as $rec): ?>
                             <?php
                             // LOGIKA PRE SHOW ACTIONS:
@@ -61,6 +64,7 @@ $identity = $auth->isLoggedIn() ? $user?->getIdentity() : null;
                                     <?= htmlspecialchars($rec->getNazovDiscipliny(), ENT_QUOTES, 'UTF-8') ?>
                                 </td>
 
+<!--                                meno pouzivatela co vytvoril ten zaznam-->
                                 <?php $ownerName = $owners[$rec->getUserId()] ?? ('Užívateľ #' . $rec->getUserId()); ?>
                                 <td>
                                     <span class="text-secondary">
@@ -79,12 +83,13 @@ $identity = $auth->isLoggedIn() ? $user?->getIdentity() : null;
                                 </td>
 
                                 <td>
-                                    <small class="text-truncate d-inline-block poznamka-text" style="max-width: 150px;">
+                                    <small class="text-truncate d-inline-block poznamka-text">
                                         <?= htmlspecialchars((string)($rec->getPoznamka() ?? ''), ENT_QUOTES, 'UTF-8') ?>
                                     </small>
                                 </td>
 
                                 <td class="text-end">
+<!--                                    toto vidia atleti iba pri svojich zaznamoch, treneri a admini pri vsetky akciach-->
                                     <?php if ($showActions): ?>
                                         <div class="d-flex justify-content-end gap-2">
                                             <a class="btn btn-sm btn-warning" href="<?php echo $link->url('record.edit', ['id' => $rec->getId()]) ?>">

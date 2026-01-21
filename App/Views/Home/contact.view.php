@@ -5,6 +5,8 @@ use Framework\Support\LinkGenerator;
 
 ?>
 
+<!--staticka stranka ktora zobrazuje kontaktne udaje klubu-->
+
 <div class="kontakt-stranka">
     <div class="row">
 

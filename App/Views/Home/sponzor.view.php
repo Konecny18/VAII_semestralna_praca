@@ -5,6 +5,7 @@ use Framework\Support\LinkGenerator;
 
 ?>
 
+<!--staticka stranka sponzorov klubu T.A.T. Martin-->
 <div class="my-5 sponzor-stranka">
     <div class="text-center mb-5 hlavicka-stranky">
         <h1 class="display-4 fw-bold text-uppercase">Naši Partneri</h1>
@@ -12,6 +13,7 @@ use Framework\Support\LinkGenerator;
         <p class="lead mt-3 text-secondary">Vďaka týmto organizáciám môžeme rásť a dosahovať lepšie výsledky.</p>
     </div>
 
+<!--    samostatny blok pre generalnych partnerov-->
     <div class="mb-5">
         <h3 class="text-center mb-4 text-muted">Generálni partneri</h3>
         <div class="row g-4 justify-content-center">
@@ -30,6 +32,7 @@ use Framework\Support\LinkGenerator;
         </div>
     </div>
 
+<!--    blok pre ostatnych partnerov umiestnenie pod generalnych-->
     <div class="mb-5">
         <h3 class="text-center mb-4 text-muted">Partneri</h3>
         <div class="row g-4">
