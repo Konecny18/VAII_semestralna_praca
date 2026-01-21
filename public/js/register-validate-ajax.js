@@ -1,5 +1,21 @@
+/**
+ * register-validate-ajax.js
+ *
+ * Klientská validácia registračného formulára s AJAX kontrolou emailu.
+ * - Overuje validitu emailu (regex) a volá server cez GET na kontrolu existencie emailu.
+ * - Overuje silu hesla a zhodu potvrdenia hesla.
+ * - Zamedzí odoslatiu formulára, ak sú polia nevalidné.
+ *
+ * Očakávané elementy v DOM:
+ * - input#email
+ * - input#password
+ * - input#password_confirm
+ *
+ * Poznámky: Skript používa oneskorenie (debounce) pre AJAX volanie.
+ */
+
 // Anonymná funkcia (IIFE) – chráni kód, aby sa nebil s inými skriptami
-(function(){
+(function registerValidateIife(){
     // Prísny režim - zakazuje chyby ako používanie nedefinovaných premenných
     'use strict';
 

@@ -1,3 +1,16 @@
+/**
+ * training-active-toggle.js
+ *
+ * Skript pre admin inline toggle (zobraziť/skryť) tréningov.
+ * - Očakáva checkbox elementy s triedou `.training-active-toggle` a data-atribútmi:
+ *     - data-id  : id záznamu
+ *     - data-url : URL na endpoint, ktorý spracuje zmenu (POST)
+ *     - optional data-csrf : CSRF token, ak nie je meta tag
+ * - Pri zmene stavu odošle POST pomocou fetch s JSON telom {id, active} a hlavičkami
+ *   `X-Requested-With` a `X-CSRF-TOKEN`.
+ * - Optimisticky aktualizuje label (text) a pri chybe zmeny ho vráti späť.
+ */
+
 (function(){
     'use strict';
 

@@ -1,3 +1,16 @@
+/**
+ * posts-bulk-delete-ajax.js
+ *
+ * Skript pre hromadné mazanie príspevkov (posts) pomocou zaškrtávacích políčok a jedného AJAX volania.
+ * - Očakáva:
+ *    - checkboxy s triedou `.post-checkbox` a value = ID príspevku
+ *    - tlačidlo #btn-bulk-delete-posts s data-url pre endpoint a voliteľným data-csrf tokenom
+ *    - voliteľný checkbox #select-all-posts na označenie všetkých
+ *    - voliteľný #selected-count element na zobrazenie počtu vybraných
+ * - Posiela POST (FormData) s parametrom `ids[]` pre každý ID a hlavičkou `X-CSRF-TOKEN`.
+ * - Pri úspechu odstráni karty z DOM a zobrazí potvrdzovací dialóg (SweetAlert ak je dostupný).
+ */
+
 document.addEventListener('DOMContentLoaded', function () {
     // Checkbox v hlavičke tabuľky na označenie všetkého
     const selectAll = document.getElementById('select-all-posts');
