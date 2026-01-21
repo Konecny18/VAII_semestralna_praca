@@ -60,7 +60,10 @@ class Configuration
      * Flag to enable or disable detailed exception stack traces. This feature is intended for development purposes
      * only.
      */
-    public const SHOW_EXCEPTION_DETAILS = true;
+//    public const SHOW_EXCEPTION_DETAILS = true;
+
+    //ma byt false na produkcii
+    public const SHOW_EXCEPTION_DETAILS = false;
 
     /**
      * Class name for the authenticator. This class must implement the IAuthenticator interface. Comment out this line
@@ -69,6 +72,8 @@ class Configuration
      * Set to the new App\Auth\UserAuthenticator to authenticate against the users DB table.
      */
 //    public const AUTH_CLASS = DummyAuthenticator::class;
+
+    //pouzivam svoj autentifikator
     public const AUTH_CLASS = \App\Auth\UserAuthenticator::class;
 
     /**
