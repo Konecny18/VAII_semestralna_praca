@@ -113,4 +113,5 @@ $days = [
             </div>
         </div>
     </div>
+</div>
 <script src="<?= $link->asset('js/training-active-toggle.js') ?>"></script>

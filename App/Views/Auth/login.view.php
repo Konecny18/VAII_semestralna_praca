@@ -62,6 +62,7 @@ $view->setLayout('auth');
                                 <i class="bi bi-eye"></i>
                             </button>
                         </div>
+                    </div>
 
                     <button class="btn btn-primary tlacidlo-prihlasenie w-100 py-3 fw-bold shadow-sm mt-4" type="submit" name="submit">
                         Prihlásiť sa <i class="bi bi-arrow-right ms-2"></i>

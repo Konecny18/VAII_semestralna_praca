@@ -67,7 +67,7 @@ $url = function(string $route, array $params = []) use ($link) {
                         </div>
 
                         <div class="ms-3">
-                            <h5 class="mb-0 fw-bold text-dark"><?= htmlspecialchars($event->getNazov()) ?></h5>
+                            <h2 class="mb-0 fw-bold text-dark h5"><?= htmlspecialchars($event->getNazov()) ?></h2>
                             <small class="text-primary fw-semibold"><i class="bi bi-eye me-1"></i>Zobraziť detaily</small>
                         </div>
                     </div>
@@ -126,7 +126,7 @@ $url = function(string $route, array $params = []) use ($link) {
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg">
                         <div class="modal-header bg-light">
-                            <h5 class="modal-title fw-bold"><?= htmlspecialchars($event->getNazov()) ?></h5>
+                            <h2 class="modal-title fw-bold h5"><?= htmlspecialchars($event->getNazov()) ?></h2>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body p-0">
@@ -144,7 +144,7 @@ $url = function(string $route, array $params = []) use ($link) {
                                         </div>
 
                                         <div class="popis-eventu mb-4 text-secondary">
-                                            <?= nl2br(htmlspecialchars($event->getPopis())) ?>
+                                            <?= nl2br(htmlspecialchars($event->getPopis()), false) ?>
                                         </div>
 
                                         <div class="d-grid gap-2">

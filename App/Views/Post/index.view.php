@@ -138,7 +138,8 @@ tabindex -1 – modal nie je focusovateľný bežne
                     <i class="bi bi-chevron-left"></i>
                 </button>
 
-                <img id="imageModalImg" src="" alt="Full image">
+<!--                src je taky lebo prazdy vyhadzoval error pre validator a toto vykresli 1x1 pixel priehladny bod-->
+                <img id="imageModalImg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Full image">
 
                 <button type="button" id="nextImg" class="gallery-nav gallery-nav-right">
                     <i class="bi bi-chevron-right"></i>

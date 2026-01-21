@@ -58,14 +58,16 @@ use Framework\Support\LinkGenerator;
             <div class="otocenie-karty h-100 w-100">
                 <div class="otocenie-karty-vnutro">
                     <div class="otacacia-karta-predok">
-                        <h5 class="card-title">Hlavný tréner</h5>
+<!--                        bootstrap spravy z nadpisu h3 velkost h5 -->
+<!--                        lebo validator vyhadzuje chybu ked to nejde postupne z h1 na h2 na h3-->
+                        <h3 class="card-title h5">Hlavný tréner</h3>
                         <img src="<?= $link->asset('images/trenery/daniel.png') ?>"
                              class="card-img-top"
                              alt="Daniel Konečný">
                     </div>
                     <div class="otacacia-karta-zadok">
                         <div class="card-body d-flex flex-column justify-content-center h-100">
-                            <h5 class="card-title">Daniel Konečný</h5>
+                            <h4 class="card-title h5">Daniel Konečný</h4>
                             <p class="card-text">
                                 Hlavný tréner atletiky s viac než 10-ročnou praxou,
                                 špecialista na techniku behu a kondičné tréningy.
@@ -81,14 +83,14 @@ use Framework\Support\LinkGenerator;
             <div class="otocenie-karty h-100 w-100">
                 <div class="otocenie-karty-vnutro">
                     <div class="otacacia-karta-predok">
-                        <h5 class="card-title">Plavecký tréner</h5>
+                        <h3 class="card-title h5">Plavecký tréner</h3>
                         <img src="<?= $link->asset('images/trenery/gustav.png') ?>"
                              class="card-img-top"
                              alt="Gustav Konečný">
                     </div>
                     <div class="otacacia-karta-zadok">
                         <div class="card-body d-flex flex-column justify-content-center h-100">
-                            <h5 class="card-title">Gustav Konečný</h5>
+                            <h4 class="card-title h5">Gustav Konečný</h4>
                             <p class="card-text">
                                 Tréner plávania, odborník na techniku plávania
                                 a kondičný rozvoj športovcov.
@@ -104,14 +106,14 @@ use Framework\Support\LinkGenerator;
             <div class="otocenie-karty h-100 w-100">
                 <div class="otocenie-karty-vnutro">
                     <div class="otacacia-karta-predok">
-                        <h5 class="card-title">Pomocný tréner</h5>
+                        <h3 class="card-title h5">Pomocný tréner</h3>
                         <img src="<?= $link->asset('images/trenery/damianTrener.jpg') ?>"
                              class="card-img-top"
                              alt="Damián Konečný">
                     </div>
                     <div class="otacacia-karta-zadok">
                         <div class="card-body d-flex flex-column justify-content-center h-100">
-                            <h5 class="card-title">Damián Konečný</h5>
+                            <h4 class="card-title h5">Damián Konečný</h4>
                             <p class="card-text">
                                 Tréner zameraný na atletiku a kondičné tréningy mládeže,
                                 skúsenosti s rôznymi disciplínami.
@@ -127,14 +129,14 @@ use Framework\Support\LinkGenerator;
             <div class="otocenie-karty h-100 w-100">
                 <div class="otocenie-karty-vnutro">
                     <div class="otacacia-karta-predok">
-                        <h5 class="card-title">Pomocný tréner</h5>
+                        <h3 class="card-title h5">Pomocný tréner</h3>
                         <img src="<?= $link->asset('images/trenery/kristofTrener.jpg') ?>"
                              class="card-img-top"
                              alt="Krištof Konečný">
                     </div>
                     <div class="otacacia-karta-zadok">
                         <div class="card-body d-flex flex-column justify-content-center h-100">
-                            <h5 class="card-title">Krištof Konečný</h5>
+                            <h4 class="card-title h5">Krištof Konečný</h4>
                             <p class="card-text">
                                 Tréner s dôrazom na atletiku a plávanie,
                                 špecialista na techniku a motiváciu športovcov.

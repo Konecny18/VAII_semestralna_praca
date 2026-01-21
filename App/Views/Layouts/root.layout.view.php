@@ -14,7 +14,7 @@ if (!isset($user)) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sk">
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="<?= $_SESSION['csrf_token'] ?>">
