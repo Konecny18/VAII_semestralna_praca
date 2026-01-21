@@ -94,7 +94,7 @@ mb-4 – margin-bottom, odsadenie spodnej časti
                     <div class="m-2 d-flex gap-2 justify-content-end mt-2">
                         <a href="<?= $link->url('post.edit', ['id' => $post->getId(), 'albumId' => $currentAlbumId]) ?>" class="btn btn-warning">Upraviť</a>
                         <a href="<?= $link->url('post.delete', ['id' => $post->getId()]) ?>"
-                           class="btn btn-sm btn-danger delete-btn"
+                           class="btn btn-sm btn-danger tlacidlo-vymazat"
                            data-ajax="true"
                            data-target-id="post-card-<?= $post->getId() ?>"
                            data-message="Naozaj chceš vymazať túto fotku z albumu?">

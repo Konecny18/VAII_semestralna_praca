@@ -43,7 +43,7 @@ use Framework\Core\IAuthenticator;
                             <a href="<?= $link->url('album.edit', ['id' => $album->getId()]) ?>" class="btn btn-warning">Upraviť</a>
 
                             <a href="<?= $link->url('album.delete', ['id' => $album->getId()]) ?>"
-                               class="btn btn-danger delete-btn"
+                               class="btn btn-danger tlacidlo-vymazat"
                                data-ajax="true"
                                data-target-id="album-card-<?= $album->getId() ?>"
                                data-message="Odstrániť album a všetky jeho fotky?">

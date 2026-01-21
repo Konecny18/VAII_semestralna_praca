@@ -96,7 +96,7 @@ $url = function(string $route, array $params = []) use ($link) {
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <a href="<?= $url('event.delete', ['id' => $event->getId()]) ?>"
-                                               class="dropdown-item py-2 text-danger delete-btn"
+                                               class="dropdown-item py-2 text-danger tlacidlo-vymazat"
                                                data-ajax="true"
                                                data-target-id="event-row-<?= $event->getId() ?>"
                                                data-message="Naozaj chceš zmazať toto podujatie?">

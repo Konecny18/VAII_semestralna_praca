@@ -91,7 +91,7 @@ $identity = $auth->isLoggedIn() ? $user?->getIdentity() : null;
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <a href="<?= $link->url('record.delete', ['id' => $rec->getId()]) ?>"
-                                               class="btn btn-sm btn-danger delete-btn"
+                                               class="btn btn-sm btn-danger tlacidlo-vymazat"
                                                data-ajax="true"
                                                data-target-id="record-row-<?= $rec->getId() ?>">
                                                 <i class="bi bi-trash"></i>

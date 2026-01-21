@@ -4,7 +4,7 @@
     'use strict';
 
     // Pomocná funkcia, ktorá odloží vykonanie inej funkcie (fn) o určitý čas (delay)
-    function debounce(funkcia, delay) {
+    function oneskorenie(funkcia, delay) {
         // Premenná, ktorá drží ID aktuálneho časovača
         let t;
         // Vracia novú funkciu, ktorú reálne voláme
@@ -29,7 +29,7 @@
             const checkUrl = window.__CHECK_EMAIL_URL__ || '/auth/checkEmail';
 
             // Definujeme akciu, ktorá sa stane po dopísaní emailu
-            const doCheckEmail = debounce(function(){
+            const doCheckEmail = oneskorenie(function(){
                 // Odstráni medzery na začiatku a konci
                 const zadanaHodnota = emailInput.value.trim();
                 // Ak je prázdny, vymažeme vizuálne stavy
@@ -97,8 +97,8 @@
                 if (passConfirmInput) validateConfirm();
             };
 
-            // Kontrolujeme silu hesla s oneskorením (debounce)
-            passInput.addEventListener('input', debounce(validatePassword, 400));
+            // Kontrolujeme silu hesla s oneskorením (funkcia oneskorenie)
+            passInput.addEventListener('input', oneskorenie(validatePassword, 400));
         }
 
         // --- KONTROLA ZHODY HESIEL ---
@@ -123,7 +123,7 @@
                 }
             };
 
-            // Tu nemusíme čakať (debounce), kontrolujeme hneď pri písaní
+            // Tu nemusíme čakať (funkcia oneskorenie), kontrolujeme hneď pri písaní
             passConfirmInput.addEventListener('input', validateConfirm);
         }
 

@@ -152,9 +152,6 @@ class AuthController extends BaseController
             if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 $errors[] = 'Platný email je povinný.';
             }
-            if (strlen($password) < 6) {
-                $errors[] = 'Heslo musí mať aspoň 6 znakov.';
-            }
 
             /* --- 3. KONTROLA SILY HESLA --- */
 

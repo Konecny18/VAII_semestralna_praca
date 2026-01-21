@@ -96,7 +96,7 @@ $days = [
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                                 <a href="<?= $link->url('training.delete', ['id' => $t->getId()]) ?>"
-                                                   class="btn btn-sm btn-danger delete-btn"
+                                                   class="btn btn-sm btn-danger tlacidlo-vymazat"
                                                    data-ajax="true"
                                                    data-target-id="training-row-<?= $t->getId() ?>">
                                                     <i class="bi bi-trash"></i>
