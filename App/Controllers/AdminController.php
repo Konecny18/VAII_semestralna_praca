@@ -115,8 +115,8 @@ class AdminController extends BaseController
             }
 
             //ked vsetko prebehne ok, zobrazime formular s datami
-            return $this->html(['userData' => $userData], 'edit');
-        } catch (PDOException) {
+            return $this->html(['userData' => $userData, 'user' => $this->app->getAppUser()], 'edit');
+        } catch (PDOException $e) {
             //ak napr vypne DB spojenie, vratime sa na zoznam
             return $this->redirect($this->url('admin.users'));
         }
@@ -138,8 +138,11 @@ class AdminController extends BaseController
         //post hlada v tele requestu (v odoslanom formulary)
         //pri ukladani citlivych dat je lepsie pouzit post
         $id = (int)$request->post('id');
+        $newRole = $request->post('role');
+        // Bezpečné získanie ID práve prihláseného používateľa cez app->getAppUser()
+        $loggedUserId = (int)($this->app->getAppUser()->getIdentity()?->getId() ?? 0);
 
-        // 1. PRIPRAVÍME SI DATA HNEĎ NA ZAČIATKU (aby boli dostupné všade)
+        // --- PRIPRAVA DÁT PRE PRÍPADNÝ VRATENIE FORMULÁRA ---
         $userData = [
             'id' => $id,
             'meno' => $request->post('meno'),
@@ -148,12 +151,40 @@ class AdminController extends BaseController
             'rola' => $request->post('role')
         ];
 
+        // 1. Získame aktuálne dáta usera z DB, aby sme vedeli, akú mal rolu doteraz
+        try {
+            $conn = Connection::getInstance();
+            // 1. KROK OCHRANY: Vytiahneme si aktuálnu rolu používateľa z DB pred samotným update-om
+            $stmt = $conn->prepare('SELECT rola FROM users WHERE id = :id LIMIT 1');
+            $stmt->execute([':id' => $id]);
+            $userBeforeUpdate = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$userBeforeUpdate) {
+                // ak používateľ neexistuje, presmerujeme späť
+                return $this->redirect($this->url('admin.users'));
+            }
+        } catch (PDOException $e) {
+            return $this->html(['userData' => $userData, 'errors' => ['Chyba pri načítaní používateľa: ' . $e->getMessage()], 'user' => $this->app->getAppUser()], 'edit');
+        }
+
+        // 2. KROK OCHRANY (Server-side): Ak sa ID upravovaného zhoduje s prihláseným adminom
+        // a rola odoslaná z formulára je iná než tá, ktorú má v DB, zamietneme to.
+        // Toto zachytí pokusy o zmenu roly, ak by niekto obišiel "readonly" prvok v HTML.
+        // ak obides formular a posles zmenenu rolu pre seba tak vrati chybu
+        if ($id === $loggedUserId && $newRole !== $userBeforeUpdate['rola']) {
+            // Vrátime používateľa späť do editu s chybovou správou
+            return $this->html([
+                'errors' => ['Nemôžete zmeniť svoju vlastnú rolu.'],
+                'userData' => $userData,
+                'user' => $this->app->getAppUser()
+            ], 'edit');
+        }
+
         // 2. Spustíme validáciu skontroluje napr dlzku emailu...
         $errors = $this->formErrors($request, $id);
 
         if (!empty($errors)) {
             // Ak sú chyby vo validácii, vrátime formulár s chybami
-            return $this->html(['userData' => $userData, 'errors' => $errors], 'edit');
+            return $this->html(['userData' => $userData, 'errors' => $errors, 'user' => $this->app->getAppUser()], 'edit');
         }
 
         // 3. Ak je všetko OK, pokračujeme v ukladaní (so sanitizáciou)
@@ -164,7 +195,7 @@ class AdminController extends BaseController
         $email = filter_var(trim((string)$userData['email']), FILTER_SANITIZE_EMAIL);
         $newRole = (string)$userData['rola'];
 
-        // Poistka pre admina (aby sa nezablokoval)
+        // 3. KROK OCHRANY Poistka pre admina (aby sa nezablokoval)
         // Ak admin mení svoj vlastný účet, nemôže si zmeniť rolu na inú než 'admin'
         $currentId = (int)$this->app->getAppUser()->getIdentity()?->getId();
         if ($id === $currentId && $newRole !== 'admin') {
@@ -186,7 +217,7 @@ class AdminController extends BaseController
         } catch (PDOException) {
             // TERAZ UŽ $userData EXISTUJE, takže catch prebehne v poriadku
             //ak by som zmenil email na duplicitny, tak to hodi chybu
-            return $this->html(['userData' => $userData, 'errors' => ['Chyba pri zápise do databázy (možný duplicitný email).']], 'edit');
+            return $this->html(['userData' => $userData, 'errors' => ['Chyba pri zápise do databázy (možný duplicitný email).'], 'user' => $this->app->getAppUser()], 'edit');
         }
 
         return $this->redirect($this->url('admin.users'));
@@ -290,7 +321,7 @@ class AdminController extends BaseController
                     $errors[] = "Tento email už používa iný používateľ.";
                 }
             } catch (PDOException) {
-                $errors[] = "Chyba pri kontrole emailu v databáze.";
+                $errors[] = "Chyba pri kontrole emailu v databéze.";
             }
         }
 

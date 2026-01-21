@@ -1,6 +1,11 @@
 <?php
 /** @var Framework\Support\LinkGenerator $link */
 
+// Ensure $user is defined (controller may or may not pass it)
+if (!isset($user)) {
+    $user = null;
+}
+
 // Zabezpečíme, aby sme pracovali s čistými dátami
 $uid = (int)($userData['id'] ?? 0);
 ?>
@@ -29,15 +34,23 @@ $uid = (int)($userData['id'] ?? 0);
 
     <div class="mb-3">
         <label for="role" class="form-label fw-bold">Rola</label>
-        <select id="role" name="role" class="form-select">
-            <?php
-            // V Controlleri sme v poli $userData použili kľúč 'rola'
-            $currentRole = $userData['rola'] ?? '';
-            ?>
-            <option value="atlet" <?= $currentRole === 'atlet' ? 'selected' : '' ?>>Atlet</option>
-            <option value="trener" <?= $currentRole === 'trener' ? 'selected' : '' ?>>Tréner</option>
-            <option value="admin" <?= $currentRole === 'admin' ? 'selected' : '' ?>>Admin</option>
-        </select>
+        <?php
+        $currentRole = $userData['rola'] ?? '';
+        $isEditingSelf = ((int)($user?->getIdentity()?->getId() ?? 0) === (int)$uid);
+        ?>
+
+        <?php if ($isEditingSelf): ?>
+<!--        pokial chce sam sebe menit rolu, nemoze to urobit lebo readonly-->
+            <input id="role" type="text" class="form-control bg-light" value="<?= htmlspecialchars($currentRole) ?>" readonly>
+            <input type="hidden" name="role" value="<?= htmlspecialchars($currentRole) ?>">
+            <div class="form-text fw-bold text-info"> Nemôžeš meniť vlastnú rolu.</div>
+        <?php else: ?>
+            <select id="role" name="role" class="form-select">
+                <option value="atlet" <?= $currentRole === 'atlet' ? 'selected' : '' ?>>Atlet</option>
+                <option value="trener" <?= $currentRole === 'trener' ? 'selected' : '' ?>>Tréner</option>
+                <option value="admin" <?= $currentRole === 'admin' ? 'selected' : '' ?>>Admin</option>
+            </select>
+        <?php endif; ?>
     </div>
 
     <div class="d-flex justify-content-between align-items-center mt-4">
