@@ -364,37 +364,41 @@ class PostController extends BaseController
      */
     public function bulkDelete(Request $request): Response
     {
+        //iba admin moze robit CRUD
         $this->checkAdmin();
         // CSRF ochrana
         $this->validateCsrf($request);
 
         try {
-            // Získame dáta z JSON požiadavky alebo z POST poľa
+            // Inicializujeme prázdne pole pre ID-čka
             $ids = [];
 
-            // 1) Pokúsime sa bezpečne načítať JSON telo (niektoré servery môžu mať CONTENT_TYPE s charset)
+            // Skúsime vytiahnuť dáta, ak boli poslané ako JSON (napr. cez Content-Type: application/json)
             try {
                 $body = $request->json();
             } catch (\Throwable $e) {
+                // Ak to nie je validný JSON, ignorujeme to
                 $body = null;
             }
 
-            // Ak je $body objekt (stdClass), prevedieme ho na asociatívne pole
+            // Ak framework vrátil objekt (stdClass), zmeníme ho na čitateľné pole (Array)
             if ($body !== null && !is_array($body)) {
                 if (is_object($body)) {
                     $body = json_decode(json_encode($body), true);
                 }
             }
 
+            // Ak máme pole z JSONu a obsahuje kľúč 'ids', použijeme ho
             if (is_array($body) && isset($body['ids']) && is_array($body['ids'])) {
                 $ids = $body['ids'];
             } else {
-                // 2) Fallback: načítame POST (napr. klasický form submit alebo AJAX s form-encoded)
+                // FALLBACK: Ak to nebol JSON, skúsime klasický POST (FormData)
                 $post = $request->post();
                 if (isset($post['ids']) && is_array($post['ids'])) {
+                    // Klasické pole ids[] z formulára
                     $ids = $post['ids'];
                 } elseif (isset($post['ids']) && is_string($post['ids'])) {
-                    // ak prišiel csv string, rozparsujeme ho
+                    // Ak niekto poslal ID-čka ako text "1,2,3", rozbijeme ich na pole podľa čiarky
                     $ids = array_filter(array_map('trim', explode(',', $post['ids'])));
                 }
             }
@@ -402,38 +406,51 @@ class PostController extends BaseController
             // Normalizácia a očistenie ID (len kladné celé čísla)
             $cleanIds = [];
             foreach ($ids as $rid) {
+                // Každé ID nasilu zmeníme na celé číslo (odstráni škodlivý text)
                 $id = (int)$rid;
+                // Do zoznamu pridáme len reálne kladné čísla
                 if ($id > 0) $cleanIds[] = $id;
             }
 
+            // Ak po čistení nič nezostalo, nemá zmysel pokračovať
             if (empty($cleanIds)) {
                 return $this->json(['success' => false, 'message' => 'Žiadne ID neboli zaslané.']);
             }
 
+            // Počítadlo úspešne zmazaných
             $deletedCount = 0;
+            // Zoznam chýb pre konkrétne ID-čka
             $errors = [];
             foreach ($cleanIds as $id) {
                 try {
+                    // Skúsime nájsť príspevok v databáze
                     $post = Post::getOne($id);
                     if (!$post) {
                         $errors[] = "Post s ID $id neexistuje.";
+                        // Preskočíme na ďalšie ID v poradí
                         continue;
                     }
 
-                    // zmazanie suboru z disku
+                    // Mazanie fyzického súboru z disku
                     if ($post->getPicture()) {
+                        // Očistíme cestu k priečinku (odstránime úvodné lomítko)
                         $relativeUrl = ltrim(Configuration::UPLOAD_URL, '/');
                         $filePath = $relativeUrl . $post->getPicture();
+
+                        // Ak súbor na disku naozaj je, vymažeme ho
                         if (file_exists($filePath)) @unlink($filePath);
                     }
 
+                    // Vymažeme záznam z databázy
                     $post->delete();
                     $deletedCount++;
                 } catch (\Throwable $e) {
+                    // Ak zlyhá mazanie jedného (napr. zamknutý súbor), zapíšeme chybu a pokračujeme ďalej
                     $errors[] = "Chyba pri mazaní ID $id: " . $e->getMessage();
                 }
             }
 
+            //vratim spravu o uspesnosti mazania
             return $this->json([
                 'success' => true,
                 'deleted' => $deletedCount,
@@ -442,6 +459,7 @@ class PostController extends BaseController
             ]);
 
         } catch (Exception $e) {
+            // Globálna chyba (napr. zlyhanie pripojenia k DB predtým, než začal cyklus)
             return $this->json(['success' => false, 'message' => $e->getMessage()]);
         }
     }

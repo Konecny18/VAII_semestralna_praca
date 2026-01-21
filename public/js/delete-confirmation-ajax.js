@@ -24,7 +24,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Vyberieme všetky tlačidlá / elementy, ktoré môžu spustiť zmazanie
+    // Vyberieme všetky tlačidlá / elementy, ktoré môžu spustiť zmazanie, pravdepodobne nepouzivam nikde .btn-delete-event (ked som refaktoroval kod)
     const deleteElements = document.querySelectorAll('.tlacidlo-vymazat, .btn-delete-event');
 
     /**

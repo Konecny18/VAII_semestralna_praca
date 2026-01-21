@@ -227,7 +227,7 @@ class TrainingController extends BaseController
         $this->checkAdmin();
 
         try {
-            // 3. IDENTIFIKÁCIA ZÁZNAMU
+            // 3. IDENTIFIKÁCIA ZÁZNAMU, ochrana pred sql injection
             $id = (int)$request->value('id');
             $training = Training::getOne($id);
 
@@ -280,15 +280,20 @@ class TrainingController extends BaseController
             // Parse input (support JSON or POST)
             $id = null;
             $active = null;
-            // read JSON body if possible
+
+            // A) Pokus o prečítanie JSON tela
             try {
                 $body = $request->json();
             } catch (\Throwable $e) {
                 $body = null;
             }
+
+            // Prevod objektu na asociatívne pole (ak je body objekt)
             if ($body !== null && !is_array($body) && is_object($body)) {
                 $body = json_decode(json_encode($body), true);
             }
+
+            // B) Priradenie hodnôt z JSONu alebo z klasického POSTu
             if (is_array($body)) {
                 $id = isset($body['id']) ? (int)$body['id'] : null;
                 $active = isset($body['active']) ? (int)$body['active'] : null;
@@ -298,27 +303,33 @@ class TrainingController extends BaseController
                 if (isset($post['active'])) $active = (int)$post['active'];
             }
 
+            // Kontrola, či máme platné ID (musí to byť celé číslo)
             if (empty($id) || !is_int($id)) {
                 return $this->json(['success' => false, 'message' => 'Neplatné ID.']);
             }
+
+            // Pokus o načítanie tréningu z databázy
             $training = Training::getOne($id);
             if (!$training) {
                 return $this->json(['success' => false, 'message' => 'Tréning nenájdený.']);
             }
 
-            // If active is null, toggle current
+            // Ak frontend neposlal konkrétny stav (active), tak ho jednoducho zneguje (toggle)
             if ($active === null) {
                 $active = $training->getActive() ? 0 : 1;
             }
 
+            // Nastavenie novej hodnoty a uloženie do DB
             $training->setActive($active);
             $training->save();
 
-            // reload authoritative record and return its active value
+            // Opätovné načítanie záznamu priamo z DB po uložení
             $training = Training::getOne($training->getId());
+            // Vrátenie JSONu s aktuálnym stavom, ktorý je skutočne zapísaný v DB
             return $this->json(['success' => true, 'active' => $training->getActive()]);
 
         } catch (\Throwable $e) {
+            // Akákoľvek neočakávaná chyba (DB error, výpadok) nezrúti stránku, ale vráti JSON chybu.
             return $this->json(['success' => false, 'message' => 'Chyba: ' . $e->getMessage()]);
         }
     }
