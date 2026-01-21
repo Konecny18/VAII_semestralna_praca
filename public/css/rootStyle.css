@@ -1,49 +1,58 @@
+/* ============================= */
+/* ZÁKLADNÉ LAYOUT NASTAVENIA */
+/* ============================= */
+
 /* Zabezpečí, že stránka bude mať výšku aspoň cez celú obrazovku */
 html, body {
-    height: 100%;
+    height: 100%; /* HTML a body zaberajú 100% výšky viewportu */
 }
 
+/* Body ako flex-kontajner, aby sme mohli tlačiť footer dolu */
 body {
-    display: flex;
-    flex-direction: column;
+    display: flex;           /* Flex layout pre vertikálne rozloženie */
+    flex-direction: column;  /* Riadky usporiadané zhora nadol */
 }
 
-/* Toto je tá "pružina", ktorú si v HTML nazval .page-content */
+/* "Pružina" – hlavný obsah stránky sa roztiahne */
 .content-stranky-kontakt {
-    flex: 1 0 auto; /* Vyplní všetko voľné miesto */
+    flex: 1 0 auto; /* Flex-grow: 1, flex-shrink: 0, flex-basis: auto -> vyplní voľný priestor */
 }
 
 /* Footer zostane vždy na spodku */
 .site-footer {
-    flex-shrink: 0;
+    flex-shrink: 0; /* Footer sa nezmenšuje, drží sa na spodku */
 }
 
-/* Make navbar text larger and bold */
+/* ============================= */
+/* NAVBAR STYLING */
+/* ============================= */
+
+/* Zvýraznenie textu v navigácii */
 .navbar .navbar-brand,
 .navbar .nav-link,
 .navbar .navbar-text {
-    font-size: 25px;
-    font-weight: bold;
-    margin-right: 15px;
-    color: #ffffff;
+    font-size: 25px;        /* Väčšie písmo */
+    font-weight: bold;      /* Tučné písmo */
+    margin-right: 15px;     /* Odstup medzi prvkami */
+    color: #ffffff;         /* Biela farba textu */
 }
 
-/*nastavenie loga*/
+/* Logo v navbar */
 .logo {
-    width: 100px;
-    height: auto;
-    max-height: 60px;
+    width: 100px;      /* Fixná šírka */
+    height: auto;      /* Výška sa prispôsobí šírke */
+    max-height: 60px;  /* Max výška, aby nebolo príliš vysoké */
 }
 
-/* Zmenši logo na mobiloch */
+/* Zmenšenie loga na tabletoch/mobiloch */
 @media (max-width: 768px) {
     .logo {
         width: 100px;
-        margin: 10px 0;
+        margin: 10px 0; /* Odstup nad a pod logom */
     }
 }
 
-/* Menšie písmo na tabletoch/mobily */
+/* Menšie písmo pre odkazy v navigácii na mobiloch/tabletoch */
 @media (max-width: 768px) {
     .navbar-nav .nav-link {
         font-size: 18px;
@@ -52,21 +61,25 @@ body {
     }
 }
 
+/* ============================= */
+/* TLAČIDLO SPÄŤ NA HLAVNÚ STRÁNKU (AUTH PAGES) */
+/* ============================= */
 
-/*tlacidlo na hlavnu stranku kde ma byt*/
+/* Obal tlačidla – fixná pozícia vľavo hore */
 .auth-back-btn {
-    position: absolute;
-    top: 15px;     /* padding zhora */
-    left: 15px;    /* padding zľava */
-    z-index: 9999; /* aby bolo vždy hore */
+    position: absolute; /* Absolútna pozícia nad stránkou */
+    top: 15px;          /* 15px od horného okraja */
+    left: 15px;         /* 15px od ľavého okraja */
+    z-index: 9999;      /* Zabezpečí, že bude vždy nad všetkým */
 }
 
+/* Štýl samotného odkazu/tlačidla */
 .auth-back-btn a {
-    padding: 8px 12px; /* môžeš upraviť podľa vkusu */
-    font-size: 1.2rem;
+    padding: 8px 12px;   /* Vnútorný priestor */
+    font-size: 1.2rem;   /* Veľkosť textu */
 }
 
-/* Responzívne – na mobiloch menšie odsadenie */
+/* Responzívne pre malé displeje */
 @media (max-width: 576px) {
     .auth-back-btn {
         top: 10px;
@@ -79,28 +92,31 @@ body {
     }
 }
 
-/* 1. Zrušíme modrú farbu odkazu a nastavíme prechod na odkaz, nie na ikonu */
+/* ============================= */
+/* FOOTER LINK STYLING (SOCIAL ICONS) */
+/* ============================= */
+
+/* 1. Zrušenie modrej farby odkazov a pridanie prechodu */
 .site-footer a {
-    text-decoration: none;
-    transition: color 0.3s ease;
-    color: inherit; /* Povie odkazu, aby nebol modrý, ale bral farbu od textu (bielu) */
+    text-decoration: none;         /* Zruší podčiarknutie */
+    transition: color 0.3s ease;   /* Plynulý prechod farby pri hover */
+    color: inherit;                /* Dedi farbu od rodiča (bielu) */
 }
 
-/* 2. Facebook - biely v základe, modrý len pri hoveri */
+/* 2. Facebook ikona: svetlomodrá základná, tmavšia pri hoveri */
 .site-footer a .bi-facebook {
-    color: lightskyblue;
+    color: lightskyblue;           /* Svetlomodrá farba */
 }
 
 .site-footer a:hover .bi-facebook {
-    color: #1877F2;
+    color: #1877F2;                /* Facebook modrá pri hoveri */
 }
 
-/* 3. Instagram - ružový stále (aj bez hoveru) */
-/* Tu musíme zacieliť priamo ikonu v odkaze, aby sme prebili tú bielu/modrú */
+/* 3. Instagram ikona: ružová základná, tmavšia pri hoveri */
 .site-footer a .bi-instagram {
-    color: #E1306C;
+    color: #E1306C;                /* Ružová */
 }
 
 .site-footer a:hover .bi-instagram {
-    color: #9B2C6D;
+    color: #9B2C6D;                /* Tmavšia ružová pri hoveri */
 }

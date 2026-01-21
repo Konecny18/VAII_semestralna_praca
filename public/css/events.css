@@ -1,80 +1,95 @@
-/* Základná karta v zozname */
+/* ---------------------------------------------
+   Základná karta v zozname (Bootstrap list-group)
+   --------------------------------------------- */
 .list-group .list-group-item {
-    position: relative; /* needed for the pseudo-element stripe */
+    position: relative;
+    /* Potrebné pre pseudo-element ::before, ktorý bude vytvárať modrý pásik */
     transition: transform 0.2s, box-shadow 0.2s;
-    /* do not set border-left here to avoid conflicts with other border rules */
+    /* Jemná animácia pri hover: mierne zväčšenie a tieň */
+    /* Nezaraďovať border-left tu, aby sa neprekryli iné hranice */
 }
 
-/* Blue left stripe implemented with a pseudo-element so it can't be overridden by border shorthands */
+/* ---------------------------------------------
+   Modrý ľavý pásik cez pseudo-element
+   --------------------------------------------- */
 .list-group .list-group-item::before {
-    /*vytvorenie prazdneho priestoru cez content*/
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 5px;
-    background: #0d6efd;
-    /*zaoblene rohy modreho pasika*/
-    border-top-left-radius: 0.5rem; /* match .rounded-3 */
-    border-bottom-left-radius: 0.5rem;
-    /*kvoli tomu ze ked pouzivatel klikne na modry pasik tak aby mu zobrazilo modal keby to tu nieje tak pouzivatel moze kliknut na ten pasik a nic sa nestane*/
-    pointer-events: none; /* don't block clicks */
-    z-index: 2;
+    content: "";               /* Vytvorenie prázdneho „boxu“ */
+    position: absolute;        /* Umožňuje ho umiestniť presne vedľa karty */
+    left: 0;                   /* Zarovnanie na ľavý okraj karty */
+    top: 0;                    /* Od vrchu karty */
+    bottom: 0;                 /* Až po spodok karty */
+    width: 5px;                /* Hrúbka modrého pásika */
+    background: #0d6efd;       /* Bootstrap modrá farba */
+    border-top-left-radius: 0.5rem; /* Zaoblenie horného rohu pásika (match .rounded-3) */
+    border-bottom-left-radius: 0.5rem; /* Zaoblenie spodného rohu */
+    pointer-events: none;      /* Nezablokuje kliky na kartu, iba vizuálne */
+    z-index: 2;                /* Aby bol pásik nad obsahom karty, ale pod modalmi */
 }
 
-/* Efekt pri prejdení myšou */
+/* ---------------------------------------------
+   Hover efekt pre celý riadok / kartu
+   --------------------------------------------- */
 .list-group .list-group-item:hover {
-    transform: scale(1.03);
-    z-index: 5;
+    transform: scale(1.03);    /* Jemne zväčšenie karty pri hover */
+    z-index: 5;                /* Zvýšenie vrstvy, aby sa hover efekt neprekryl */
 }
 
-/* Dátumový stĺpec a miniatúra */
+/* ---------------------------------------------
+   Dátumový stĺpec v zozname udalostí
+   --------------------------------------------- */
 .datum-eventu {
-    min-width: 110px;
+    min-width: 110px;           /* Minimalna šírka stĺpca, aby sa dátum nezlial */
 }
 
-/*obrazok v prvom zobrazeni*/
+/* ---------------------------------------------
+   Miniatúrny obrázok udalosti
+   --------------------------------------------- */
 .mini-obrazok-eventu {
-    width: 65px;
-    height: 65px;
-    object-fit: cover;
+    width: 65px;                /* Šírka mini obrázka */
+    height: 65px;               /* Výška mini obrázka */
+    object-fit: cover;          /* Orezanie a zachovanie pomeru strán */
 }
 
-/* Dropdown menu - aby nebolo orezané */
+/* ---------------------------------------------
+   Dropdown menu udalosti
+   --------------------------------------------- */
 .otvaracie-menu-eventu {
-    z-index: 1060; /* Nad úroveň karty, pod úroveň modalu */
+    z-index: 1060;              /* Aby dropdown nebol orezaný kartou, ale pod modals */
 }
 
-/* Obrázok ked otvorim modal */
+/* ---------------------------------------------
+   Obrázok v modale udalosti
+   --------------------------------------------- */
 .obrazok-modal-eventu {
-    object-fit: cover;
-    min-height: 350px;
+    object-fit: cover;          /* Orezanie obrázka na rám modalu */
+    min-height: 350px;          /* Minimálna výška, aby bol modal konzistentný */
 }
 
+/* ---------------------------------------------
+   Jemné pozadie pre eventy
+   --------------------------------------------- */
 .bg-soft-primary {
-    background-color: rgba(13, 110, 253, 0.1);
+    background-color: rgba(13, 110, 253, 0.1); /* Svetlo modré pozadie */
 }
 
+/* ---------------------------------------------
+   Popis udalosti
+   --------------------------------------------- */
 .popis-eventu {
-    line-height: 1.6;
-    color: #4a4a4a;
-    /* Tieto riadky opravia pretekanie: */
-    white-space: pre-line;
-    /* pre-line zachová nové riadky (entery),
-       ale zbalí viacnásobné medzery a čistí začiatky riadkov lepšie */
-    /*white-space: pre-wrap;      !* Zachová entery z textarea a zalomí riadky *!*/
-    word-wrap: break-word;      /* Rozbije extrémne dlhé slová alebo linky */
-    overflow-wrap: break-word;  /* Moderná verzia zalomenia slov */
+    line-height: 1.6;           /* Vzájomná vzdialenosť riadkov */
+    color: #4a4a4a;             /* Tmavá šedá farba textu */
+    white-space: pre-line;       /* Zachová entery, ale zbalí viacnásobné medzery */
+    word-wrap: break-word;       /* Rozbije veľmi dlhé slová */
+    overflow-wrap: break-word;   /* Moderná verzia zalomenia slov */
 }
 
-/* Jemné zvýraznenie klikateľnej časti riadku */
+/* ---------------------------------------------
+   Jemné zvýraznenie klikateľnej časti riadku
+   --------------------------------------------- */
 .prepnutie-eventu {
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease; /* Jemná animácia zmeny pozadia */
 }
 
 .prepnutie-eventu:hover {
-    background-color: rgba(13, 110, 253, 0.03); /* Veľmi jemná modrá na pozadí */
+    background-color: rgba(13, 110, 253, 0.03); /* Veľmi jemná modrá pri hover */
 }
-
-

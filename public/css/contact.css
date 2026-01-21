@@ -1,48 +1,49 @@
-/* Slightly larger base text for the contact page */
+/* Base styling for the contact page container */
 .kontakt-stranka {
-    /* Slightly larger base text for the contact page */
-    font-size: 1.3rem; /* ~5% larger than normal */
-    line-height: 1.6;
-    color: #222;
+    /* Slightly larger base text for better readability */
+    font-size: 1.3rem;       /* Zvýšená veľkosť písma (~5% väčšia ako normálna) */
+    line-height: 1.6;        /* Vzájomná vzdialenosť riadkov, lepšia čitateľnosť */
+    color: #222;             /* Tmavo-sivá farba textu, jemnejšia než čierna */
 }
 
+/* Styling pre všetky h2 nadpisy v kontakt stránke */
 .kontakt-stranka h2 {
-    font-size: 2.5rem;
-    position: relative;
-    padding-bottom: 10px;
+    font-size: 2.5rem;       /* Veľký nadpis */
+    position: relative;      /* Umožňuje pozicionovanie pseudo-elementov alebo vnútorných čiar */
+    padding-bottom: 10px;    /* Odstup pod nadpisom pre vizuálne odlíšenie */
 }
 
-/* Oprava tvojej čiary */
+/* Modrá čiara pod nadpisom */
 .ciara-pod-nadpisom {
-    /*povie prehliadacu ze je pevny objekt aj ked je prazdny*/
-    /*je to pre istotu aj ked div je normalne blok*/
-    display: block;
-    width: 100%;
-    max-width: 60px;
-    height: 4px;
-    background-color: #0d6efd;
-    margin-bottom: 1.5rem;
-    border-radius: 2px; /*zaoblenie okrajov*/
+    display: block;           /* Uistíme sa, že div je blokový element */
+    width: 100%;              /* Plná šírka kontajnera */
+    max-width: 60px;          /* Ale maximálne 60px, aby nebola príliš dlhá */
+    height: 4px;              /* Hrúbka čiary */
+    background-color: #0d6efd;/* Bootstrap primárna modrá farba */
+    margin-bottom: 1.5rem;    /* Odstup pod čiarou */
+    border-radius: 2px;       /* Jemne zaoblené rohy */
 }
 
+/* Jemná šedá čiara pre oddelenie blokov obsahu */
 .rozdelenie-blokov {
-    display: block;     /*povie prehliadacu ze je pevny objekt aj ked je prazdny*/
-    width: 100%;          /* Čiara sa roztiahne na celú šírku stĺpca */
-    max-width: 400px;     /* Ale nikdy nebude širšia ako 400px */
-    height: 2px;
-    background-color: #a3a3a3;
-    margin-top: 0.5rem;   /* Pridal som margin hore, aby nebola prilepená na texte */
-    margin-bottom: 0.5rem;
-    border-radius: 2px;
-    opacity: 0.7;         /* Jemne ju zosvetlíme, aby "nekričala" viac ako nadpis */
+    display: block;            /* Blokový element, aby sa správne zobrazil aj keď je prázdny */
+    width: 100%;               /* Plná šírka rodičovského kontajnera */
+    max-width: 400px;          /* Maximálna šírka 400px */
+    height: 2px;               /* Tenká čiara */
+    background-color: #a3a3a3; /* Jemná šedá farba */
+    margin-top: 0.5rem;        /* Malý odstup nad čiarou */
+    margin-bottom: 0.5rem;     /* Malý odstup pod čiarou */
+    border-radius: 2px;        /* Jemne zaoblené rohy */
+    opacity: 0.7;              /* Zosvetlenie čiary, aby nepriťahovala príliš pozornosť */
 }
 
+/* Responzívne zmeny pre veľmi malé obrazovky (mobile) */
 @media (max-width: 576px) {
-    /* On very small screens, increase readability a bit more */
+    /* Slightly smaller text for readability on small screens */
     .kontakt-stranka {
-        font-size: 1.08rem;
+        font-size: 1.08rem;    /* Menšie písmo, aby sa zmestilo na malý displej */
     }
     .kontakt-stranka h2 {
-        font-size: 1.6rem;
+        font-size: 1.6rem;     /* Menší nadpis na mobil */
     }
 }

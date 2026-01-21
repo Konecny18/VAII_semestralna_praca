@@ -1,106 +1,120 @@
+/* ---------------------------------------------
+   Základný albumový box / karta
+   --------------------------------------------- */
 .album {
-    border-radius: 10px;
-    overflow: hidden;
+    border-radius: 10px;        /* Zaoblenie rohov karty */
+    overflow: hidden;           /* Skryje obsah, ktorý presahuje rám */
 
-    /*upravi mi fotky v albume na taku istu sirku*/
-    /*lebo von z albumu mi to roztahuju tie 3 tlacidla a vo vnutri mam len 2 tak inek by mi to spravilo co najmensie*/
+    /* Upravená šírka, aby všetky fotky v albume mali rovnakú šírku */
     width: 280px;
 
-    max-width: 300px;      /* Ale nikdy nebude širšia ako 300px */
-    min-width: 200px;      /* A nikdy nebude užšia ako 200px (aby tam niečo bolo vidieť) */
-
-    margin: 0 auto;
-    height: 100%;
+    max-width: 300px;           /* Nikdy nebude širšia než 300px */
+    min-width: 200px;           /* Nikdy nebude užšia než 200px */
+    margin: 0 auto;             /* Centrovanie karty horizontálne */
+    height: 100%;               /* Výška sa prispôsobí obsahu alebo rodičovi */
 }
 
+/* ---------------------------------------------
+   Obrázok v karte albumu
+   --------------------------------------------- */
 .obrazok-karta {
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
+    width: 100%;                /* Zaplní celú šírku karty */
+    height: 400px;              /* Fixná výška */
+    object-fit: cover;          /* Zachová pomer strán, oreže prebytočné */
 }
 
+/* ---------------------------------------------
+   Klikateľný obrázok (pre zväčšenie/modal)
+   --------------------------------------------- */
 .klikatelny-obrazok {
-    cursor: zoom-in;
-    display: block;
+    cursor: zoom-in;            /* Zmena kurzora pri hover, naznačuje zväčšenie */
+    display: block;             /* Zabezpečí blokový element */
 }
 
+/* Hover efekt pre klikateľný obrázok */
 .klikatelny-obrazok:hover .obrazok-karta {
-    filter: brightness(0.8);
-    transition: filter 0.3s ease;
+    filter: brightness(0.8);    /* Jemné stmavenie obrázka pri hover */
+    transition: filter 0.3s ease; /* Plynulý efekt */
 }
 
-/* Štýlovanie samotného zväčšeného obrázka */
+/* ---------------------------------------------
+   Štýlovanie zväčšeného obrázka v modale
+   --------------------------------------------- */
 #imageModalImg {
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    max-height: 92vh;
-    border-radius: 10px;
-    box-shadow: 0 0 40px rgba(0, 149, 255, 0.6);
-    display: block;
-    margin: 0 auto;
+    width: auto;                /* Zachová prirodzenú šírku */
+    max-width: 100%;            /* Nepresiahne šírku obrazovky */
+    height: auto;               /* Zachová proporcie */
+    max-height: 92vh;           /* Maximálna výška: 92% viewportu */
+    border-radius: 10px;        /* Zaoblenie rohov */
+    box-shadow: 0 0 40px rgba(0, 149, 255, 0.6); /* Jemný modrý tieň */
+    display: block;             /* Block element pre margin auto */
+    margin: 0 auto;             /* Centrovanie obrázka */
 }
 
-/* Zmena farby tlačidla na zatvorenie */
+/* ---------------------------------------------
+   Tlačidlo zatvorenia modalu
+   --------------------------------------------- */
 #imageModal .btn-close {
-    background-color: #0095ff; /* Pozadie tlačidla - modrá */
-    opacity: 0.8;                /* Aby bolo sýte a nie priesvitné */
-    border-radius: 50%;        /* Aby bolo okrúhle */
-    padding: 7px;             /* Trochu priestoru okolo krížika */
-
-    /* Tento filter urobí krížik bielym, ak by bol čierny,
-       alebo ho môžeš upraviť podľa potreby */
-    filter: brightness(1) invert(0);
-
-    transition: transform 0.2s ease, background-color 0.2s ease;
+    background-color: #0095ff;  /* Modré pozadie */
+    opacity: 0.8;               /* Trochu priesvitné */
+    border-radius: 50%;         /* Okrúhle tlačidlo */
+    padding: 7px;               /* Priestor okolo krížika */
+    filter: brightness(1) invert(0); /* Krížik biely alebo upravený podľa potreby */
+    transition: transform 0.2s ease, background-color 0.2s ease; /* Jemný efekt pri hover */
 }
 
+/* ---------------------------------------------
+   Navigačné šípky v modale
+   --------------------------------------------- */
 #prevImg, #nextImg {
-    cursor: pointer;
-    padding: 20px;
-    opacity: 0.7;
-    z-index: 11; /* ensure buttons sit above the modal image */
+    cursor: pointer;           /* Kurzora naznačuje kliknutie */
+    padding: 20px;             /* Väčšia "cieľová oblasť" */
+    opacity: 0.7;              /* Trochu priesvitné */
+    z-index: 11;               /* Aby boli nad obrázkom */
 }
 
-/* New semantic classes to replace multiple bootstrap utility classes */
+/* ---------------------------------------------
+   Nové semantické triedy pre navigačné šípky
+   --------------------------------------------- */
 .gallery-nav {
-    position: absolute;
-    top: 50%;
-    /* centrovanie sipky do lava a do prava*/
-    transform: translateY(-50%) scale(1); /* keep translateY here and default scale(1) */
-    font-size: 2.5rem; /* approx. Bootstrap's fs-1 */
-    border: 0; /* equivalent of border-0 */
-    background: transparent; /* equivalent of bg-transparent */
-    color: #fff; /* equivalent of text-white */
+    position: absolute;        /* Absolútne umiestnenie nad obrázkom */
+    top: 50%;                  /* Vertikálne centrovanie */
+    transform: translateY(-50%) scale(1); /* Presné centrovanie a default scale */
+    font-size: 2.5rem;         /* Veľkosť šípky podobná Bootstrap fs-1 */
+    border: 0;                 /* Žiadny border */
+    background: transparent;   /* Transparentné pozadie */
+    color: #fff;               /* Biela farba šípky */
 }
 
 .gallery-nav-left {
-    left: 0;
+    left: 0;                   /* Šípka vľavo */
 }
 .gallery-nav-right {
-    right: 0;
+    right: 0;                  /* Šípka vpravo */
 }
 
+/* Hover efekt pre navigačné šípky */
 #prevImg:hover, #nextImg:hover {
-    opacity: 1;
-    /* centrovanie sipky do lava a do prava*/
-    transform: translateY(-50%) scale(1.2);
+    opacity: 1;                /* Plne viditeľné pri hover */
+    transform: translateY(-50%) scale(1.2); /* Mierne zväčšenie */
 }
 
-/* Efekt pri prejdení myšou */
+/* Hover efekt tlačidla zatvorenia modalu */
 #imageModal .btn-close:hover {
-    background-color: #007acc; /* Tmavšia modrá pri hoveri */
+    background-color: #007acc; /* Tmavšia modrá pri hover */
 }
 
-/* Úprava pre malé mobily (napr. iPhone SE), ktoré majú šírku menej ako 300px */
+/* ---------------------------------------------
+   Responsívne úpravy pre malé displeje
+   --------------------------------------------- */
 @media (max-width: 350px) {
     .album {
-        min-width: 100%; /* Na úplne malých displejoch dovolíme karte prispôsobiť sa šírke displeja */
+        min-width: 100%;        /* Na malých displejoch sa karta roztiahne na celú šírku */
     }
 }
 
 @media (max-width: 576px) {
     .obrazok-karta {
-        height: 180px;
+        height: 180px;          /* Zmenšenie výšky obrázkov na mobiloch */
     }
 }

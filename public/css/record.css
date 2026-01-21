@@ -1,49 +1,58 @@
+/* ============================= */
+/* ZÁKLADNÉ NASTAVENIA TABUĽKY */
+/* ============================= */
+
 /* --- SPOLOČNÉ PRE VŠETKY TABUĽKY --- */
 .vlastna-tabulka {
-    width: 100%;
+    width: 100%; /* Tabuľka zaberá celú dostupnú šírku kontajnera */
 }
 
+/* Padding pre všetky bunky (th a td) */
 .vlastna-tabulka th, .vlastna-tabulka td {
-    padding: 1.2rem 1rem;
+    padding: 1.2rem 1rem; /* Vertikálne 1.2rem, horizontálne 1rem */
 }
 
-/* --- RESPONZÍVNE ZVÄČŠENIE (Desktop) --- */
+/* --- RESPONZÍVNE ZVÄČŠENIE PRE DESKTOP --- */
 @media (min-width: 992px) {
+    /* Väčší horizontálny padding pre lepšiu čitateľnosť */
     .vlastna-tabulka th, .vlastna-tabulka td {
         padding-left: 2rem;
         padding-right: 2rem;
     }
 
+    /* Väčšie písmo pre desktop */
     .vlastna-tabulka {
-        font-size: 1.15rem; /* Väčšie písmo pre celú tabuľku */
+        font-size: 1.15rem;
     }
 
-    /* Špecifické šírky pre stĺpce v rekordoch */
-    .col-disciplina { width: 20%; }
-    .col-vlastnik { width: 15%; }
-    .col-vykon { width: 15%; }
-    .col-datum { width: 15%; }
-    .col-poznamka { width: auto; } /* Poznamka vyplní zvyšok */
+    /* Špecifické šírky stĺpcov v rekordoch */
+    .col-disciplina { width: 20%; }  /* Disciplína zaberá 20% */
+    .col-vlastnik { width: 15%; }    /* Vlastník 15% */
+    .col-vykon { width: 15%; }       /* Výkon 15% */
+    .col-datum { width: 15%; }       /* Dátum 15% */
+    .col-poznamka { width: auto; }   /* Poznámka vyplní zvyšok priestoru */
 
+    /* Zvýraznenie názvu disciplíny */
     .disciplina-text {
-        font-size: 1.25rem; /* Názov disciplíny bude dominantnejší */
+        font-size: 1.25rem; /* Písmo pre disciplínu väčšie a dominantnejšie */
     }
 }
 
-/* Štýl pre výkon (podobný cis-znacke z tréningov) */
+/* --- ŠTÝL PRE VÝKON (tag-like) --- */
 .vykon-znacka {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-weight: 600;
-    white-space: nowrap;
-    display: inline-block;
+    background-color: #f8f9fa; /* Svetlosivý podklad */
+    border: 1px solid #dee2e6; /* Jemný rámik */
+    padding: 0.4rem 0.8rem;    /* Vnútorný odsadený text */
+    border-radius: 6px;        /* Zaoblené rohy */
+    font-weight: 600;           /* Stredne tučný text */
+    white-space: nowrap;        /* Zabraňuje zalomeniu textu */
+    display: inline-block;      /* Zobrazí sa ako štítok vedľa seba */
 }
 
+/* --- Ešte väčší padding pre extra veľké obrazovky --- */
 @media (min-width: 1400px) {
     .vlastna-tabulka th, .vlastna-tabulka td {
-        padding-top: 1.8rem;
-        padding-bottom: 1.8rem;
+        padding-top: 1.8rem;    /* Viac priestoru nad textom */
+        padding-bottom: 1.8rem; /* Viac priestoru pod textom */
     }
 }

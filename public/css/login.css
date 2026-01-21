@@ -1,61 +1,71 @@
-/* Hlavná karta prihlásenia */
+/* ============================= */
+/* HLAVNÁ KARTA PRIHLÁSENIA     */
+/* ============================= */
+
 .prihlasenie-karta {
-    border: none;
-    border-radius: 20px;
-    background: #ffffff;
-    /* Jemná animácia pri načítaní */
-    animation: fadeIn 0.5s ease;
+    border: none;                   /* Odstráni defaultný rámik karty */
+    border-radius: 20px;            /* Zaoblené rohy karty */
+    background: #ffffff;            /* Biele pozadie */
+    animation: fadeIn 0.5s ease;    /* Jemná animácia pri načítaní stránky */
 }
 
-/* Krúžok s ikonou zámku */
+/* ============================= */
+/* KRÚŽOK S IKONOU (napr. zámok) */
+/* ============================= */
 .prihlasenie-icona-obalovac {
-    width: 70px;
-    height: 70px;
-    background: #e7f1ff; /* Jemná modrá */
-    color: #0d6efd; /* Bootstrap primárna modrá */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    font-size: 2rem;
+    width: 70px;                    /* Pevná šírka kruhu */
+    height: 70px;                   /* Pevná výška kruhu */
+    background: #e7f1ff;            /* Jemná modrá farba pozadia */
+    color: #0d6efd;                 /* Farba ikony - Bootstrap primárna modrá */
+    display: inline-flex;           /* Flexbox pre centrovanie obsahu */
+    align-items: center;            /* Vertikálne centrovanie */
+    justify-content: center;        /* Horizontálne centrovanie */
+    border-radius: 50%;             /* Kruh */
+    font-size: 2rem;                /* Veľkosť ikony */
 }
 
-/* Štýlovanie vstupných skupín (Email a Heslo) */
+/* ============================= */
+/* VSTUPNÉ SKUPINY (Inputy)     */
+/* ============================= */
 .prihlasenie-input-skupina {
-    border-radius: 12px;
-    overflow: hidden; /* Aby zaoblenie fungovalo aj na vnútorné prvky */
-    transition: all 0.2s ease;
+    border-radius: 12px;            /* Zaoblené rohy skupiny */
+    overflow: hidden;               /* Aby sa zaoblenie aplikovalo aj na vnútorné elementy */
+    transition: all 0.2s ease;      /* Jemný prechod pri hover alebo focus */
 }
 
-/* Spoločné vlastnosti pre input, ikonu a tlačidlo oka */
+/* Spoločné vlastnosti pre input, ikonu a tlačidlo */
 .prihlasenie-input-skupina .input-group-text,
 .prihlasenie-input-skupina .form-control,
 .prihlasenie-input-skupina .btn {
-    height: 55px;
-    border: 1px solid #dee2e6;
+    height: 55px;                   /* Jednotná výška prvkov */
+    border: 1px solid #dee2e6;      /* Jemný šedý rámik */
 }
 
-/* Odstránenie prebytočných čiar medzi prvkami v skupine */
+/* Odstránenie pravej čiary medzi ikonou a inputom */
 .prihlasenie-input-skupina .input-group-text {
     border-right: none;
 }
 
-/* Modrý efekt, keď používateľ klikne do poľa (focus-within cieli na celú skupinu) */
+/* Modré zvýraznenie celej skupiny pri kliknutí do inputu */
 .prihlasenie-input-skupina:focus-within {
-    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
-    border-color: #0d6efd;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15); /* Jemný modrý halo efekt */
+    border-color: #0d6efd;       /* Modrá farba rámika pri focus */
 }
 
-/* Tlačidlo Prihlásiť sa */
+/* ============================= */
+/* TLAČIDLO PRIHLÁSIŤ SA         */
+/* ============================= */
 .tlacidlo-prihlasenie {
-    border-radius: 12px;
-    letter-spacing: 0.5px;
-    transition: all 0.3s ease;
+    border-radius: 12px;          /* Zaoblené rohy tlačidla */
+    letter-spacing: 0.5px;        /* Medzery medzi písmenami */
+    transition: all 0.3s ease;    /* Jemný prechod pri hover alebo aktivácii */
 }
 
-/* Responzivita pre malé displeje */
+/* ============================= */
+/* RESPONZIVITA - malé obrazovky */
+/* ============================= */
 @media (max-width: 576px) {
     .prihlasenie-karta .card-body {
-        padding: 2rem 1.25rem !important;
+        padding: 2rem 1.25rem; /* Zmenšený padding na mobiloch */
     }
 }

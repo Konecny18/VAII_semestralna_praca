@@ -1,83 +1,97 @@
-/* Základný obal Hero sekcie */
+/* ---------------------------------------------
+   Základný obal Hero sekcie / carousel
+   --------------------------------------------- */
 .obal-carousel {
-    position: relative;
-    overflow: hidden;
+    position: relative;        /* Umožní absolútne pozicovanie overlay a textu */
+    overflow: hidden;          /* Skrýva obsah, ktorý presahuje rám */
 }
 
-/* Nastavenie výšky slajdu */
+/* ---------------------------------------------
+   Nastavenie výšky jednotlivých slajdov
+   --------------------------------------------- */
 .obal-carousel .carousel-item {
-    /*vh je viewport height cize percento z aktualne vysky obrazovky 85%*/
-    height: 85vh;
-    min-height: 400px;
-    background-color: #000000;
+    height: 85vh;              /* 85% výšky viewportu (obrazovky) */
+    min-height: 400px;         /* Minimum, aby bol carousel stále viditeľný */
+    background-color: #000000; /* Základné pozadie pre tmavý efekt */
 }
 
-/* Obrázok v carouselu */
+/* ---------------------------------------------
+   Obrázok v carouselu
+   --------------------------------------------- */
 .obal-carousel .fotka-carousel {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    width: 100%;               /* Obrázok zaplní celú šírku */
+    height: 100%;              /* Obrázok zaplní celú výšku slajdu */
+    object-fit: contain;       /* Zachová proporcie obrázka, prispôsobí ho do slajdu */
 }
 
-/* Stmavenie obrázkov (Overlay) */
+/* ---------------------------------------------
+   Overlay / stmavenie obrázkov
+   --------------------------------------------- */
 .obal-carousel .overlay-cez-carousel {
-    position: absolute;
+    position: absolute;        /* Absolútne nad obrázkom */
     top: 0;
     left: 0;
-    width: 100%;
+    width: 100%;               /* Pokryje celý carousel */
     height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.6) 100%);
-    z-index: 1;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3) 20%, rgba(0,0,0,0.6) 100%); /* Jemný prechod */
+    z-index: 1;                /* Aby bol pod textom */
 }
 
-/* Centrovanie textu - špecifickejší selektor */
+/* ---------------------------------------------
+   Text nad carouselom
+   --------------------------------------------- */
 .obal-carousel .carousel-item .text-carousel {
-    z-index: 2;
-    bottom: 25%;
-    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    z-index: 2;                /* Nad overlay a obrázkom */
+    bottom: 25%;               /* Posun textu zospodu */
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5); /* Jemný tieň pre lepšiu čitateľnosť */
 }
 
+/* ---------------------------------------------
+   Karty umiestnené nad carouselom
+   --------------------------------------------- */
 .moje-karty {
-    position: relative;
-    z-index: 10;
-    margin-top: -60px; /* Tu si nastav presne, o koľko majú karty vyjsť hore */
+    position: relative;        /* Aby z-index fungoval */
+    z-index: 10;               /* Nad carouselom */
+    margin-top: -60px;         /* Karty vyšli nad carousel (negatívny margin) */
 }
 
-
+/* ---------------------------------------------
+   Jednotlivé info karty
+   --------------------------------------------- */
 .karta-info {
-    z-index: 10;
-    border-radius: 15px;
-    transition: transform 0.3s ease;
-    /* Žiadny okraj po bokoch, len hrubý pás hore */
-    border: none;
-    /*border-top: 5px solid #0d6efd;*/
-    border-left: 5px solid #0d6efd;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* tien aby karta na bielom nezanikla */
+    z-index: 10;                       /* Aby boli nad carouselom */
+    border-radius: 15px;               /* Zaoblené rohy */
+    transition: transform 0.3s ease;   /* Plynulý efekt pri hover */
+    border: none;                       /* Žiadny rámček okolo karty */
+    border-left: 5px solid #0d6efd;    /* Hrubý modrý pásik na ľavej strane */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Jemný tieň, aby karta vynikla */
 }
 
+/* Hover efekt karty */
 .karta-info:hover {
-    transform: translateY(-10px);
+    transform: translateY(-10px);      /* Karta sa jemne zdvihne */
 }
 
-/* RESPONZIVITA */
+/* ---------------------------------------------
+   RESPONZIVITA pre tablety a menšie obrazovky
+   --------------------------------------------- */
 @media (max-width: 768px) {
     .obal-carousel .carousel-item {
-        height: 60vh;
+        height: 60vh;                   /* Zmenšenie výšky carouselu */
     }
     .obal-carousel .text-carousel h1 {
-        /*rem jednotka odvodena z velkosti pisma prehliadaca*/
-        font-size: 2.5rem;
+        font-size: 2.5rem;              /* Zmenšenie nadpisu */
     }
     .moje-karty {
-        margin-top: -40px;
+        margin-top: -40px;               /* Menší negatívny margin pre karty */
     }
 }
 
 @media (max-width: 576px) {
     .obal-carousel .carousel-item {
-        height: 50vh;
+        height: 50vh;                   /* Ešte menšia výška carouselu pre malé mobily */
     }
     .obal-carousel .text-carousel h1 {
-        font-size: 1.8rem;
+        font-size: 1.8rem;              /* Zmenšený nadpis na malé obrazovky */
     }
 }

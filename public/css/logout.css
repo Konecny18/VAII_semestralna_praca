@@ -1,65 +1,78 @@
+/* ============================= */
+/* OBAL PRE ODHLÁSENIE           */
+/* ============================= */
 .odhlasenie-obal {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10vh 0;
+    display: flex;                   /* Flexbox pre centrovanie obsahu */
+    justify-content: center;         /* Horizontálne centrovanie */
+    align-items: center;             /* Vertikálne centrovanie */
+    padding: 10vh 0;                 /* Vertikálny padding 10% výšky viewportu */
 }
-/* Karta - reťazenie tried zvyšuje prioritu bez !important */
+
+/* ============================= */
+/* KARTA ODHLÁSENIA              */
+/* ============================= */
+/* Reťazenie tried (.odhlasenie-karta.alert) zvyšuje prioritu bez !important */
 .odhlasenie-karta.alert {
-    border-radius: 25px;
-    background-color: #00ffab;
-    max-width: 550px;
-    width: 100%;
-    margin: 0 auto;
-    border: none;
+    border-radius: 25px;             /* Veľmi zaoblené rohy */
+    background-color: #00ffab;       /* Jasná zelená pre úspešné odhlásenie */
+    max-width: 550px;                /* Maximálna šírka karty */
+    width: 100%;                     /* Šírka 100% do dostupného priestoru */
+    margin: 0 auto;                  /* Centrovanie horizontálne */
+    border: none;                     /* Žiadny rámik */
 }
 
-/* Ikona a kruh - výrazne zväčšené */
+/* ============================= */
+/* KRÚH S IKONOU (fajka)         */
+/* ============================= */
 .odhlasenie-karta .ikona-kruh {
-    width: 130px;
-    height: 130px;
-    background-color: #f8f9fa; /* Jemne šedý podklad kruhu */
-    margin-bottom: 2rem;
+    width: 130px;                    /* Veľký kruh */
+    height: 130px;                   /* Rovnaká výška pre kruh */
+    background-color: #f8f9fa;       /* Jemne šedý podklad kruhu */
+    margin-bottom: 2rem;             /* Odstup pod kruhom */
 }
 
-/* Samotná fajka (ikona) */
+/* SAMOTNÁ FAJKA (ikona) */
 .odhlasenie-karta .ikona-kruh i.bi-check-lg {
-    font-size: 4.5rem; /* Masívna fajka */
-    line-height: 1;
-    display: block;
+    font-size: 4.5rem;               /* Veľká fajka */
+    line-height: 1;                  /* Presná výška riadku */
+    display: block;                  /* Aby sa ikona správala ako blokový prvok */
 }
 
-/* Nadpis */
+/* Nadpis karty */
 .odhlasenie-karta h3.alert-heading {
-    font-size: 2.2rem;
-    margin-bottom: 1rem;
+    font-size: 2.2rem;               /* Veľký nadpis */
+    margin-bottom: 1rem;             /* Odstup pod nadpisom */
 }
 
-/* Čiara */
+/* Čiara oddelovač */
 .odhlasenie-karta hr.oddelovac-ciara {
-    margin: 2.5rem 0;
-    border-top: 2px solid rgba(0,0,0,0.05);
+    margin: 2.5rem 0;                /* Vertikálny odstup nad a pod čiarou */
+    border-top: 2px solid rgba(0,0,0,0.05); /* Jemná svetlosivá čiara */
 }
 
-/* Responzivita pre menšie obrazovky */
+/* ============================= */
+/* RESPONZIVITA                  */
+/* ============================= */
 @media (max-width: 768px) {
+    /* Znížený vertikálny padding obalu */
     .odhlasenie-obal.vh-100 {
         padding-top: 5vh;
     }
 
+    /* Zmenšená karta na stredných a malých obrazovkách */
     div.odhlasenie-karta.alert {
-        padding: 3rem 1.5rem;
-        max-width: 90%;
+        padding: 3rem 1.5rem;        /* Menší padding */
+        max-width: 90%;               /* Menej ako full width */
     }
 
+    /* Zmenšený kruh s ikonou */
     .odhlasenie-karta .ikona-kruh {
         width: 100px;
         height: 100px;
     }
 
+    /* Menšia fajka */
     .odhlasenie-karta .ikona-kruh i.bi-check-lg {
         font-size: 3.5rem;
     }
 }
-
-

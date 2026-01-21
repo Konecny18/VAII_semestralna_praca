@@ -1,39 +1,48 @@
-/* Základná tabuľka využije 100% šírky */
+/* ============================= */
+/* ZÁKLADNÁ TABUĽKA */
+/* ============================= */
+
+/* Tabuľka zaberá celú šírku rodiča */
 .vlastna-tabulka {
-    width: 100%;
-    table-layout: auto; /* Necháme prehliadač počítať, kým mu nepomôžeme */
+    width: 100%;           /* 100% šírky dostupného priestoru */
+    table-layout: auto;     /* Prehliadač automaticky nastaví šírky stĺpcov podľa obsahu */
 }
 
-/* Nastavenie buniek */
+/* Nastavenie vnútorných odsadení buniek */
 .vlastna-tabulka th, .vlastna-tabulka td {
-    padding: 1.2rem 1rem;
+    padding: 1.2rem 1rem;  /* Vertikálne 1.2rem, horizontálne 1rem */
 }
 
+/* Špeciálna značka – napr. deň alebo zvýraznený text */
 .den-znacka {
-    font-weight: bold;
-    color: #0d6efd;
+    font-weight: bold;      /* Tučný text */
+    color: #0d6efd;         /* Bootstrap primárna modrá farba */
 }
 
-/* --- RESPONZÍVNE "NAFÚKNUTIE" --- */
-@media (min-width: 992px) {
-    /* Na monitoroch pridáme veľké horizontálne medzery */
+/* ============================= */
+/* RESPONZÍVNE ÚPRAVY PRE DESKTOP */
+/* ============================= */
+
+@media (min-width: 992px) {   /* Široké obrazovky (desktopy) */
+    /* Väčšie medzery v bunkách pre prehľadnejšie zobrazenie */
     .vlastna-tabulka th, .vlastna-tabulka td {
         padding-left: 2.5rem;
         padding-right: 2.5rem;
     }
 
-    /* Rozdelíme šírku stĺpcov percentuálne, aby sa "rozliezli" po obrazovke */
-    .col-den { width: 20%; }
-    .col-cas { width: 25%; }
-    .col-popis { width: auto; } /* Popis dostane zvyšok miesta */
+    /* Nastavenie percentuálnych šírok pre konkrétne stĺpce */
+    .col-den { width: 20%; }  /* Deň alebo dátum */
+    .col-cas { width: 25%; }  /* Čas */
+    .col-popis { width: auto; } /* Popis vyplní zvyšok miesta */
 
     .vlastna-tabulka {
-        font-size: 1.2rem; /* Väčšie písmo pre lepšiu čitateľnosť */
+        font-size: 1.2rem;    /* Väčšie písmo na desktopoch pre lepšiu čitateľnosť */
     }
 }
 
+/* Extra veľké obrazovky (široké monitory nad 1400px) */
 @media (min-width: 1400px) {
-    /* Na extra veľkých monitoroch ešte viac miesta */
+    /* Pridáme väčšie vertikálne odsadenie v bunkách */
     .vlastna-tabulka th, .vlastna-tabulka td {
         padding-top: 2rem;
         padding-bottom: 2rem;
