@@ -122,6 +122,9 @@ $url = function(string $route, array $params = []) use ($link) {
                 </div>
             </div>
 
+
+<!--            po kliknuty sa zobrazi modal s detailami eventu
+                nefocusuje ho pri nacitani stranky tabindex="-1"-->
             <div class="modal fade" id="eventModal<?= $event->getId() ?>" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-lg modal-dialog-centered">
                     <div class="modal-content border-0 shadow-lg">
@@ -134,7 +137,7 @@ $url = function(string $route, array $params = []) use ($link) {
                                 <div class="row g-0">
                                     <div class="col-lg-6">
                                         <img src="<?= htmlspecialchars($asset($event->getPlagat() ?: 'images/tat_logo.png'), ENT_QUOTES, 'UTF-8') ?>"
-                                             class="img-fluid h-100 w-100 obrazok-modal-eventu" alt="plagat" style="object-fit: cover; min-height: 300px;">
+                                             class="img-fluid h-100 w-100 obrazok-modal-eventu" alt="plagat">
                                     </div>
                                     <div class="col-lg-6 p-4">
                                         <div class="mb-4">
