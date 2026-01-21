@@ -33,8 +33,9 @@ document.addEventListener('DOMContentLoaded', function () {
      */
     deleteElements.forEach(element => {
         element.addEventListener('click', function (event) {
-            // Zabránime default akcii (link / button) a bublaniu eventu
+            //zastavi okamzity prechod na link a najprv zobrazi potvrdenie
             event.preventDefault();
+            //zastavi to aby neslo k rodicovskym elemetom
             event.stopPropagation();
 
             // Získame základné informácie z atributov elementu
@@ -59,25 +60,28 @@ document.addEventListener('DOMContentLoaded', function () {
                 confirmButtonText: 'Áno, zmazať!',
                 cancelButtonText: 'Zrušiť'
             }).then((result) => {
+                //pouzivatel klikon an potvrdenie zmazania
                 if (result.isConfirmed) {
                     if (isAjax) {
                         // --- AJAX spracovanie ---
                         // URL z atributu href alebo ak existuje parent form, použijeme jeho action.
+                        // Použi adresu z odkazu (href), a ak ju tlačidlo nemá, použi adresu z formulára (action), v ktorom je tlačidlo vložené
                         const url = linkUrl || (parentForm ? parentForm.action : '');
 
                         // Získanie tokenu z meta tagu v head
                         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-                        // Send fetch POST request. Poznámka: ak potrebujete CSRF, pridajte ho do headers tu.
+                        // Send fetch POST request
                         fetch(url, {
                             method: 'POST',
                             headers: {
+                                // Hovorí serveru: "Toto je AJAX"
                                 'X-Requested-With': 'XMLHttpRequest',
                                 'X-CSRF-TOKEN': csrfToken // Pridanie tokenu do hlavičky
                                 }
                         })
                             .then(response => {
-                                // Pokúsime sa parsovať JSON; ak server nevráti JSON, prejdeme do catch
+                                // Ak Controller namiesto čistého JSON-u vráti chybu (HTML), response.json() zlyhá a skript okamžite skočí do catch, aby zobrazil chybové hlásenie.
                                 return response.json();
                             })
                             .then(data => {
@@ -85,6 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 if (data && data.success) {
                                     // Ak je zadané targetId, odstránime element z DOM bez reloadu
                                     if (targetId) {
+                                        //plynule zmizne element
                                         const targetEl = document.getElementById(targetId);
                                         if (targetEl) targetEl.remove();
                                     }
